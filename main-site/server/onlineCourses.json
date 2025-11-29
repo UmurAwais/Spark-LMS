@@ -1,0 +1,143 @@
+[
+  {
+    "id": "yt-automation-online",
+    "image": "http://localhost:4001/uploads/courses/skin%20care%20course.png",
+    "title": "Skin Care Formulation: Complete Guide to Creating Skincare Products",
+    "excerpt": "Master the science of Skincare Formulation! This comprehensive online course teaches you the complete process of creating your own safe, stable, and effective cosmetics, from beginner basics to advanced anti-aging serums.",
+    "price": "Rs. 13,000",
+    "badge": {
+      "label": "Premium • Online",
+      "color": "bg-[#5022C3] text-white"
+    },
+    "rating": 4.7,
+    "ratingCount": "1,420 ratings",
+    "duration": "2 Months",
+    "language": "Urdu / Hindi (Online)",
+    "lectures": [
+      {
+        "id": "sec-1",
+        "title": "Introduction to Cosmetic Formulation",
+        "lectures": [
+          {
+            "id": "l-1",
+            "title": "Welcome to the Course",
+            "duration": "5:20",
+            "type": "video",
+            "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+          },
+          {
+            "id": "l-2",
+            "title": "What is Cosmetic Chemistry?",
+            "duration": "10:15",
+            "type": "video",
+            "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+          },
+          {
+            "id": "l-3",
+            "title": "Safety & Hygiene Basics",
+            "duration": "8:45",
+            "type": "video",
+            "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+          }
+        ]
+      },
+      {
+        "id": "sec-2",
+        "title": "Understanding Skin Anatomy",
+        "lectures": [
+          {
+            "id": "l-4",
+            "title": "Layers of the Skin",
+            "duration": "12:30",
+            "type": "video",
+            "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+          },
+          {
+            "id": "l-5",
+            "title": "Skin Types & Conditions",
+            "duration": "15:00",
+            "type": "video",
+            "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+          }
+        ]
+      },
+      {
+        "id": "sec-3",
+        "title": "Essential Ingredients",
+        "lectures": [
+          {
+            "id": "l-6",
+            "title": "Water & Solvents",
+            "duration": "9:20",
+            "type": "video",
+            "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+          },
+          {
+            "id": "l-7",
+            "title": "Humectants & Emollients",
+            "duration": "14:10",
+            "type": "video",
+            "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+          },
+          {
+            "id": "l-8",
+            "title": "Preservatives & Safety",
+            "duration": "11:55",
+            "type": "video",
+            "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+          }
+        ]
+      }
+    ],
+    "certificateTemplate": "http://localhost:4001/uploads/courses/1764404640588-717510802-WhatsApp_Image_2025-11-29_at_13.18.06_c4a6ba66.jpg"
+  },
+  {
+    "id": "english-online",
+    "image": "http://localhost:4001/uploads/courses/english%20speaking%20course.png",
+    "title": "English Speaking (Online): From Shy to Confident in few days",
+    "excerpt": "Join online English speaking classes focused on real conversations, confidence-building and practical communication for Pakistani students and professionals.",
+    "price": "Rs. 5,000",
+    "badge": {
+      "label": "Online • Live Speaking Practice",
+      "color": "bg-[#FFD1CE] text-[#b32d36]"
+    },
+    "rating": 4.5,
+    "ratingCount": "2,050 ratings",
+    "duration": "1 Month",
+    "language": "Urdu / English (Online)",
+    "lectures": [
+      {
+        "id": "sec-1764406592752",
+        "title": "Introduction",
+        "lectures": [
+          {
+            "id": "lec-1764406598972",
+            "title": "Introduction to the English (UK)",
+            "description": "In this video, you'll learn about the history of English and British Empire role in English.",
+            "resources": [],
+            "duration": "10:00",
+            "type": "video",
+            "videoUrl": "https://drive.google.com/file/d/1H6H86SQ4syrUF9Yrq8edhH50YrWAqObC/view?usp=drivesdk"
+          }
+        ]
+      }
+    ],
+    "certificateTemplate": "http://localhost:4001/uploads/courses/1764404187408-422446573-WhatsApp_Image_2025-11-29_at_13.15.25_67a8432d.jpg"
+  },
+  {
+    "id": "shopify-online",
+    "image": "http://localhost:4001/uploads/courses/shopify%20masterclass%20course.png",
+    "title": "Shopify Dropshipping (Online): Start Your Store in 40 Days",
+    "excerpt": "Learn how to launch and manage a profitable Shopify dropshipping store with practical, online training designed for Pakistani sellers.",
+    "price": "Rs. 18,000",
+    "badge": {
+      "label": "Online • Beginner Friendly",
+      "color": "bg-[#5022C3] text-white"
+    },
+    "rating": 4.6,
+    "ratingCount": "980 ratings",
+    "duration": "40 Days",
+    "language": "Urdu / Hindi (Online)",
+    "lectures": []
+  }
+]

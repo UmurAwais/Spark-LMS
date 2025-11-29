@@ -1,0 +1,117 @@
+/* Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  --font-sora: 'Sora', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html, body { font-family: "Work Sans", ui-sans-serif, system-ui, sans-serif !important; }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* FLOATING LABEL */
+.floating-label {
+  position: absolute;
+  left: 3rem;
+  top: 1rem;
+  font-size: 0.85rem;
+  color: #6a6f73;
+  background: #ffffff;
+  padding: 0 0.25rem;
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+/* INPUT FIELD */
+.input-field {
+  width: 100%;
+  padding: 0.85rem 1rem 0.85rem 3rem;
+  border: 1px solid #d1d7dc;
+  border-radius: 0.75rem;
+  outline: none;
+  font-size: 0.9rem;
+  background: #ffffff;
+  transition: 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: #0d9c06;
+  box-shadow: 0 0 0 3px #35f03b55;
+}
+
+/* FLOAT LABEL ACTIVE */
+.input-field:not(:placeholder-shown) + .floating-label,
+.input-field:focus + .floating-label {
+  top: 0rem;
+  left: 3rem;
+  font-size: 0.75rem;
+  color: #0d9c06;
+}
+
+
+/* Registration Form  */
+.floating-group { position: relative; }
+
+.floating-input {
+  width: 100%;
+  padding: 14px 16px;
+  padding-left: 42px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  font-size: 16px;
+  background: transparent;
+}
+
+.floating-input:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 1px #16a34a;
+}
+
+.floating-label {
+  position: absolute;
+  top: 50%;
+  left: 42px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #6b7280;
+  transition: 0.2s ease;
+  background: white;
+  padding: 0 4px;
+}
+
+.floating-input:focus + .floating-label,
+.floating-input:not(:placeholder-shown) + .floating-label {
+  top: 0px;
+  left: 36px;
+  font-size: 12px;
+  color: #16a34a;
+}
