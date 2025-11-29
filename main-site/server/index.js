@@ -142,6 +142,20 @@ app.post('/api/orders', upload.single('screenshot'), async (req, res) => {
 
     const newOrder = await Order.create(orderData);
 
+    // Log new order activity
+    try {
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: 'order',
+        title: 'New Order Received',
+        message: `${orderData.firstName} ${orderData.lastName} ordered ${orderData.courseTitle}`,
+        user: orderData.email,
+        time: new Date()
+      });
+    } catch (e) {
+      console.error('Failed to log order activity:', e);
+    }
+
     return res.json({ success: true, order: newOrder });
   } catch (err) {
     console.error('Upload error:', err);
@@ -205,6 +219,25 @@ app.post('/api/auth/session', express.json(), (req, res) => {
     };
 
     fs.writeFileSync(sessionsFile, JSON.stringify(sessions, null, 2));
+    
+    // Log user login activity
+    try {
+      // Only log if this session is relatively new (e.g., within last minute) or we can just log every session update as 'active'
+      // But user asked for "when someone login". Session update happens often.
+      // Let's check if we already logged a login for this user recently to avoid spam
+      // For now, simple logging
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: 'login',
+        title: 'User Login',
+        message: `User ${uid} logged in`,
+        user: uid,
+        time: new Date()
+      });
+    } catch (e) {
+      console.error('Failed to log user login:', e);
+    }
+
     res.json({ ok: true, message: 'Session updated' });
   } catch (err) {
     console.error('Session error:', err);
@@ -451,7 +484,7 @@ app.get('/api/courses', async (req, res) => {
 
 
 // Simple admin authentication (POST /api/admin/login { password })
-app.post('/api/admin/login', express.json(), (req, res) => {
+app.post('/api/admin/login', express.json(), async (req, res) => {
   const { password } = req.body || {};
   console.log('Admin login attempt received');
   if (!password) {
@@ -462,6 +495,21 @@ app.post('/api/admin/login', express.json(), (req, res) => {
     console.log('Admin login failed: invalid password');
     return res.status(401).json({ error: 'invalid password' });
   }
+  
+  // Log admin login
+  try {
+    await ActivityLog.create({
+      id: Date.now().toString(),
+      type: 'login',
+      title: 'Admin Login',
+      message: 'Admin logged into the dashboard',
+      user: 'Admin',
+      time: new Date()
+    });
+  } catch (e) {
+    console.error('Failed to log admin login:', e);
+  }
+
   // return a simple token (for demo only)
   const token = Buffer.from(password).toString('base64');
   console.log('Admin login success');

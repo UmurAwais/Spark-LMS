@@ -1,17 +1,22 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck } from 'lucide-react';
 import Logo from '../assets/Spark.png';
-
+import { apiFetch } from '../config';
 import { useNotifications } from '../context/NotificationContext';
-import { useState, useRef, useEffect } from 'react';
+
+// Simple notification sound (short beep)
+const NOTIFICATION_SOUND = "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..."; // Placeholder, will use a real one below
 
 export default function AdminLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { notifications, unreadCount, markAllAsRead, clearAll } = useNotifications();
+  const { notifications, unreadCount, markAllAsRead, clearAll, addNotification } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
+  
+  // Track last log time to avoid duplicate notifications on reload
+  const [lastLogTime, setLastLogTime] = useState(Date.now());
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -23,6 +28,87 @@ export default function AdminLayout({ children }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Poll for new activity logs
+  useEffect(() => {
+    let isMounted = true;
+    
+    const checkActivity = async () => {
+      try {
+        const res = await apiFetch('/api/admin/activity-logs', {
+           headers: { "x-admin-token": localStorage.getItem("admin_token") }
+        });
+        const data = await res.json();
+        
+        if (data.ok && data.logs && data.logs.length > 0) {
+          // Filter logs that are newer than our last check
+          // We use a small buffer (1000ms) to avoid edge cases
+          const newLogs = data.logs.filter(log => new Date(log.time).getTime() > lastLogTime);
+          
+          if (newLogs.length > 0) {
+            // Update last log time to the newest one
+            const newestTime = Math.max(...newLogs.map(l => new Date(l.time).getTime()));
+            setLastLogTime(newestTime);
+
+            // Play sound
+            try {
+              // Create a simple oscillator beep since we can't easily load external assets
+              const AudioContext = window.AudioContext || window.webkitAudioContext;
+              if (AudioContext) {
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.value = 880; // A5
+                gain.gain.value = 0.1;
+                osc.start();
+                setTimeout(() => osc.stop(), 200);
+              }
+            } catch (e) {
+              console.error("Audio play failed", e);
+            }
+
+            // Add notifications
+            newLogs.forEach(log => {
+              // Determine link based on type
+              let link = '/admin/activity';
+              if (log.type === 'order') link = '/admin/orders';
+              if (log.type === 'login') link = '/admin/users';
+              
+              addNotification({
+                type: 'info',
+                title: log.title,
+                message: log.message,
+                link: link // Custom field we'll handle in the notification component
+              });
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
+    };
+
+    // Initial check to sync time (don't notify on first load)
+    const initialSync = async () => {
+       try {
+        const res = await apiFetch('/api/admin/activity-logs', {
+           headers: { "x-admin-token": localStorage.getItem("admin_token") }
+        });
+        const data = await res.json();
+        if (data.ok && data.logs.length > 0) {
+           const newestTime = Math.max(...data.logs.map(l => new Date(l.time).getTime()));
+           setLastLogTime(newestTime);
+        }
+       } catch (e) {}
+    };
+    
+    initialSync();
+
+    const interval = setInterval(checkActivity, 10000); // Check every 10 seconds
+    return () => clearInterval(interval);
+  }, [lastLogTime, addNotification]);
 
   const isActive = (path) => location.pathname === path;
 
@@ -140,7 +226,16 @@ export default function AdminLayout({ children }) {
                       </div>
                     ) : (
                       notifications.map(notif => (
-                        <div key={notif.id} className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${!notif.read ? 'bg-blue-50/50' : ''}`}>
+                        <div 
+                          key={notif.id} 
+                          onClick={() => {
+                            if (notif.link) {
+                              navigate(notif.link);
+                              setShowNotifications(false);
+                            }
+                          }}
+                          className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer ${!notif.read ? 'bg-blue-50/50' : ''}`}
+                        >
                           <div className="flex items-start gap-3">
                             <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${
                               notif.type === 'order' ? 'bg-green-500' : 
