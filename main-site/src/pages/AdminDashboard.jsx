@@ -120,10 +120,9 @@ export default function AdminDashboard() {
 
   // Update chart data when timeRange or allOrders changes
   useEffect(() => {
-    if (allOrders.length > 0) {
-      const data = getChartData(allOrders, timeRange);
-      setChartData(data);
-    }
+    // Always generate chart data, even if orders is empty (it will just show 0s)
+    const data = getChartData(allOrders, timeRange);
+    setChartData(data);
   }, [allOrders, timeRange]);
 
   // Pro Tips array - randomly selected on each page load
