@@ -66,23 +66,28 @@ export default function AdminDashboard() {
           let lastMonthCount = 0;
           
           data.orders.forEach((order) => {
-            // Parse amount string "Rs. 49,999" -> 49999
-            // Parse amount string "Rs. 49,999" -> 49999
-            const amountStr = String(order.amount || "0");
-            const amount = parseInt(amountStr.replace(/[^0-9]/g, '')) || 0;
+            // Robust amount parsing
+            let amount = 0;
+            if (order.amount) {
+              const amountStr = String(order.amount);
+              // Remove non-numeric chars except decimal point if needed (though we use integers here)
+              const cleanAmount = amountStr.replace(/[^0-9]/g, '');
+              amount = parseInt(cleanAmount) || 0;
+            }
             
-            // Count revenue for all orders (or you can restrict to 'Approved' if preferred)
             totalRevenue += amount;
             
             if (order.email) uniqueStudents.add(order.email);
 
             // Count orders by month
             const orderDate = new Date(order.createdAt);
-            if (orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear) {
-              thisMonthCount++;
-            }
-            if (orderDate.getMonth() === currentMonth - 1 && orderDate.getFullYear() === currentYear) {
-              lastMonthCount++;
+            if (!isNaN(orderDate.getTime())) {
+              if (orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear) {
+                thisMonthCount++;
+              }
+              if (orderDate.getMonth() === currentMonth - 1 && orderDate.getFullYear() === currentYear) {
+                lastMonthCount++;
+              }
             }
           });
 
@@ -96,7 +101,6 @@ export default function AdminDashboard() {
           });
 
           // Get recent 5 orders
-          // Sort by date desc first just in case
           const sortedOrders = [...data.orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
           setRecentOrders(sortedOrders.slice(0, 5));
         }
@@ -183,8 +187,16 @@ export default function AdminDashboard() {
       case '365d': startDate.setDate(now.getDate() - 364); break;
       case 'all': 
         if (orders.length > 0) {
-          const earliest = orders.reduce((min, o) => o.createdAt < min ? o.createdAt : min, orders[0].createdAt);
-          startDate = new Date(earliest);
+          const validDates = orders
+            .map(o => new Date(o.createdAt))
+            .filter(d => !isNaN(d.getTime()));
+          
+          if (validDates.length > 0) {
+            const earliest = new Date(Math.min(...validDates));
+            startDate = earliest;
+          } else {
+            startDate.setDate(now.getDate() - 30);
+          }
         } else {
           startDate.setDate(now.getDate() - 30);
         }
@@ -200,23 +212,31 @@ export default function AdminDashboard() {
     
     // Initialize map with all dates in range
     const currentDate = new Date(startDate);
-    while (currentDate <= now) {
+    // Safety check to prevent infinite loop if dates are messed up
+    const maxIterations = 365 * 5; 
+    let iterations = 0;
+    
+    while (currentDate <= now && iterations < maxIterations) {
         const dateKey = currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         dataMap.set(dateKey, 0);
         currentDate.setDate(currentDate.getDate() + 1);
+        iterations++;
     }
 
     // Fill with data
     orders.forEach(order => {
         const orderDate = new Date(order.createdAt);
-        if (orderDate >= startDate && orderDate <= now) {
+        if (!isNaN(orderDate.getTime()) && orderDate >= startDate && orderDate <= now) {
             const dateKey = orderDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
              // Parse amount
-            const amountStr = String(order.amount || "0");
-            const amount = parseInt(amountStr.replace(/[^0-9]/g, '')) || 0;
+            let amount = 0;
+            if (order.amount) {
+              const amountStr = String(order.amount);
+              const cleanAmount = amountStr.replace(/[^0-9]/g, '');
+              amount = parseInt(cleanAmount) || 0;
+            }
             
             if (dataMap.has(dateKey)) {
-                // Count revenue for all orders
                 dataMap.set(dateKey, dataMap.get(dateKey) + amount);
             }
         }
