@@ -3,6 +3,18 @@ const cors = require('cors');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
+require('dotenv').config();
+
+// Models
+const Order = require('./models/Order');
+const Course = require('./models/Course');
+const OnlineCourse = require('./models/OnlineCourse');
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/spark-lms')
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // Initialize Firebase Admin SDK
 const admin = require('firebase-admin');
@@ -88,7 +100,7 @@ app.get('/test', (req, res) => {
 });
 
 // Orders endpoint with file upload
-app.post('/api/orders', upload.single('screenshot'), (req, res) => {
+app.post('/api/orders', upload.single('screenshot'), async (req, res) => {
   try {
     // Multer will populate req.file and req.body
     const file = req.file;
@@ -105,11 +117,8 @@ app.post('/api/orders', upload.single('screenshot'), (req, res) => {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
-    // TODO: persist order to a DB. For now, write a simple record file
-    const ordersFile = path.join(__dirname, 'orders.json');
-    const orderRecord = {
-      id: Date.now(),
-      uid: body.uid || null, // Save user ID if present
+    const orderData = {
+      uid: body.uid || null,
       firstName: body.firstName,
       lastName: body.lastName || '',
       city: body.city || '',
@@ -118,53 +127,27 @@ app.post('/api/orders', upload.single('screenshot'), (req, res) => {
       notes: body.notes || '',
       courseId: body.courseId || '',
       courseTitle: body.courseTitle || '',
-      items: body.items ? JSON.parse(body.items) : [], // Save items
-      amount: body.amount || body.total || '', // Fallback to total
+      items: body.items ? JSON.parse(body.items) : [],
+      amount: body.amount || body.total || '',
       paymentScreenshot: `/uploads/courses/${file.filename}`,
-      status: 'Pending',
-      createdAt: new Date().toISOString(),
+      status: 'Pending'
     };
     
-    console.log('📝 Saving order:', { id: orderRecord.id, amount: orderRecord.amount, bodyAmount: body.amount, bodyTotal: body.total });
+    console.log('📝 Saving order to MongoDB:', { amount: orderData.amount });
 
-    let orders = [];
-    try {
-      if (fs.existsSync(ordersFile)) {
-        const raw = fs.readFileSync(ordersFile, 'utf8');
-        orders = JSON.parse(raw || '[]');
-      }
-    } catch (e) {
-      console.warn('Could not read orders file:', e.message);
-      orders = [];
-    }
+    const newOrder = await Order.create(orderData);
 
-    orders.push(orderRecord);
-
-    try {
-      fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2), 'utf8');
-    } catch (e) {
-      console.error('Failed to write orders file:', e);
-      return res.status(500).json({ success: false, message: 'Failed to save order' });
-    }
-
-    return res.json({ success: true, order: orderRecord });
+    return res.json({ success: true, order: newOrder });
   } catch (err) {
     console.error('Upload error:', err);
-    return res.status(500).json({ success: false, message: 'Server error' });
+    return res.status(500).json({ success: false, message: 'Server error: ' + err.message });
   }
 });
 
 // GET endpoint to fetch all orders
-app.get('/api/orders', adminAuth, (req, res) => {
+app.get('/api/orders', adminAuth, async (req, res) => {
   try {
-    const ordersFile = path.join(__dirname, 'orders.json');
-    let orders = [];
-    
-    if (fs.existsSync(ordersFile)) {
-      const raw = fs.readFileSync(ordersFile, 'utf8');
-      orders = JSON.parse(raw || '[]');
-    }
-    
+    const orders = await Order.find().sort({ createdAt: -1 });
     res.json({ ok: true, orders });
   } catch (err) {
     console.error('Error fetching orders:', err);
@@ -173,27 +156,22 @@ app.get('/api/orders', adminAuth, (req, res) => {
 });
 
 // Update order status (Admin only)
-app.put('/api/admin/orders/:id/status', adminAuth, express.json(), (req, res) => {
+app.put('/api/admin/orders/:id/status', adminAuth, express.json(), async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
     
-    const ordersFile = path.join(__dirname, 'orders.json');
-    if (!fs.existsSync(ordersFile)) {
-      return res.status(404).json({ ok: false, message: 'Orders file not found' });
-    }
+    const updatedOrder = await Order.findByIdAndUpdate(
+      id, 
+      { status }, 
+      { new: true }
+    );
 
-    let orders = JSON.parse(fs.readFileSync(ordersFile, 'utf8') || '[]');
-    const orderIndex = orders.findIndex(o => String(o.id) === String(id));
-    
-    if (orderIndex === -1) {
+    if (!updatedOrder) {
       return res.status(404).json({ ok: false, message: 'Order not found' });
     }
 
-    orders[orderIndex].status = status;
-    fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
-
-    res.json({ ok: true, message: 'Order status updated', order: orders[orderIndex] });
+    res.json({ ok: true, message: 'Order status updated', order: updatedOrder });
   } catch (err) {
     console.error('Error updating order status:', err);
     res.status(500).json({ ok: false, message: err.message });
@@ -455,9 +433,14 @@ function writeJSON(file, data) {
 }
 
 // List public courses
-app.get('/api/courses', (req, res) => {
-  const all = readJSON(coursesFile);
-  res.json(all);
+app.get('/api/courses', async (req, res) => {
+  try {
+    const courses = await Course.find();
+    res.json(courses);
+  } catch (e) {
+    console.error('Error fetching courses:', e);
+    res.status(500).json([]);
+  }
 });
 
 
@@ -490,30 +473,42 @@ function adminAuth(req, res, next) {
 }
 
 // Create course (admin)
-app.post('/api/admin/courses', adminAuth, express.json(), (req, res) => {
+app.post('/api/admin/courses', adminAuth, express.json(), async (req, res) => {
   const { title, excerpt, price, instructor, image, id } = req.body || {};
   if (!title || !id) return res.status(400).json({ error: 'title and id required' });
-  const all = readJSON(coursesFile);
-  const exists = all.find((c) => String(c.id) === String(id));
+  
+  const exists = await Course.findOne({ id });
   if (exists) return res.status(400).json({ error: 'course id exists' });
-  const newCourse = { id, title, excerpt: excerpt || '', price: price || 'Free', instructor: instructor || '', image: image || '', lectures: [] };
-  all.push(newCourse);
-  writeJSON(coursesFile, all);
+  
+  const newCourse = await Course.create({ 
+    id, 
+    title, 
+    excerpt: excerpt || '', 
+    price: price || 'Free', 
+    instructor: instructor || '', 
+    image: image || '', 
+    lectures: [] 
+  });
+  
   res.json(newCourse);
 });
 
 // Add lecture to course (admin)
-app.post('/api/admin/courses/:id/lectures', adminAuth, express.json(), (req, res) => {
+app.post('/api/admin/courses/:id/lectures', adminAuth, express.json(), async (req, res) => {
   const id = req.params.id;
   const { title, driveFileId, preview } = req.body || {};
   if (!title || !driveFileId) return res.status(400).json({ error: 'title and driveFileId required' });
-  const all = readJSON(coursesFile);
-  const course = all.find((c) => String(c.id) === String(id));
-  if (!course) return res.status(404).json({ error: 'course not found' });
+  
   const lecture = { id: Date.now().toString(), title, driveFileId, preview: !!preview };
-  course.lectures = course.lectures || [];
-  course.lectures.push(lecture);
-  writeJSON(coursesFile, all);
+  
+  const updatedCourse = await Course.findOneAndUpdate(
+    { id },
+    { $push: { lectures: lecture } },
+    { new: true }
+  );
+  
+  if (!updatedCourse) return res.status(404).json({ error: 'course not found' });
+  
   res.json(lecture);
 });
 
@@ -604,7 +599,7 @@ app.get('/api/drive/list', adminAuth, async (req, res) => {
 app.post('/api/courses/upload', adminAuth, upload.fields([
   { name: 'image', maxCount: 1 },
   { name: 'video', maxCount: 1 }
-]), (req, res) => {
+]), async (req, res) => {
   try {
     const { courseType, ...courseData } = req.body;
     
@@ -617,7 +612,7 @@ app.post('/api/courses/upload', adminAuth, upload.fields([
     }
 
     // Create course object with all fields
-    const newCourse = {
+    const newCourseData = {
       id: courseData.id,
       title: courseData.title,
       excerpt: courseData.excerpt,
@@ -632,51 +627,38 @@ app.post('/api/courses/upload', adminAuth, upload.fields([
 
     // Add badge if provided
     if (courseData.badge) {
-      newCourse.badge = { 
+      newCourseData.badge = { 
         label: courseData.badge, 
         color: courseType === 'online' ? 'bg-[#5022C3] text-white' : 'bg-[#0d9c06] text-white'
       };
     } else {
-      newCourse.badge = courseType === 'online' 
+      newCourseData.badge = courseType === 'online' 
         ? { label: "Premium • Online", color: "bg-[#5022C3] text-white" }
         : { label: "Best One", color: "bg-[#0d9c06] text-white" };
     }
 
-    // Determine which JSON file to update
-    let jsonFilePath;
+    let createdCourse;
+
     if (courseType === 'online') {
-      newCourse.videoUrl = videoUrl ? `http://localhost:${PORT}${videoUrl}` : null;
-      if (!newCourse.language.includes('Online')) {
-        newCourse.language += " (Online)";
+      newCourseData.videoUrl = videoUrl ? `http://localhost:${PORT}${videoUrl}` : null;
+      if (!newCourseData.language.includes('Online')) {
+        newCourseData.language += " (Online)";
       }
-      jsonFilePath = path.join(__dirname, 'onlineCourses.json');
+      createdCourse = await OnlineCourse.create(newCourseData);
     } else {
-      if (!newCourse.language.includes('On-site')) {
-        newCourse.language += " (On-site in Pakistan)";
+      if (!newCourseData.language.includes('On-site')) {
+        newCourseData.language += " (On-site in Pakistan)";
       }
-      jsonFilePath = path.join(__dirname, 'courses.json');
+      createdCourse = await Course.create(newCourseData);
     }
 
-    // Read existing courses
-    let coursesArray = [];
-    if (fs.existsSync(jsonFilePath)) {
-      const fileContent = fs.readFileSync(jsonFilePath, 'utf8');
-      coursesArray = JSON.parse(fileContent);
-    }
-
-    // Add new course
-    coursesArray.push(newCourse);
-
-    // Write back to JSON file
-    fs.writeFileSync(jsonFilePath, JSON.stringify(coursesArray, null, 2), 'utf8');
-
-    console.log(`✅ Course added successfully: ${newCourse.title}`);
-    console.log(`   Type: ${courseType}, ID: ${newCourse.id}`);
+    console.log(`✅ Course added successfully: ${createdCourse.title}`);
+    console.log(`   Type: ${courseType}, ID: ${createdCourse.id}`);
 
     res.json({ 
       ok: true, 
       message: 'Course added successfully',
-      course: newCourse
+      course: createdCourse
     });
   } catch (error) {
     console.error('Course upload error:', error);
@@ -685,7 +667,7 @@ app.post('/api/courses/upload', adminAuth, upload.fields([
 });
 
 // Update course curriculum
-app.post('/api/courses/curriculum', adminAuth, (req, res) => {
+app.post('/api/courses/curriculum', adminAuth, async (req, res) => {
   try {
     const { courseId, lectures } = req.body;
     
@@ -693,23 +675,17 @@ app.post('/api/courses/curriculum', adminAuth, (req, res) => {
       return res.status(400).json({ ok: false, message: 'Missing courseId or lectures' });
     }
 
-    const onlineCoursesPath = path.join(__dirname, 'onlineCourses.json');
-    let onlineCourses = [];
-    if (fs.existsSync(onlineCoursesPath)) {
-      onlineCourses = JSON.parse(fs.readFileSync(onlineCoursesPath, 'utf8'));
-    }
+    const updatedCourse = await OnlineCourse.findOneAndUpdate(
+      { id: courseId },
+      { lectures },
+      { new: true }
+    );
 
-    const courseIndex = onlineCourses.findIndex(c => c.id === courseId);
-    if (courseIndex === -1) {
+    if (!updatedCourse) {
       return res.status(404).json({ ok: false, message: 'Course not found' });
     }
 
-    // Update lectures
-    onlineCourses[courseIndex].lectures = lectures;
-
-    fs.writeFileSync(onlineCoursesPath, JSON.stringify(onlineCourses, null, 2));
-
-    res.json({ ok: true, message: 'Curriculum updated successfully', course: onlineCourses[courseIndex] });
+    res.json({ ok: true, message: 'Curriculum updated successfully', course: updatedCourse });
   } catch (error) {
     console.error('Error updating curriculum:', error);
     res.status(500).json({ ok: false, message: 'Failed to update curriculum' });
@@ -717,7 +693,7 @@ app.post('/api/courses/curriculum', adminAuth, (req, res) => {
 });
 
 // Upload certificate template
-app.post('/api/admin/certificates/upload', adminAuth, upload.single('certificate'), (req, res) => {
+app.post('/api/admin/certificates/upload', adminAuth, upload.single('certificate'), async (req, res) => {
   try {
     const { courseId } = req.body;
     const file = req.file;
@@ -726,32 +702,27 @@ app.post('/api/admin/certificates/upload', adminAuth, upload.single('certificate
       return res.status(400).json({ ok: false, message: 'Missing courseId or certificate file' });
     }
 
-    const onlineCoursesPath = path.join(__dirname, 'onlineCourses.json');
-    let onlineCourses = [];
-    if (fs.existsSync(onlineCoursesPath)) {
-      onlineCourses = JSON.parse(fs.readFileSync(onlineCoursesPath, 'utf8'));
-    }
+    const certificateUrl = `/uploads/courses/${file.filename}`;
+    const fullUrl = `http://localhost:${PORT}${certificateUrl}`;
+    
+    const updatedCourse = await OnlineCourse.findOneAndUpdate(
+      { id: courseId },
+      { certificateTemplate: fullUrl },
+      { new: true }
+    );
 
-    const courseIndex = onlineCourses.findIndex(c => c.id === courseId);
-    if (courseIndex === -1) {
+    if (!updatedCourse) {
       // Remove uploaded file if course not found
       fs.unlinkSync(file.path);
       return res.status(404).json({ ok: false, message: 'Course not found' });
     }
 
-    const certificateUrl = `/uploads/courses/${file.filename}`;
-    
-    // Update course with certificate template
-    onlineCourses[courseIndex].certificateTemplate = `http://localhost:${PORT}${certificateUrl}`;
-
-    fs.writeFileSync(onlineCoursesPath, JSON.stringify(onlineCourses, null, 2));
-
-    console.log(`✅ Certificate uploaded for course: ${onlineCourses[courseIndex].title}`);
+    console.log(`✅ Certificate uploaded for course: ${updatedCourse.title}`);
 
     res.json({ 
       ok: true, 
       message: 'Certificate template uploaded successfully', 
-      certificateUrl: onlineCourses[courseIndex].certificateTemplate 
+      certificateUrl: fullUrl 
     });
   } catch (error) {
     console.error('Error uploading certificate:', error);
@@ -760,18 +731,9 @@ app.post('/api/admin/certificates/upload', adminAuth, upload.single('certificate
 });
 
 // GET endpoint for onsite courses
-app.get('/api/courses/onsite', (req, res) => {
+app.get('/api/courses/onsite', async (req, res) => {
   try {
-    const jsonFilePath = path.join(__dirname, 'courses.json');
-    
-    if (!fs.existsSync(jsonFilePath)) {
-      console.log('📝 courses.json not found, returning empty array');
-      return res.json({ ok: true, courses: [] });
-    }
-
-    const fileContent = fs.readFileSync(jsonFilePath, 'utf8');
-    const courses = JSON.parse(fileContent);
-    
+    const courses = await Course.find();
     console.log(`✅ Retrieved ${courses.length} onsite courses`);
     res.json({ ok: true, courses });
   } catch (error) {
@@ -781,18 +743,9 @@ app.get('/api/courses/onsite', (req, res) => {
 });
 
 // GET endpoint for online courses
-app.get('/api/courses/online', (req, res) => {
+app.get('/api/courses/online', async (req, res) => {
   try {
-    const jsonFilePath = path.join(__dirname, 'onlineCourses.json');
-    
-    if (!fs.existsSync(jsonFilePath)) {
-      console.log('📝 onlineCourses.json not found, returning empty array');
-      return res.json({ ok: true, courses: [] });
-    }
-
-    const fileContent = fs.readFileSync(jsonFilePath, 'utf8');
-    const courses = JSON.parse(fileContent);
-    
+    const courses = await OnlineCourse.find();
     console.log(`✅ Retrieved ${courses.length} online courses`);
     res.json({ ok: true, courses });
   } catch (error) {
