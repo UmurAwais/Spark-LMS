@@ -10,6 +10,11 @@ require('dotenv').config();
 const Order = require('./models/Order');
 const Course = require('./models/Course');
 const OnlineCourse = require('./models/OnlineCourse');
+const StudentProgress = require('./models/StudentProgress');
+const Badge = require('./models/Badge');
+const StudentBadge = require('./models/StudentBadge');
+const Certificate = require('./models/Certificate');
+const ActivityLog = require('./models/ActivityLog');
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/spark-lms')
@@ -999,7 +1004,7 @@ app.post('/api/student/courses', express.json(), async (req, res) => {
 });
 
 // Get student's progress for a specific course
-app.post('/api/student/progress', express.json(), (req, res) => {
+app.post('/api/student/progress', express.json(), async (req, res) => {
   try {
     const { email, courseId } = req.body;
     
@@ -1007,15 +1012,18 @@ app.post('/api/student/progress', express.json(), (req, res) => {
       return res.status(400).json({ ok: false, message: 'Email and courseId are required' });
     }
 
-    let progressData = {};
-    if (fs.existsSync(studentProgressFile)) {
-      progressData = JSON.parse(fs.readFileSync(studentProgressFile, 'utf8') || '{}');
+    const progress = await StudentProgress.findOne({ email, courseId });
+    
+    // Convert array of completed lectures to map for frontend compatibility
+    // Frontend expects: { "lectureId1": true, "lectureId2": true }
+    const progressMap = {};
+    if (progress && progress.completedLectures) {
+      progress.completedLectures.forEach(lecId => {
+        progressMap[lecId] = true;
+      });
     }
 
-    const userProgress = progressData[email] || {};
-    const courseProgress = userProgress[courseId] || {};
-
-    res.json({ ok: true, progress: courseProgress });
+    res.json({ ok: true, progress: progressMap });
   } catch (error) {
     console.error('Error fetching progress:', error);
     res.status(500).json({ ok: false, message: error.message });
@@ -1023,7 +1031,7 @@ app.post('/api/student/progress', express.json(), (req, res) => {
 });
 
 // Update student's lecture progress
-app.post('/api/student/progress/update', express.json(), (req, res) => {
+app.post('/api/student/progress/update', express.json(), async (req, res) => {
   try {
     const { email, courseId, lectureId, completed } = req.body;
     
@@ -1031,26 +1039,29 @@ app.post('/api/student/progress/update', express.json(), (req, res) => {
       return res.status(400).json({ ok: false, message: 'Email, courseId, and lectureId are required' });
     }
 
-    let progressData = {};
-    if (fs.existsSync(studentProgressFile)) {
-      progressData = JSON.parse(fs.readFileSync(studentProgressFile, 'utf8') || '{}');
+    // Find or create progress record
+    let progress = await StudentProgress.findOne({ email, courseId });
+    
+    if (!progress) {
+      progress = new StudentProgress({ 
+        email, 
+        courseId, 
+        uid: req.body.uid || 'unknown', // Ideally pass UID from frontend
+        completedLectures: [] 
+      });
     }
 
-    // Initialize user progress if not exists
-    if (!progressData[email]) {
-      progressData[email] = {};
+    // Update completed lectures list
+    if (completed) {
+      if (!progress.completedLectures.includes(lectureId)) {
+        progress.completedLectures.push(lectureId);
+      }
+    } else {
+      progress.completedLectures = progress.completedLectures.filter(id => id !== lectureId);
     }
-
-    // Initialize course progress if not exists
-    if (!progressData[email][courseId]) {
-      progressData[email][courseId] = {};
-    }
-
-    // Update lecture completion status
-    progressData[email][courseId][lectureId] = completed;
-
-    // Save to file
-    fs.writeFileSync(studentProgressFile, JSON.stringify(progressData, null, 2));
+    
+    progress.lastWatched = new Date();
+    await progress.save();
 
     // --- Check for Badges & Certificate ---
     let newBadges = [];
@@ -1058,13 +1069,7 @@ app.post('/api/student/progress/update', express.json(), (req, res) => {
 
     try {
       // 1. Calculate Course Progress
-      const onlineCoursesPath = path.join(__dirname, 'onlineCourses.json');
-      const onsiteCoursesPath = path.join(__dirname, 'courses.json');
-      let allCourses = [];
-      if (fs.existsSync(onlineCoursesPath)) allCourses = allCourses.concat(JSON.parse(fs.readFileSync(onlineCoursesPath, 'utf8')));
-      if (fs.existsSync(onsiteCoursesPath)) allCourses = allCourses.concat(JSON.parse(fs.readFileSync(onsiteCoursesPath, 'utf8')));
-      
-      const course = allCourses.find(c => String(c.id) === String(courseId));
+      const course = await OnlineCourse.findOne({ id: courseId }) || await Course.findOne({ id: courseId });
       
       if (course) {
         // Count total lectures
@@ -1079,26 +1084,23 @@ app.post('/api/student/progress/update', express.json(), (req, res) => {
             });
         }
 
-        const courseProgress = progressData[email][courseId];
-        const completedLecturesCount = Object.values(courseProgress).filter(Boolean).length;
+        const completedLecturesCount = progress.completedLectures.length;
         const percentage = totalLectures > 0 ? (completedLecturesCount / totalLectures) * 100 : 0;
+        
+        // Update percentage in DB
+        progress.progressPercentage = percentage;
+        await progress.save();
 
         // 2. Load Badges
-        let badges = [];
-        if (fs.existsSync(badgesFile)) {
-          badges = JSON.parse(fs.readFileSync(badgesFile, 'utf8') || '[]');
-        }
+        const badges = await Badge.find();
 
         // 3. Load Student Badges
-        let studentBadges = {};
-        if (fs.existsSync(studentBadgesFile)) {
-          studentBadges = JSON.parse(fs.readFileSync(studentBadgesFile, 'utf8') || '{}');
-        }
-        if (!studentBadges[email]) studentBadges[email] = [];
+        const studentBadges = await StudentBadge.find({ email });
 
         // 4. Check Criteria
-        badges.forEach(badge => {
-          if (studentBadges[email].some(sb => sb.badgeId === badge.id)) return;
+        for (const badge of badges) {
+          // Check if already awarded
+          if (studentBadges.some(sb => sb.badgeId === badge.id)) continue;
 
           let awarded = false;
           if (badge.milestoneType === 'percentage' && badge.courseId === courseId) {
@@ -1108,43 +1110,32 @@ app.post('/api/student/progress/update', express.json(), (req, res) => {
           }
 
           if (awarded) {
-            const awardedBadge = {
+            const newStudentBadge = await StudentBadge.create({
+              email,
               badgeId: badge.id,
-              awardedAt: new Date().toISOString(),
-              courseId: courseId
-            };
-            studentBadges[email].push(awardedBadge);
+              courseId: courseId,
+              awardedAt: new Date()
+            });
             newBadges.push(badge);
           }
-        });
-
-        if (newBadges.length > 0) {
-           fs.writeFileSync(studentBadgesFile, JSON.stringify(studentBadges, null, 2));
         }
 
         // 5. Generate Certificate if 100% Complete
-        if (percentage === 100) {
-          const certificatesFile = path.join(__dirname, 'student_certificates.json');
-          let certificates = {};
-          if (fs.existsSync(certificatesFile)) {
-            certificates = JSON.parse(fs.readFileSync(certificatesFile, 'utf8') || '{}');
-          }
+        if (percentage >= 100) {
+          let existingCert = await Certificate.findOne({ email, courseId });
 
-          if (!certificates[email]) certificates[email] = {};
-
-          if (!certificates[email][courseId]) {
+          if (!existingCert) {
             // Generate new certificate
             const regNo = `SPARK-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-            certificate = {
-              regNo,
-              issueDate: new Date().toISOString(),
+            certificate = await Certificate.create({
+              email,
               courseId,
-              courseTitle: course.title
-            };
-            certificates[email][courseId] = certificate;
-            fs.writeFileSync(certificatesFile, JSON.stringify(certificates, null, 2));
+              courseTitle: course.title,
+              regNo,
+              issueDate: new Date()
+            });
           } else {
-            certificate = certificates[email][courseId];
+            certificate = existingCert;
           }
         }
       }
@@ -1160,19 +1151,10 @@ app.post('/api/student/progress/update', express.json(), (req, res) => {
 });
 
 // Get student certificate
-app.get('/api/student/certificate/:email/:courseId', (req, res) => {
+app.get('/api/student/certificate/:email/:courseId', async (req, res) => {
   try {
     const { email, courseId } = req.params;
-    const certificatesFile = path.join(__dirname, 'student_certificates.json');
-    
-    if (!fs.existsSync(certificatesFile)) {
-      return res.json({ ok: true, certificate: null });
-    }
-
-    const certificates = JSON.parse(fs.readFileSync(certificatesFile, 'utf8') || '{}');
-    const userCerts = certificates[email] || {};
-    const certificate = userCerts[courseId] || null;
-
+    const certificate = await Certificate.findOne({ email, courseId });
     res.json({ ok: true, certificate });
   } catch (error) {
     res.status(500).json({ ok: false, message: error.message });
@@ -1182,12 +1164,9 @@ app.get('/api/student/certificate/:email/:courseId', (req, res) => {
 // --- Badge Management Endpoints ---
 
 // Get all badges
-app.get('/api/admin/badges', adminAuth, (req, res) => {
+app.get('/api/admin/badges', adminAuth, async (req, res) => {
   try {
-    if (!fs.existsSync(badgesFile)) {
-      return res.json({ ok: true, badges: [] });
-    }
-    const badges = JSON.parse(fs.readFileSync(badgesFile, 'utf8') || '[]');
+    const badges = await Badge.find();
     res.json({ ok: true, badges });
   } catch (err) {
     res.status(500).json({ ok: false, message: err.message });
@@ -1195,30 +1174,22 @@ app.get('/api/admin/badges', adminAuth, (req, res) => {
 });
 
 // Create badge
-app.post('/api/admin/badges', adminAuth, express.json(), (req, res) => {
+app.post('/api/admin/badges', adminAuth, express.json(), async (req, res) => {
   try {
     const { name, icon, milestoneType, milestoneValue, courseId, description } = req.body;
     if (!name || !milestoneType || !milestoneValue) {
       return res.status(400).json({ ok: false, message: 'Missing required fields' });
     }
 
-    const newBadge = {
+    const newBadge = await Badge.create({
       id: Date.now().toString(),
       name,
-      icon, // URL or icon name
+      icon,
       description: description || '',
-      milestoneType, // 'percentage'
+      milestoneType,
       milestoneValue: parseInt(milestoneValue),
-      courseId: courseId || 'all',
-      createdAt: new Date().toISOString()
-    };
-
-    let badges = [];
-    if (fs.existsSync(badgesFile)) {
-      badges = JSON.parse(fs.readFileSync(badgesFile, 'utf8') || '[]');
-    }
-    badges.push(newBadge);
-    fs.writeFileSync(badgesFile, JSON.stringify(badges, null, 2));
+      courseId: courseId || 'all'
+    });
 
     res.json({ ok: true, badge: newBadge });
   } catch (err) {
@@ -1227,15 +1198,10 @@ app.post('/api/admin/badges', adminAuth, express.json(), (req, res) => {
 });
 
 // Delete badge
-app.delete('/api/admin/badges/:id', adminAuth, (req, res) => {
+app.delete('/api/admin/badges/:id', adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    if (!fs.existsSync(badgesFile)) return res.status(404).json({ ok: false, message: 'No badges found' });
-    
-    let badges = JSON.parse(fs.readFileSync(badgesFile, 'utf8') || '[]');
-    badges = badges.filter(b => b.id !== id);
-    fs.writeFileSync(badgesFile, JSON.stringify(badges, null, 2));
-    
+    await Badge.deleteOne({ id });
     res.json({ ok: true, message: 'Badge deleted' });
   } catch (err) {
     res.status(500).json({ ok: false, message: err.message });
@@ -1246,22 +1212,13 @@ app.delete('/api/admin/badges/:id', adminAuth, (req, res) => {
 app.get('/api/student/badges/:email', async (req, res) => {
   try {
     const { email } = req.params;
-    if (!fs.existsSync(studentBadgesFile)) {
-      return res.json({ ok: true, badges: [] });
-    }
     
-    const studentBadgesData = JSON.parse(fs.readFileSync(studentBadgesFile, 'utf8') || '{}');
-    const userBadges = studentBadgesData[email] || [];
-    
-    // Enrich with badge details
-    let allBadges = [];
-    if (fs.existsSync(badgesFile)) {
-      allBadges = JSON.parse(fs.readFileSync(badgesFile, 'utf8') || '[]');
-    }
+    const userBadges = await StudentBadge.find({ email });
+    const allBadges = await Badge.find();
     
     const enrichedBadges = userBadges.map(ub => {
       const badgeDef = allBadges.find(b => b.id === ub.badgeId);
-      return badgeDef ? { ...badgeDef, ...ub } : null;
+      return badgeDef ? { ...badgeDef.toObject(), ...ub.toObject() } : null;
     }).filter(Boolean);
 
     res.json({ ok: true, badges: enrichedBadges });
@@ -1271,17 +1228,10 @@ app.get('/api/student/badges/:email', async (req, res) => {
 });
 
 // --- Activity Log Endpoints ---
-const activityLogsFile = path.join(__dirname, 'activity_logs.json');
-
 // Get all activity logs
-app.get('/api/admin/activity-logs', adminAuth, (req, res) => {
+app.get('/api/admin/activity-logs', adminAuth, async (req, res) => {
   try {
-    if (!fs.existsSync(activityLogsFile)) {
-      return res.json({ ok: true, logs: [] });
-    }
-    const logs = JSON.parse(fs.readFileSync(activityLogsFile, 'utf8') || '[]');
-    // Sort by time desc
-    logs.sort((a, b) => new Date(b.time) - new Date(a.time));
+    const logs = await ActivityLog.find().sort({ time: -1 }).limit(1000);
     res.json({ ok: true, logs });
   } catch (err) {
     console.error('Error fetching activity logs:', err);
@@ -1290,32 +1240,18 @@ app.get('/api/admin/activity-logs', adminAuth, (req, res) => {
 });
 
 // Create activity log
-app.post('/api/admin/activity-logs', adminAuth, express.json(), (req, res) => {
+app.post('/api/admin/activity-logs', adminAuth, express.json(), async (req, res) => {
   try {
     const { type, title, message, user } = req.body;
     
-    const newLog = {
-      id: Date.now(),
+    const newLog = await ActivityLog.create({
+      id: Date.now().toString(),
       type: type || 'info',
       title: title || 'System Activity',
       message: message || '',
       user: user || 'System',
-      time: new Date().toISOString()
-    };
-
-    let logs = [];
-    if (fs.existsSync(activityLogsFile)) {
-      logs = JSON.parse(fs.readFileSync(activityLogsFile, 'utf8') || '[]');
-    }
-    
-    logs.push(newLog);
-    
-    // Keep only last 1000 logs to prevent file from growing too large
-    if (logs.length > 1000) {
-      logs = logs.slice(-1000);
-    }
-
-    fs.writeFileSync(activityLogsFile, JSON.stringify(logs, null, 2));
+      time: new Date()
+    });
     
     res.json({ ok: true, log: newLog });
   } catch (err) {
