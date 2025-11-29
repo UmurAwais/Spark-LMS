@@ -1371,6 +1371,11 @@ app.post('/api/admin/activity-logs', adminAuth, express.json(), (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
-});
+// Export for Vercel
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server listening on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

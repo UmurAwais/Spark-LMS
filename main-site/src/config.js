@@ -71,10 +71,11 @@ export function getApiUrl() {
 }
 
 // Initialize API URL detection
-export const API_URL_PROMISE = isDevelopment ? detectApiUrl() : Promise.resolve('https://your-domain.com');
+export const API_URL_PROMISE = isDevelopment ? detectApiUrl() : Promise.resolve('');
 
 // Export synchronous API_URL for immediate use (will be updated after detection)
-export let API_URL = isDevelopment ? 'http://localhost:4001' : 'https://your-domain.com';
+// Export synchronous API_URL for immediate use (will be updated after detection)
+export let API_URL = isDevelopment ? 'http://localhost:4001' : ''; // Relative path for production (same domain)
 
 // Update API_URL after detection
 if (isDevelopment) {
