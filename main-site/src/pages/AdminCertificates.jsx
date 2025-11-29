@@ -37,7 +37,6 @@ export default function AdminCertificates() {
 
   function openCertificateModal(course) {
     setSelectedCourse(course);
-    // In a real app, we would fetch the existing certificate template URL here
     setPreviewUrl(course.certificateTemplate || null); 
     setCertificateImage(null);
     setShowModal(true);
@@ -56,16 +55,20 @@ export default function AdminCertificates() {
   }
 
   async function handleSaveCertificate() {
-    if (!selectedCourse || !certificateImage) {
-      if (!certificateImage && !previewUrl) {
-         addNotification({ type: 'error', title: 'Error', message: 'Please select a certificate image' });
-         return;
-      }
-      // If we have a preview URL but no new image, it means we're keeping the existing one
-      if (!certificateImage && previewUrl) {
-        setShowModal(false);
-        return;
-      }
+    if (!selectedCourse) {
+       addNotification({ type: 'error', title: 'Error', message: 'Please select a course' });
+       return;
+    }
+
+    if (!certificateImage && !previewUrl) {
+       addNotification({ type: 'error', title: 'Error', message: 'Please select a certificate image' });
+       return;
+    }
+
+    // If we have a preview URL but no new image, it means we're keeping the existing one
+    if (!certificateImage && previewUrl) {
+      setShowModal(false);
+      return;
     }
 
     try {
