@@ -278,7 +278,7 @@ export default function AdminRoles() {
       {showInviteModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-[#0d9c06] to-[#0b7e05] text-white">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <UserPlus size={24} />
                 Invite Team Member

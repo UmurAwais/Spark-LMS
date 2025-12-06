@@ -113,10 +113,10 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#0d9c06] to-[#0b7e05] p-8 text-white text-center">
+        <div className="bg-linear-to-r from-[#0d9c06] to-[#0b7e05] p-8 text-white text-center">
           <Shield className="w-16 h-16 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Admin Login</h1>
           <p className="text-green-100">Spark Trainings LMS</p>

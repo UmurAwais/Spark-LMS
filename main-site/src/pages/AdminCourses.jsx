@@ -1191,7 +1191,7 @@ export default function AdminCourses() {
         {showSuccessModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
-              <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
+              <div className="p-6 border-b border-gray-100 bg-linear-to-r from-green-50 to-emerald-50">
                 <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full mb-4">
                   <CheckCircle className="text-green-600" size={32} />
                 </div>
@@ -1218,7 +1218,7 @@ export default function AdminCourses() {
         {showDeleteCoursesModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
-              <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-red-50 to-orange-50">
+              <div className="p-6 border-b border-gray-100 bg-linear-to-r from-red-50 to-orange-50">
                 <div className="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full mb-4">
                   <AlertTriangle className="text-red-600" size={32} />
                 </div>

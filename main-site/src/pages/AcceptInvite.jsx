@@ -87,7 +87,7 @@ export default function AcceptInvite() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
           <Loader2 className="w-12 h-12 text-[#0d9c06] animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Verifying invitation...</p>
@@ -98,7 +98,7 @@ export default function AcceptInvite() {
 
   if (error && !inviteData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-red-500 to-red-600 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Invalid Invitation</h1>
@@ -116,7 +116,7 @@ export default function AcceptInvite() {
 
   if (submitting && !error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Account Activated!</h1>
@@ -128,10 +128,10 @@ export default function AcceptInvite() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#0d9c06] to-[#0b7e05] p-8 text-white text-center">
+        <div className="bg-linear-to-r from-[#0d9c06] to-[#0b7e05] p-8 text-white text-center">
           <Shield className="w-16 h-16 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Welcome to Spark Trainings!</h1>
           <p className="text-green-100">You've been invited as {inviteData?.roleDisplay}</p>
