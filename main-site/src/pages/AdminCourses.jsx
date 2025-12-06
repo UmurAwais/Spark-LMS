@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { Plus, X, Loader, Trash2, Check, Star, FileVideo, FileImage, Search, BookOpen, Edit, Save, ChevronDown, ChevronUp, PlayCircle, Layers } from "lucide-react";
+import { Plus, X, Loader, Trash2, Check, Star, FileVideo, FileImage, Search, BookOpen, Edit, Save, ChevronDown, ChevronUp, PlayCircle, Layers, CheckCircle, AlertTriangle } from "lucide-react";
 import { initialCourses } from "../data/initialCourses";
 import { onlineCourses as initialOnlineCourses } from "../data/onlineCourses";
 import { apiFetch } from "../config";
@@ -58,6 +58,13 @@ export default function AdminCourses() {
   // Delete Confirmation State
   const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
   const [sectionToDelete, setSectionToDelete] = useState(null);
+  
+  // Success Modal State
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  
+  // Delete Courses Confirmation Modal
+  const [showDeleteCoursesModal, setShowDeleteCoursesModal] = useState(false);
 
   // Curriculum functions
   function openCurriculumModal(course) {
@@ -335,7 +342,10 @@ export default function AdminCourses() {
         title: 'Course Added',
         message: `Successfully added "${formData.title}"`
       });
-      alert("Course added successfully!");
+      
+      // Show success modal
+      setSuccessMessage(`Course "${formData.title}" has been added successfully!`);
+      setShowSuccessModal(true);
       resetForm();
       setShowModal(false);
       
@@ -393,13 +403,20 @@ export default function AdminCourses() {
 
   async function deleteSelected() {
     if (selectedCourses.length === 0) {
-      alert("No courses selected");
+      addNotification({
+        type: 'error',
+        title: 'No Selection',
+        message: 'Please select at least one course to delete'
+      });
       return;
     }
 
-    if (!confirm(`Delete ${selectedCourses.length} course(s)?`)) {
-      return;
-    }
+    // Show delete confirmation modal
+    setShowDeleteCoursesModal(true);
+  }
+  
+  async function confirmDeleteCourses() {
+    setShowDeleteCoursesModal(false);
 
     try {
       for (const key of selectedCourses) {
@@ -415,12 +432,18 @@ export default function AdminCourses() {
         title: 'Courses Deleted',
         message: `Successfully deleted ${selectedCourses.length} course(s)`
       });
-      alert("Courses deleted successfully!");
+      
+      setSuccessMessage(`Successfully deleted ${selectedCourses.length} course(s)!`);
+      setShowSuccessModal(true);
       setSelectedCourses([]);
       await fetchDynamicCourses();
     } catch (error) {
       console.error("Error deleting courses:", error);
-      alert("Error deleting courses: " + error.message);
+      addNotification({
+        type: 'error',
+        title: 'Delete Failed',
+        message: 'Error deleting courses: ' + error.message
+      });
     }
   }
 
@@ -1159,6 +1182,71 @@ export default function AdminCourses() {
                 >
                   Delete Section
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+              <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
+                <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full mb-4">
+                  <CheckCircle className="text-green-600" size={32} />
+                </div>
+                <h2 className="text-2xl font-bold text-center text-gray-900">Success!</h2>
+              </div>
+              
+              <div className="p-6 space-y-4">
+                <p className="text-center text-gray-700 text-lg">
+                  {successMessage}
+                </p>
+
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="w-full bg-[#0d9c06] text-white px-4 py-3 rounded-lg hover:bg-[#0b7e05] font-medium transition-colors cursor-pointer shadow-sm"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Delete Courses Confirmation Modal */}
+        {showDeleteCoursesModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+              <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-red-50 to-orange-50">
+                <div className="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full mb-4">
+                  <AlertTriangle className="text-red-600" size={32} />
+                </div>
+                <h2 className="text-2xl font-bold text-center text-gray-900">Delete Courses?</h2>
+              </div>
+              
+              <div className="p-6 space-y-4">
+                <p className="text-center text-gray-700">
+                  Are you sure you want to delete <strong>{selectedCourses.length}</strong> course(s)?
+                </p>
+                <p className="text-center text-sm text-gray-500">
+                  This action cannot be undone. All course data will be permanently removed.
+                </p>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => setShowDeleteCoursesModal(false)}
+                    className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmDeleteCourses}
+                    className="flex-1 bg-red-600 text-white px-4 py-2.5 rounded-lg hover:bg-red-700 font-medium shadow-sm transition-colors cursor-pointer"
+                  >
+                    Delete Courses
+                  </button>
+                </div>
               </div>
             </div>
           </div>

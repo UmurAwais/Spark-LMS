@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { Search, UserPlus, Mail, Trash2, RefreshCw, Ban, CheckCircle, AlertTriangle, X, Users, Loader2 } from "lucide-react";
+import { Search, UserPlus, Mail, Trash2, RefreshCw, Ban, CheckCircle, AlertTriangle, X, Users, Loader2, Download, ChevronDown } from "lucide-react";
 import { apiFetch } from "../config";
 import { useNotifications } from "../context/NotificationContext";
 
@@ -12,6 +12,7 @@ export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [newUser, setNewUser] = useState({ email: "", password: "", displayName: "" });
+  const [showExportMenu, setShowExportMenu] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   
   // Confirmation Modal State
@@ -34,6 +35,17 @@ export default function AdminUsers() {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Close export menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (showExportMenu && !event.target.closest('.export-dropdown')) {
+        setShowExportMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showExportMenu]);
 
   async function fetchUsers() {
     setLoading(true);
@@ -291,6 +303,70 @@ Spark Trainings Team`;
     }
   }
 
+  // Export functions
+  function exportToCSV() {
+    const headers = ['Name', 'Email', 'Reference Number', 'UID', 'Created', 'Last Sign In', 'Status', 'Email Verified'];
+    const csvData = filteredUsers.map(user => [
+      user.displayName || 'No name',
+      user.email || 'N/A',
+      user.referenceNumber || 'Not assigned',
+      user.uid || 'N/A',
+      user.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'N/A',
+      user.metadata?.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'Never',
+      user.disabled ? 'Disabled' : 'Active',
+      user.emailVerified ? 'Yes' : 'No'
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    downloadFile(csvContent, 'users.csv', 'text/csv');
+    
+    addNotification({
+      type: 'success',
+      title: 'Export Successful',
+      message: `${filteredUsers.length} users exported to CSV`
+    });
+    setShowExportMenu(false);
+  }
+
+  function exportToJSON() {
+    const jsonData = filteredUsers.map(user => ({
+      name: user.displayName || 'No name',
+      email: user.email || 'N/A',
+      referenceNumber: user.referenceNumber || 'Not assigned',
+      uid: user.uid || 'N/A',
+      created: user.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'N/A',
+      lastSignIn: user.metadata?.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'Never',
+      status: user.disabled ? 'Disabled' : 'Active',
+      emailVerified: user.emailVerified ? 'Yes' : 'No'
+    }));
+
+    const jsonContent = JSON.stringify(jsonData, null, 2);
+    downloadFile(jsonContent, 'users.json', 'application/json');
+    
+    addNotification({
+      type: 'success',
+      title: 'Export Successful',
+      message: `${filteredUsers.length} users exported to JSON`
+    });
+    setShowExportMenu(false);
+  }
+
+  function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <AdminLayout>
       <div className="flex justify-between items-center mb-6">
@@ -331,6 +407,44 @@ Spark Trainings Team`;
         >
           <RefreshCw size={18} /> Refresh
         </button>
+        
+        {/* Export Button with Dropdown */}
+        <div className="relative export-dropdown">
+          <button
+            onClick={() => setShowExportMenu(!showExportMenu)}
+            className="px-4 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] flex items-center gap-2 cursor-pointer transition-colors"
+          >
+            <Download size={18} />
+            Export
+            <ChevronDown size={16} className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
+          </button>
+          
+          {/* Dropdown Menu */}
+          {showExportMenu && (
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+              <button
+                onClick={exportToCSV}
+                className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer transition-colors border-b border-gray-100"
+              >
+                <Download size={16} className="text-[#0d9c06]" />
+                <div>
+                  <div className="font-medium text-gray-900">Export as CSV</div>
+                  <div className="text-xs text-gray-500">Excel compatible</div>
+                </div>
+              </button>
+              <button
+                onClick={exportToJSON}
+                className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer transition-colors"
+              >
+                <Download size={16} className="text-[#0d9c06]" />
+                <div>
+                  <div className="font-medium text-gray-900">Export as JSON</div>
+                  <div className="text-xs text-gray-500">Developer friendly</div>
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Users Table */}
@@ -340,6 +454,7 @@ Spark Trainings Team`;
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-semibold">
                 <th className="p-4">User</th>
+                <th className="p-4">Reference Number</th>
                 <th className="p-4">UID</th>
                 <th className="p-4">Created</th>
                 <th className="p-4">Last Sign In</th>
@@ -350,7 +465,7 @@ Spark Trainings Team`;
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="p-12 text-center">
+                  <td colSpan="7" className="p-12 text-center">
                     <div className="flex justify-center items-center">
                       <Loader2 className="w-8 h-8 text-[#0d9c06] animate-spin" />
                     </div>
@@ -358,7 +473,7 @@ Spark Trainings Team`;
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="p-8 text-center text-gray-500">No users found.</td>
+                  <td colSpan="7" className="p-8 text-center text-gray-500">No users found.</td>
                 </tr>
               ) : (
                 filteredUsers.map((user) => (
@@ -366,6 +481,15 @@ Spark Trainings Team`;
                     <td className="p-4">
                       <div className="font-medium text-gray-900">{user.displayName || "No name"}</div>
                       <div className="text-xs text-gray-500">{user.email}</div>
+                    </td>
+                    <td className="p-4">
+                      {user.referenceNumber ? (
+                        <code className="text-xs bg-[#daffd8] text-[#0d9c06] px-2 py-1 rounded font-semibold">
+                          {user.referenceNumber}
+                        </code>
+                      ) : (
+                        <span className="text-xs text-gray-400">Not assigned</span>
+                      )}
                     </td>
                     <td className="p-4">
                       <code className="text-xs bg-gray-100 px-2 py-1 rounded">{user.uid.substring(0, 12)}...</code>

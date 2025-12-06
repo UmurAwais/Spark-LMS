@@ -1,12 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield } from 'lucide-react';
 import Logo from '../assets/Spark.png';
 import { apiFetch } from '../config';
 import { useNotifications } from '../context/NotificationContext';
 
 // Simple notification sound (short beep)
 const NOTIFICATION_SOUND = "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..."; // Placeholder, will use a real one below
+
+// Permission-based menu items
+const MENU_ITEMS = {
+  dashboard: { to: "/admin", icon: <LayoutDashboard size={20} />, label: "Dashboard", permission: "view_dashboard" },
+  courses: { to: "/admin/courses", icon: <BookOpen size={20} />, label: "Courses", permission: "view_courses" },
+  certificates: { to: "/admin/certificates", icon: <ShieldCheck size={20} />, label: "Certificates", permission: "view_certificates" },
+  badges: { to: "/admin/badges", icon: <Award size={20} />, label: "Badges", permission: "view_badges" },
+  orders: { to: "/admin/orders", icon: <ShoppingCart size={20} />, label: "Orders", permission: "view_orders" },
+  users: { to: "/admin/users", icon: <Users size={20} />, label: "Users", permission: "view_users" },
+  drive: { to: "/admin/drive", icon: <HardDrive size={20} />, label: "Resources", permission: "view_drive" },
+  contacts: { to: "/admin/contacts", icon: <MessageSquare size={20} />, label: "Contacts", permission: "view_contacts" },
+  activity: { to: "/admin/activity", icon: <Activity size={20} />, label: "Activity Log", permission: "view_activity" },
+  roles: { to: "/admin/roles", icon: <Shield size={20} />, label: "Roles", permission: "view_roles" },
+};
 
 export default function AdminLayout({ children }) {
   const location = useLocation();
@@ -15,6 +29,32 @@ export default function AdminLayout({ children }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
   
+  // Get user role and permissions
+  const [userRole, setUserRole] = useState('super_admin');
+  const [userEmail, setUserEmail] = useState('admin');
+  const [userPermissions, setUserPermissions] = useState([]);
+
+  useEffect(() => {
+    const role = localStorage.getItem('admin_role') || 'super_admin';
+    const email = localStorage.getItem('admin_email') || 'admin';
+    const permissions = JSON.parse(localStorage.getItem('admin_permissions') || '[]');
+    
+    setUserRole(role);
+    setUserEmail(email);
+    setUserPermissions(permissions);
+  }, []);
+
+  // Check if user has permission
+  const hasPermission = (permission) => {
+    if (userRole === 'super_admin') return true;
+    return userPermissions.includes(permission);
+  };
+
+  // Filter menu items based on permissions
+  const visibleMenuItems = Object.values(MENU_ITEMS).filter(item => 
+    hasPermission(item.permission)
+  );
+
   // Track last log time to avoid duplicate notifications on reload
   const [lastLogTime, setLastLogTime] = useState(Date.now());
 
@@ -29,8 +69,10 @@ export default function AdminLayout({ children }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Poll for new activity logs
+  // Poll for new activity logs (only if has permission)
   useEffect(() => {
+    if (!hasPermission('view_activity')) return;
+
     let isMounted = true;
     
     const checkActivity = async () => {
@@ -41,18 +83,14 @@ export default function AdminLayout({ children }) {
         const data = await res.json();
         
         if (data.ok && data.logs && data.logs.length > 0) {
-          // Filter logs that are newer than our last check
-          // We use a small buffer (1000ms) to avoid edge cases
           const newLogs = data.logs.filter(log => new Date(log.time).getTime() > lastLogTime);
           
           if (newLogs.length > 0) {
-            // Update last log time to the newest one
             const newestTime = Math.max(...newLogs.map(l => new Date(l.time).getTime()));
             setLastLogTime(newestTime);
 
             // Play sound
             try {
-              // Create a simple oscillator beep since we can't easily load external assets
               const AudioContext = window.AudioContext || window.webkitAudioContext;
               if (AudioContext) {
                 const ctx = new AudioContext();
@@ -60,7 +98,7 @@ export default function AdminLayout({ children }) {
                 const gain = ctx.createGain();
                 osc.connect(gain);
                 gain.connect(ctx.destination);
-                osc.frequency.value = 880; // A5
+                osc.frequency.value = 880;
                 gain.gain.value = 0.1;
                 osc.start();
                 setTimeout(() => osc.stop(), 200);
@@ -71,7 +109,6 @@ export default function AdminLayout({ children }) {
 
             // Add notifications
             newLogs.forEach(log => {
-              // Determine link based on type
               let link = '/admin/activity';
               if (log.type === 'order') link = '/admin/orders';
               if (log.type === 'login') link = '/admin/users';
@@ -80,7 +117,7 @@ export default function AdminLayout({ children }) {
                 type: 'info',
                 title: log.title,
                 message: log.message,
-                link: link // Custom field we'll handle in the notification component
+                link: link
               });
             });
           }
@@ -90,7 +127,6 @@ export default function AdminLayout({ children }) {
       }
     };
 
-    // Initial check to sync time (don't notify on first load)
     const initialSync = async () => {
        try {
         const res = await apiFetch('/api/admin/activity-logs', {
@@ -106,9 +142,9 @@ export default function AdminLayout({ children }) {
     
     initialSync();
 
-    const interval = setInterval(checkActivity, 10000); // Check every 10 seconds
+    const interval = setInterval(checkActivity, 10000);
     return () => clearInterval(interval);
-  }, [lastLogTime, addNotification]);
+  }, [lastLogTime, addNotification, userPermissions]);
 
   const isActive = (path) => location.pathname === path;
 
@@ -122,11 +158,26 @@ export default function AdminLayout({ children }) {
     if (path === '/admin/contacts') return 'Contact Submissions';
     if (path === '/admin/activity') return 'Activity Log';
     if (path === '/admin/badges') return 'Badge Management';
+    if (path === '/admin/roles') return 'Roles & Permissions';
     return 'Admin Panel';
+  }
+
+  function getRoleDisplayName(role) {
+    const names = {
+      super_admin: 'Super Admin',
+      content_manager: 'Content Manager',
+      instructor: 'Instructor',
+      support_staff: 'Support Staff',
+      finance_manager: 'Finance Manager'
+    };
+    return names[role] || 'Admin';
   }
 
   function handleLogout() {
     localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_role");
+    localStorage.removeItem("admin_email");
+    localStorage.removeItem("admin_permissions");
     navigate("/admin/login");
   }
 
@@ -147,15 +198,15 @@ export default function AdminLayout({ children }) {
         </div>
 
         <nav className="flex-1 py-4 space-y-1">
-          <SidebarItem to="/admin" icon={<LayoutDashboard size={20} />} label="Dashboard" active={isActive('/admin')} />
-          <SidebarItem to="/admin/courses" icon={<BookOpen size={20} />} label="Courses" active={isActive('/admin/courses')} />
-          <SidebarItem to="/admin/certificates" icon={<ShieldCheck size={20} />} label="Certificates" active={isActive('/admin/certificates')} />
-          <SidebarItem to="/admin/badges" icon={<Award size={20} />} label="Badges" active={isActive('/admin/badges')} />
-          <SidebarItem to="/admin/orders" icon={<ShoppingCart size={20} />} label="Orders" active={isActive('/admin/orders')} />
-          <SidebarItem to="/admin/users" icon={<Users size={20} />} label="Users" active={isActive('/admin/users')} />
-          <SidebarItem to="/admin/drive" icon={<HardDrive size={20} />} label="Resources" active={isActive('/admin/drive')} />
-          <SidebarItem to="/admin/contacts" icon={<MessageSquare size={20} />} label="Contacts" active={isActive('/admin/contacts')} />
-          <SidebarItem to="/admin/activity" icon={<Activity size={20} />} label="Activity Log" active={isActive('/admin/activity')} />
+          {visibleMenuItems.map((item) => (
+            <SidebarItem 
+              key={item.to}
+              to={item.to} 
+              icon={item.icon} 
+              label={item.label} 
+              active={isActive(item.to)} 
+            />
+          ))}
         </nav>
 
         <div className="p-4 border-t border-gray-700">
@@ -260,11 +311,11 @@ export default function AdminLayout({ children }) {
             
             <div className="flex items-center gap-3">
               <div className="text-right hidden md:block">
-                <p className="text-sm font-semibold text-gray-800">Admin User</p>
-                <p className="text-xs text-gray-500">Super Admin</p>
+                <p className="text-sm font-semibold text-gray-800">{userEmail}</p>
+                <p className="text-xs text-gray-500">{getRoleDisplayName(userRole)}</p>
               </div>
               <div className="h-9 w-9 bg-linear-to-br from-[#0d9c06] to-[#0b7e05] rounded-full flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
-                A
+                {userEmail.charAt(0).toUpperCase()}
               </div>
             </div>
           </div>

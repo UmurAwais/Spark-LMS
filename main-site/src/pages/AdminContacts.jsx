@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { Search, Mail, Phone, BookOpen, MessageSquare, RefreshCw, Eye, Trash2, X } from "lucide-react";
+import { Search, Mail, Phone, BookOpen, MessageSquare, RefreshCw, Eye, Trash2, X, Download, ChevronDown } from "lucide-react";
 import { apiFetch } from "../config";
 import { useNotifications } from "../context/NotificationContext";
 import { AdminTableSkeleton } from "../components/SkeletonLoaders";
@@ -12,12 +12,24 @@ export default function AdminContacts() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedContact, setSelectedContact] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   useEffect(() => {
     fetchContacts();
     const interval = setInterval(fetchContacts, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // Close export menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (showExportMenu && !event.target.closest('.export-dropdown')) {
+        setShowExportMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showExportMenu]);
 
   async function fetchContacts() {
     try {
@@ -76,6 +88,64 @@ export default function AdminContacts() {
     setShowDetailModal(true);
   }
 
+  // Export functions
+  function exportToCSV() {
+    const headers = ['Name', 'Phone', 'Course Interest', 'Message', 'Date'];
+    const csvData = filteredContacts.map(contact => [
+      contact.name || 'N/A',
+      contact.phone || 'N/A',
+      contact.course || 'N/A',
+      (contact.message || 'N/A').replace(/"/g, '""'), // Escape quotes
+      contact.createdAt ? new Date(contact.createdAt).toLocaleString() : 'N/A'
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    downloadFile(csvContent, 'contacts.csv', 'text/csv');
+    
+    addNotification({
+      type: 'success',
+      title: 'Export Successful',
+      message: `${filteredContacts.length} contacts exported to CSV`
+    });
+    setShowExportMenu(false);
+  }
+
+  function exportToJSON() {
+    const jsonData = filteredContacts.map(contact => ({
+      name: contact.name || 'N/A',
+      phone: contact.phone || 'N/A',
+      courseInterest: contact.course || 'N/A',
+      message: contact.message || 'N/A',
+      submittedOn: contact.createdAt ? new Date(contact.createdAt).toLocaleString() : 'N/A'
+    }));
+
+    const jsonContent = JSON.stringify(jsonData, null, 2);
+    downloadFile(jsonContent, 'contacts.json', 'application/json');
+    
+    addNotification({
+      type: 'success',
+      title: 'Export Successful',
+      message: `${filteredContacts.length} contacts exported to JSON`
+    });
+    setShowExportMenu(false);
+  }
+
+  function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   const filteredContacts = contacts.filter(contact =>
     contact.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contact.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -120,6 +190,44 @@ export default function AdminContacts() {
         >
           <RefreshCw size={18} /> Refresh
         </button>
+        
+        {/* Export Button with Dropdown */}
+        <div className="relative export-dropdown">
+          <button
+            onClick={() => setShowExportMenu(!showExportMenu)}
+            className="px-4 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] flex items-center gap-2 cursor-pointer transition-colors"
+          >
+            <Download size={18} />
+            Export
+            <ChevronDown size={16} className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
+          </button>
+          
+          {/* Dropdown Menu */}
+          {showExportMenu && (
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+              <button
+                onClick={exportToCSV}
+                className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer transition-colors border-b border-gray-100"
+              >
+                <Download size={16} className="text-[#0d9c06]" />
+                <div>
+                  <div className="font-medium text-gray-900">Export as CSV</div>
+                  <div className="text-xs text-gray-500">Excel compatible</div>
+                </div>
+              </button>
+              <button
+                onClick={exportToJSON}
+                className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer transition-colors"
+              >
+                <Download size={16} className="text-[#0d9c06]" />
+                <div>
+                  <div className="font-medium text-gray-900">Export as JSON</div>
+                  <div className="text-xs text-gray-500">Developer friendly</div>
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Contacts Table */}

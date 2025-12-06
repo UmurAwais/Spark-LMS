@@ -37,12 +37,15 @@ import "./index.css";
 
 import AdminActivityLog from "./pages/AdminActivityLog.jsx";
 import StudentProtectedRoute from "./components/StudentProtectedRoute.jsx";
+import AdminRoles from "./pages/AdminRoles.jsx";
+import AcceptInvite from "./pages/AcceptInvite.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/admin",
     children: [
       { path: "login", element: <AdminLogin /> },
+      { path: "accept-invite", element: <AcceptInvite /> },
       {
         element: <AdminProtectedRoute />,
         children: [
@@ -55,6 +58,7 @@ const router = createBrowserRouter([
           { path: "certificates", element: <AdminCertificates /> },
           { path: "badges", element: <AdminBadges /> },
           { path: "activity", element: <AdminActivityLog /> },
+          { path: "roles", element: <AdminRoles /> },
         ]
       }
     ]

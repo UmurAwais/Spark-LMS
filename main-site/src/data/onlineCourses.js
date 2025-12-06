@@ -4,7 +4,7 @@ import englishOnlineImg from "../assets/english speaking course.png";
 
 export const onlineCourses = [
   {
-    id: "yt-automation-online",
+    id: "skin-care",
     image: skinImg,
     title: "Skin Care Formulation: Complete Guide to Creating Skincare Products",
     excerpt:
@@ -76,7 +76,7 @@ export const onlineCourses = [
     ],
   },  
   {
-    id: "shopify-online",
+    id: "ppsc",
     image: shopifyOnlineImg,
     title: "Shopify Dropshipping (Online): Start Your Store in 40 Days",
     excerpt:

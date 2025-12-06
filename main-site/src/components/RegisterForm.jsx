@@ -52,6 +52,27 @@ function RegisterForm() {
         displayName: fullName,
       });
 
+      // Store reference number in database
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4001'}/api/users/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            uid: user.uid,
+            email: user.email,
+            displayName: fullName
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Reference number assigned:', data.referenceNumber);
+        }
+      } catch (err) {
+        console.error('Failed to store reference number:', err);
+        // Don't fail registration if reference number storage fails
+      }
+
       navigate("/"); 
     } catch (err) {
       let msg = "Registration failed. Please try again.";

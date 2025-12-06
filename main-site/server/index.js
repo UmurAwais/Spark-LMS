@@ -15,11 +15,54 @@ const Badge = require('./models/Badge');
 const StudentBadge = require('./models/StudentBadge');
 const Certificate = require('./models/Certificate');
 const ActivityLog = require('./models/ActivityLog');
+const User = require('./models/User');
+const AdminRole = require('./models/AdminRole');
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/spark-lms')
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+// Role configuration
+const { ROLES, PERMISSIONS, hasPermission, getRolePermissions, getRoleDisplayName, getRoleDescription } = require('./config/roles');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+
+// Connect to MongoDB with timeout and better error handling
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/spark-lms';
+let isMongoDBConnected = false;
+
+mongoose.connect(MONGODB_URI, {
+  serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
+  socketTimeoutMS: 45000,
+})
+  .then(() => {
+    console.log('✅ Connected to MongoDB');
+    console.log(`📊 Database: ${MONGODB_URI}`);
+    isMongoDBConnected = true;
+  })
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err.message);
+    console.error('');
+    console.error('🔧 TROUBLESHOOTING:');
+    console.error('   MongoDB is not running or not installed.');
+    console.error('   Please check MONGODB_SETUP.md in the project root for setup instructions.');
+    console.error('');
+    console.error('   Quick fixes:');
+    console.error('   1. Install MongoDB: https://www.mongodb.com/try/download/community');
+    console.error('   2. Start MongoDB service: net start MongoDB');
+    console.error('   3. Or use MongoDB Atlas (cloud): https://www.mongodb.com/cloud/atlas');
+    console.error('');
+    console.error('⚠️  Server will continue running but database operations will fail.');
+    console.error('');
+  });
+
+// Export connection status checker
+function checkMongoConnection(req, res, next) {
+  if (!isMongoDBConnected) {
+    return res.status(503).json({ 
+      ok: false, 
+      message: 'Database not connected. Please check server logs for setup instructions.',
+      error: 'MongoDB connection not established'
+    });
+  }
+  next();
+}
 
 // Initialize Firebase Admin SDK
 const admin = require('firebase-admin');
@@ -201,7 +244,7 @@ app.put('/api/admin/orders/:id/status', adminAuth, express.json(), async (req, r
 const sessionsFile = path.join(__dirname, 'sessions.json');
 
 // Create/Update Session
-app.post('/api/auth/session', express.json(), (req, res) => {
+app.post('/api/auth/session', express.json(), async (req, res) => {
   try {
     const { uid, sessionId } = req.body;
     if (!uid || !sessionId) {
@@ -278,6 +321,29 @@ app.post('/api/auth/verify-session', express.json(), (req, res) => {
 
 // --- Firebase User Management Endpoints ---
 
+// Function to generate unique reference number
+async function generateReferenceNumber() {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let referenceNumber;
+  let isUnique = false;
+  
+  while (!isUnique) {
+    // Generate format: UC-XXXX-XXXX-XXXX (similar to Udemy)
+    const part1 = Array.from({length: 4}, () => characters[Math.floor(Math.random() * characters.length)]).join('');
+    const part2 = Array.from({length: 4}, () => characters[Math.floor(Math.random() * characters.length)]).join('');
+    const part3 = Array.from({length: 4}, () => characters[Math.floor(Math.random() * characters.length)]).join('');
+    referenceNumber = `UC-${part1}-${part2}-${part3}`;
+    
+    // Check if this reference number already exists
+    const existing = await User.findOne({ referenceNumber });
+    if (!existing) {
+      isUnique = true;
+    }
+  }
+  
+  return referenceNumber;
+}
+
 // Get all users (Admin only)
 app.get('/api/admin/users', adminAuth, async (req, res) => {
   try {
@@ -286,6 +352,14 @@ app.get('/api/admin/users', adminAuth, async (req, res) => {
     }
 
     const listUsersResult = await admin.auth().listUsers(1000); // Max 1000 users
+    
+    // Fetch reference numbers from MongoDB
+    const userRecords = await User.find({});
+    const referenceMap = {};
+    userRecords.forEach(user => {
+      referenceMap[user.uid] = user.referenceNumber;
+    });
+    
     const users = listUsersResult.users.map(user => ({
       uid: user.uid,
       email: user.email,
@@ -293,6 +367,7 @@ app.get('/api/admin/users', adminAuth, async (req, res) => {
       photoURL: user.photoURL,
       emailVerified: user.emailVerified,
       disabled: user.disabled,
+      referenceNumber: referenceMap[user.uid] || null,
       metadata: {
         creationTime: user.metadata.creationTime,
         lastSignInTime: user.metadata.lastSignInTime
@@ -327,17 +402,66 @@ app.post('/api/admin/users/create', adminAuth, express.json(), async (req, res) 
       emailVerified: false
     });
 
+    // Generate and store reference number
+    const referenceNumber = await generateReferenceNumber();
+    await User.create({
+      uid: userRecord.uid,
+      email: userRecord.email,
+      displayName: userRecord.displayName || '',
+      referenceNumber
+    });
+
     res.json({ 
       ok: true, 
       message: 'User created successfully',
       user: {
         uid: userRecord.uid,
         email: userRecord.email,
-        displayName: userRecord.displayName
+        displayName: userRecord.displayName,
+        referenceNumber
       }
     });
   } catch (err) {
     console.error('Error creating user:', err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// Store user reference number (called after Firebase registration)
+app.post('/api/users/register', express.json(), async (req, res) => {
+  try {
+    const { uid, email, displayName } = req.body;
+
+    if (!uid || !email) {
+      return res.status(400).json({ ok: false, message: 'UID and email are required' });
+    }
+
+    // Check if user already has a reference number
+    const existingUser = await User.findOne({ uid });
+    if (existingUser) {
+      return res.json({ 
+        ok: true, 
+        message: 'User already registered',
+        referenceNumber: existingUser.referenceNumber
+      });
+    }
+
+    // Generate and store reference number
+    const referenceNumber = await generateReferenceNumber();
+    await User.create({
+      uid,
+      email,
+      displayName: displayName || '',
+      referenceNumber
+    });
+
+    res.json({ 
+      ok: true, 
+      message: 'User registered successfully',
+      referenceNumber
+    });
+  } catch (err) {
+    console.error('Error registering user:', err);
     res.status(500).json({ ok: false, message: err.message });
   }
 });
@@ -481,18 +605,43 @@ app.get('/api/courses', async (req, res) => {
   }
 });
 
+// Get onsite courses
+app.get('/api/courses/onsite', async (req, res) => {
+  try {
+    const courses = await Course.find().sort({ createdAt: -1 });
+    res.json({ ok: true, courses });
+  } catch (e) {
+    console.error('Error fetching onsite courses:', e);
+    res.status(500).json({ ok: false, courses: [], message: 'Failed to fetch onsite courses' });
+  }
+});
+
+// Get online courses
+app.get('/api/courses/online', async (req, res) => {
+  try {
+    const courses = await OnlineCourse.find().sort({ createdAt: -1 });
+    res.json({ ok: true, courses });
+  } catch (e) {
+    console.error('Error fetching online courses:', e);
+    res.status(500).json({ ok: false, courses: [], message: 'Failed to fetch online courses' });
+  }
+});
+
 
 
 // Simple admin authentication (POST /api/admin/login { password })
 app.post('/api/admin/login', express.json(), async (req, res) => {
   const { password } = req.body || {};
   console.log('Admin login attempt received');
+  console.log('Expected password:', ADMIN_PASSWORD);
+  console.log('Received password:', password);
   if (!password) {
     console.log('Admin login failed: missing password');
     return res.status(400).json({ error: 'password required' });
   }
   if (password !== ADMIN_PASSWORD) {
     console.log('Admin login failed: invalid password');
+    console.log('Password match failed:', password, '!==', ADMIN_PASSWORD);
     return res.status(401).json({ error: 'invalid password' });
   }
   
@@ -513,17 +662,422 @@ app.post('/api/admin/login', express.json(), async (req, res) => {
   // return a simple token (for demo only)
   const token = Buffer.from(password).toString('base64');
   console.log('Admin login success');
-  res.json({ ok: true, token });
+  res.json({ ok: true, token, role: 'super_admin', email: 'admin' });
 });
 
-// Middleware to protect admin routes via header x-admin-token
-function adminAuth(req, res, next) {
+// Role-based admin login (for invited admins)
+app.post('/api/admin/role-login', express.json(), async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ ok: false, error: 'Email and password required' });
+    }
+
+    // Find admin role
+    const adminRole = await AdminRole.findOne({ email: email.toLowerCase(), status: 'active' });
+    
+    if (!adminRole) {
+      return res.status(401).json({ ok: false, error: 'Invalid credentials' });
+    }
+
+    // Verify password
+    const isValid = await bcrypt.compare(password, adminRole.password);
+    
+    if (!isValid) {
+      return res.status(401).json({ ok: false, error: 'Invalid credentials' });
+    }
+
+    // Update last login
+    adminRole.lastLogin = new Date();
+    await adminRole.save();
+
+    // Log login
+    try {
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: 'login',
+        title: `${getRoleDisplayName(adminRole.role)} Login`,
+        message: `${email} logged into the dashboard`,
+        user: email,
+        time: new Date()
+      });
+    } catch (e) {
+      console.error('Failed to log role login:', e);
+    }
+
+    // Create token with role info
+    const tokenData = JSON.stringify({ email, role: adminRole.role });
+    const token = Buffer.from(tokenData).toString('base64');
+    
+    res.json({ 
+      ok: true, 
+      token,
+      role: adminRole.role,
+      email: adminRole.email,
+      permissions: getRolePermissions(adminRole.role)
+    });
+  } catch (err) {
+    console.error('Role login error:', err);
+    res.status(500).json({ ok: false, error: 'Login failed' });
+  }
+});
+
+// Enhanced middleware to protect admin routes with role checking
+async function adminAuth(req, res, next) {
   const token = req.get('x-admin-token');
   if (!token) return res.status(401).json({ error: 'missing token' });
-  const decoded = Buffer.from(token, 'base64').toString('utf8');
-  if (decoded !== ADMIN_PASSWORD) return res.status(403).json({ error: 'forbidden' });
-  next();
+  
+  try {
+    const decoded = Buffer.from(token, 'base64').toString('utf8');
+    
+    // Check if it's super admin password
+    if (decoded === ADMIN_PASSWORD) {
+      req.adminRole = 'super_admin';
+      req.adminEmail = 'admin';
+      return next();
+    }
+    
+    // Check if it's a role-based token
+    try {
+      const tokenData = JSON.parse(decoded);
+      if (tokenData.email && tokenData.role) {
+        // Verify role is still active
+        const adminRole = await AdminRole.findOne({ 
+          email: tokenData.email, 
+          role: tokenData.role,
+          status: 'active'
+        });
+        
+        if (adminRole) {
+          req.adminRole = adminRole.role;
+          req.adminEmail = adminRole.email;
+          return next();
+        }
+      }
+    } catch (e) {
+      // Not a JSON token, invalid
+    }
+    
+    return res.status(403).json({ error: 'forbidden' });
+  } catch (err) {
+    return res.status(403).json({ error: 'invalid token' });
+  }
 }
+
+// Middleware to check specific permission
+function requirePermission(permission) {
+  return async (req, res, next) => {
+    if (!req.adminRole) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    if (!hasPermission(req.adminRole, permission)) {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+    
+    next();
+  };
+}
+
+// --- Role Management Endpoints ---
+
+// Get all admin roles (Super Admin only)
+app.get('/api/admin/roles', adminAuth, requirePermission(PERMISSIONS.VIEW_ROLES), async (req, res) => {
+  try {
+    const roles = await AdminRole.find().select('-password').sort({ invitedAt: -1 });
+    
+    const rolesWithDetails = roles.map(role => ({
+      _id: role._id,
+      email: role.email,
+      role: role.role,
+      roleDisplay: getRoleDisplayName(role.role),
+      roleDescription: getRoleDescription(role.role),
+      invitedBy: role.invitedBy,
+      invitedAt: role.invitedAt,
+      status: role.status,
+      lastLogin: role.lastLogin,
+      permissions: getRolePermissions(role.role)
+    }));
+    
+    res.json({ ok: true, roles: rolesWithDetails });
+  } catch (err) {
+    console.error('Error fetching roles:', err);
+    res.status(500).json({ ok: false, message: 'Failed to fetch roles' });
+  }
+});
+
+// Invite new admin (Super Admin only)
+app.post('/api/admin/roles/invite', adminAuth, requirePermission(PERMISSIONS.MANAGE_ROLES), express.json(), async (req, res) => {
+  try {
+    const { email, role } = req.body;
+    
+    if (!email || !role) {
+      return res.status(400).json({ ok: false, message: 'Email and role are required' });
+    }
+    
+    // Validate role
+    const validRoles = Object.values(ROLES).filter(r => r !== ROLES.SUPER_ADMIN);
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ ok: false, message: 'Invalid role' });
+    }
+    
+    // Check if email already exists
+    const existing = await AdminRole.findOne({ email: email.toLowerCase() });
+    if (existing) {
+      return res.status(400).json({ ok: false, message: 'This email already has an admin role' });
+    }
+    
+    // Generate invitation token
+    const inviteToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    
+    // Create admin role
+    const adminRole = await AdminRole.create({
+      email: email.toLowerCase(),
+      role,
+      invitedBy: req.adminEmail,
+      inviteToken,
+      tokenExpiry,
+      status: 'pending'
+    });
+    
+    // Generate invitation link
+    const inviteLink = `${req.protocol}://${req.get('host')}/admin/accept-invite?token=${inviteToken}`;
+    
+    // Log activity
+    try {
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: 'admin',
+        title: 'Admin Role Invited',
+        message: `${req.adminEmail} invited ${email} as ${getRoleDisplayName(role)}`,
+        user: req.adminEmail,
+        time: new Date()
+      });
+    } catch (e) {
+      console.error('Failed to log invitation:', e);
+    }
+    
+    res.json({ 
+      ok: true, 
+      message: 'Invitation created successfully',
+      inviteLink,
+      email: adminRole.email,
+      role: adminRole.role,
+      roleDisplay: getRoleDisplayName(adminRole.role),
+      expiresAt: tokenExpiry
+    });
+  } catch (err) {
+    console.error('Error creating invitation:', err);
+    res.status(500).json({ ok: false, message: 'Failed to create invitation' });
+  }
+});
+
+// Accept invitation and set password
+app.post('/api/admin/roles/accept-invite', express.json(), async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    
+    if (!token || !password) {
+      return res.status(400).json({ ok: false, message: 'Token and password are required' });
+    }
+    
+    if (password.length < 6) {
+      return res.status(400).json({ ok: false, message: 'Password must be at least 6 characters' });
+    }
+    
+    // Find invitation
+    const adminRole = await AdminRole.findOne({ 
+      inviteToken: token,
+      status: 'pending'
+    });
+    
+    if (!adminRole) {
+      return res.status(404).json({ ok: false, message: 'Invalid or expired invitation' });
+    }
+    
+    // Check if token expired
+    if (adminRole.tokenExpiry < new Date()) {
+      return res.status(400).json({ ok: false, message: 'Invitation has expired' });
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Update admin role
+    adminRole.password = hashedPassword;
+    adminRole.status = 'active';
+    adminRole.inviteToken = undefined;
+    adminRole.tokenExpiry = undefined;
+    await adminRole.save();
+    
+    // Log activity
+    try {
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: 'admin',
+        title: 'Admin Role Activated',
+        message: `${adminRole.email} activated their ${getRoleDisplayName(adminRole.role)} account`,
+        user: adminRole.email,
+        time: new Date()
+      });
+    } catch (e) {
+      console.error('Failed to log activation:', e);
+    }
+    
+    res.json({ 
+      ok: true, 
+      message: 'Account activated successfully',
+      email: adminRole.email,
+      role: adminRole.role
+    });
+  } catch (err) {
+    console.error('Error accepting invitation:', err);
+    res.status(500).json({ ok: false, message: 'Failed to activate account' });
+  }
+});
+
+// Verify invitation token
+app.get('/api/admin/roles/verify-token/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    const adminRole = await AdminRole.findOne({ 
+      inviteToken: token,
+      status: 'pending'
+    }).select('-password');
+    
+    if (!adminRole) {
+      return res.status(404).json({ ok: false, message: 'Invalid invitation' });
+    }
+    
+    if (adminRole.tokenExpiry < new Date()) {
+      return res.status(400).json({ ok: false, message: 'Invitation has expired' });
+    }
+    
+    res.json({ 
+      ok: true,
+      email: adminRole.email,
+      role: adminRole.role,
+      roleDisplay: getRoleDisplayName(adminRole.role),
+      roleDescription: getRoleDescription(adminRole.role),
+      expiresAt: adminRole.tokenExpiry
+    });
+  } catch (err) {
+    console.error('Error verifying token:', err);
+    res.status(500).json({ ok: false, message: 'Failed to verify token' });
+  }
+});
+
+// Update admin role (Super Admin only)
+app.put('/api/admin/roles/:id', adminAuth, requirePermission(PERMISSIONS.MANAGE_ROLES), express.json(), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+    
+    if (!role) {
+      return res.status(400).json({ ok: false, message: 'Role is required' });
+    }
+    
+    // Validate role
+    const validRoles = Object.values(ROLES).filter(r => r !== ROLES.SUPER_ADMIN);
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ ok: false, message: 'Invalid role' });
+    }
+    
+    const adminRole = await AdminRole.findById(id);
+    
+    if (!adminRole) {
+      return res.status(404).json({ ok: false, message: 'Admin role not found' });
+    }
+    
+    const oldRole = adminRole.role;
+    adminRole.role = role;
+    await adminRole.save();
+    
+    // Log activity
+    try {
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: 'admin',
+        title: 'Admin Role Updated',
+        message: `${req.adminEmail} changed ${adminRole.email}'s role from ${getRoleDisplayName(oldRole)} to ${getRoleDisplayName(role)}`,
+        user: req.adminEmail,
+        time: new Date()
+      });
+    } catch (e) {
+      console.error('Failed to log role update:', e);
+    }
+    
+    res.json({ 
+      ok: true, 
+      message: 'Role updated successfully',
+      role: adminRole.role,
+      roleDisplay: getRoleDisplayName(adminRole.role)
+    });
+  } catch (err) {
+    console.error('Error updating role:', err);
+    res.status(500).json({ ok: false, message: 'Failed to update role' });
+  }
+});
+
+// Revoke admin access (Super Admin only)
+app.delete('/api/admin/roles/:id', adminAuth, requirePermission(PERMISSIONS.MANAGE_ROLES), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const adminRole = await AdminRole.findById(id);
+    
+    if (!adminRole) {
+      return res.status(404).json({ ok: false, message: 'Admin role not found' });
+    }
+    
+    adminRole.status = 'revoked';
+    await adminRole.save();
+    
+    // Log activity
+    try {
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: 'admin',
+        title: 'Admin Access Revoked',
+        message: `${req.adminEmail} revoked ${adminRole.email}'s ${getRoleDisplayName(adminRole.role)} access`,
+        user: req.adminEmail,
+        time: new Date()
+      });
+    } catch (e) {
+      console.error('Failed to log revocation:', e);
+    }
+    
+    res.json({ 
+      ok: true, 
+      message: 'Access revoked successfully'
+    });
+  } catch (err) {
+    console.error('Error revoking access:', err);
+    res.status(500).json({ ok: false, message: 'Failed to revoke access' });
+  }
+});
+
+// Get available roles and their permissions (for UI)
+app.get('/api/admin/roles/available', adminAuth, async (req, res) => {
+  try {
+    const availableRoles = Object.values(ROLES)
+      .filter(role => role !== ROLES.SUPER_ADMIN)
+      .map(role => ({
+        value: role,
+        label: getRoleDisplayName(role),
+        description: getRoleDescription(role),
+        permissions: getRolePermissions(role)
+      }));
+    
+    res.json({ ok: true, roles: availableRoles });
+  } catch (err) {
+    console.error('Error fetching available roles:', err);
+    res.status(500).json({ ok: false, message: 'Failed to fetch available roles' });
+  }
+});
 
 // Create course (admin)
 app.post('/api/admin/courses', adminAuth, express.json(), async (req, res) => {
@@ -742,6 +1296,42 @@ app.post('/api/courses/curriculum', adminAuth, async (req, res) => {
   } catch (error) {
     console.error('Error updating curriculum:', error);
     res.status(500).json({ ok: false, message: 'Failed to update curriculum' });
+  }
+});
+
+// Delete onsite course
+app.delete('/api/courses/onsite/:courseId', adminAuth, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    
+    const deletedCourse = await Course.findOneAndDelete({ id: courseId });
+    
+    if (!deletedCourse) {
+      return res.status(404).json({ ok: false, message: 'Course not found' });
+    }
+    
+    res.json({ ok: true, message: 'Course deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting onsite course:', error);
+    res.status(500).json({ ok: false, message: 'Failed to delete course' });
+  }
+});
+
+// Delete online course
+app.delete('/api/courses/online/:courseId', adminAuth, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    
+    const deletedCourse = await OnlineCourse.findOneAndDelete({ id: courseId });
+    
+    if (!deletedCourse) {
+      return res.status(404).json({ ok: false, message: 'Course not found' });
+    }
+    
+    res.json({ ok: true, message: 'Course deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting online course:', error);
+    res.status(500).json({ ok: false, message: 'Failed to delete course' });
   }
 });
 
@@ -979,70 +1569,79 @@ app.post('/api/student/courses', express.json(), async (req, res) => {
       return res.status(400).json({ ok: false, message: 'Email is required' });
     }
 
-    // Read orders to find courses the student enrolled in
-    const ordersFile = path.join(__dirname, 'orders.json');
-    let orders = [];
-    
-    if (fs.existsSync(ordersFile)) {
-      const raw = fs.readFileSync(ordersFile, 'utf8');
-      orders = JSON.parse(raw || '[]');
-    }
-
-    // Filter orders by email (case-insensitive)
+    // Fetch orders from MongoDB
     console.log(`Fetching courses for student: ${email}`);
-    const studentOrders = orders.filter(order => 
-      order.email && order.email.toLowerCase() === email.toLowerCase()
-    );
+    const studentOrders = await Order.find({ 
+      email: { $regex: new RegExp(`^${email}$`, 'i') } // Case-insensitive match
+    });
     console.log(`Found ${studentOrders.length} orders for ${email}`);
     
     // Get unique course IDs
     const courseIds = [...new Set(studentOrders.map(order => order.courseId?.toString().trim()))].filter(Boolean);
     
-    // Fetch course details
-    const onlineCoursesPath = path.join(__dirname, 'onlineCourses.json');
-    const onsiteCoursesPath = path.join(__dirname, 'courses.json');
-    
-    let allCourses = [];
-    
-    if (fs.existsSync(onlineCoursesPath)) {
-      const onlineCourses = JSON.parse(fs.readFileSync(onlineCoursesPath, 'utf8'));
-      allCourses = allCourses.concat(onlineCourses);
+    if (courseIds.length === 0) {
+      return res.json({ ok: true, courses: [] });
     }
     
-    if (fs.existsSync(onsiteCoursesPath)) {
-      const onsiteCourses = JSON.parse(fs.readFileSync(onsiteCoursesPath, 'utf8'));
-      allCourses = allCourses.concat(onsiteCourses);
-    }
+    // Fetch course details from MongoDB
+    const [onlineCourses, onsiteCourses] = await Promise.all([
+      OnlineCourse.find({ id: { $in: courseIds } }),
+      Course.find({ id: { $in: courseIds } })
+    ]);
+    
+    const allCourses = [...onlineCourses, ...onsiteCourses];
 
     // Get enrolled courses with progress
-    const enrolledCourses = courseIds.map(courseId => {
+    const enrolledCoursesPromises = courseIds.map(async (courseId) => {
       const course = allCourses.find(c => String(c.id).trim() === String(courseId));
       if (!course) return null;
 
-      // Get progress for this course
+      // Get progress from MongoDB
       let progress = 0;
-      if (fs.existsSync(studentProgressFile)) {
-        const progressData = JSON.parse(fs.readFileSync(studentProgressFile, 'utf8') || '{}');
-        const userProgress = progressData[email] || {};
-        const courseProgress = userProgress[courseId] || {};
-        
+      const studentProgress = await StudentProgress.findOne({ email, courseId });
+      
+      if (studentProgress) {
         // Calculate progress percentage
-        const totalLectures = course.lectures?.length || 0;
-        const completedLectures = Object.values(courseProgress).filter(Boolean).length;
+        let totalLectures = 0;
+        
+        // Count total lectures (handle both flat and nested structure)
+        if (course.lectures) {
+          course.lectures.forEach(section => {
+            if (section.lectures && Array.isArray(section.lectures)) {
+              totalLectures += section.lectures.length;
+            } else {
+              totalLectures += 1;
+            }
+          });
+        }
+        
+        const completedLectures = studentProgress.completedLectures?.length || 0;
         progress = totalLectures > 0 ? Math.round((completedLectures / totalLectures) * 100) : 0;
       }
 
       // Find order to get status
-      const order = studentOrders.find(o => o.courseId === courseId);
+      const order = studentOrders.find(o => String(o.courseId).trim() === String(courseId));
       const status = order ? (order.status || 'Pending') : 'Pending';
 
       return {
-        ...course,
+        id: course.id,
+        title: course.title,
+        excerpt: course.excerpt,
+        image: course.image,
+        price: course.price,
+        rating: course.rating,
+        ratingCount: course.ratingCount,
+        duration: course.duration,
+        language: course.language,
+        badge: course.badge,
+        lectures: course.lectures,
         status,
         progress,
         hoursWatched: Math.floor(progress / 10) // Estimate hours based on progress
       };
-    }).filter(Boolean);
+    });
+    
+    const enrolledCourses = (await Promise.all(enrolledCoursesPromises)).filter(Boolean);
 
     res.json({ ok: true, courses: enrolledCourses });
   } catch (error) {
