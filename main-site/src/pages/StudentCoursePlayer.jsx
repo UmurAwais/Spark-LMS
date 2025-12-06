@@ -12,7 +12,10 @@ import {
   Download,
   ChevronRight,
   ChevronLeft,
-  ShieldCheck
+  ShieldCheck,
+  HelpCircle,
+  Lock,
+  AlertCircle
 } from 'lucide-react';
 import { apiFetch } from '../config';
 import { auth } from '../firebaseConfig';
@@ -28,7 +31,14 @@ export default function StudentCoursePlayer() {
   const [activeTab, setActiveTab] = useState('curriculum'); // 'curriculum' or 'resources'
   const [completedLectures, setCompletedLectures] = useState({});
   const [showBadgeModal, setShowBadgeModal] = useState(null);
+
   const [showCertificateModal, setShowCertificateModal] = useState(false);
+  
+  // Quiz State
+  const [showQuizModal, setShowQuizModal] = useState(false);
+  const [currentQuiz, setCurrentQuiz] = useState({ sectionId: null, questions: [] });
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizResult, setQuizResult] = useState(null); // { score: 0, passed: false, total: 0 }
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -121,8 +131,13 @@ export default function StudentCoursePlayer() {
       });
 
       const data = await res.json();
-      if (data.ok && data.newBadges && data.newBadges.length > 0) {
-        setShowBadgeModal(data.newBadges[0]); // Show first new badge
+      if (data.ok) {
+        if (data.certificate) {
+           setCompletedLectures(prev => ({ ...prev, certificate: data.certificate }));
+        }
+        if (data.newBadges && data.newBadges.length > 0) {
+           setShowBadgeModal(data.newBadges[0]); // Show first new badge
+        }
       }
     } catch (err) {
       console.error('Error updating progress:', err);
@@ -141,10 +156,100 @@ export default function StudentCoursePlayer() {
     }));
   };
 
-  const handleLectureClick = (lecture) => {
+  const isSectionLocked = (sectionIndex) => {
+    if (sectionIndex === 0) return false;
+    
+    // Check previous sections
+    for (let i = 0; i < sectionIndex; i++) {
+        const prevSection = course.lectures[i];
+        if (prevSection.quiz && prevSection.quiz.length > 0) {
+            const quizKey = `quiz-${prevSection.id}`;
+            if (!completedLectures[quizKey]) {
+                return true;
+            }
+        }
+    }
+    return false;
+  };
+
+  const handleLectureClick = (lecture, sectionIndex) => {
+    if (isSectionLocked(sectionIndex)) {
+        alert("Please complete the quiz in the previous section to unlock this content.");
+        return;
+    }
+    
     setCurrentLecture(lecture);
     if (window.innerWidth < 1024) {
       setSidebarOpen(false);
+    }
+  };
+
+  // Quiz Handling
+  const handleStartQuiz = (section) => {
+    setCurrentQuiz({
+        sectionId: section.id,
+        questions: section.quiz
+    });
+    setQuizAnswers({});
+    setQuizResult(null);
+    setShowQuizModal(true);
+  };
+
+  const handleQuizAnswer = (questionIndex, option) => {
+    setQuizAnswers(prev => ({
+        ...prev,
+        [questionIndex]: option
+    }));
+  };
+
+  const handleQuizSubmit = async () => {
+    const questions = currentQuiz.questions;
+    let correctCount = 0;
+    
+    questions.forEach((q, idx) => {
+        if (quizAnswers[idx] === q.answer) {
+            correctCount++;
+        }
+    });
+
+    const score = Math.round((correctCount / questions.length) * 100);
+    const passed = score >= 55;
+    
+    setQuizResult({
+        score,
+        passed,
+        total: questions.length,
+        correct: correctCount
+    });
+
+    if (passed) {
+        // Mark quiz as completed in backend
+        const user = auth.currentUser;
+        if (user) {
+            try {
+                const quizKey = `quiz-${currentQuiz.sectionId}`;
+                // Optimistic update
+                setCompletedLectures(prev => ({ ...prev, [quizKey]: true }));
+                
+                const res = await apiFetch('/api/student/progress/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: user.email,
+                        courseId,
+                        lectureId: quizKey, // Using quiz key as lecture ID
+                        completed: true
+                    })
+                });
+                
+                const data = await res.json();
+                if (data.ok && data.certificate) {
+                    setCompletedLectures(prev => ({ ...prev, certificate: data.certificate }));
+                }
+            } catch (err) {
+                console.error("Error saving quiz progress:", err);
+            }
+        }
     }
   };
 
@@ -198,11 +303,16 @@ export default function StudentCoursePlayer() {
       } else {
         totalLectures += 1;
       }
+      
+      // Add quiz to total to ensure certificate is only unlocked after quizzes
+      if (section.quiz && section.quiz.length > 0) {
+        totalLectures += 1;
+      }
     });
 
     if (totalLectures === 0) return 0;
 
-    const completedCount = Object.values(completedLectures).filter(Boolean).length;
+    const completedCount = Object.keys(completedLectures).filter(key => key !== 'certificate' && completedLectures[key]).length;
     return Math.round((completedCount / totalLectures) * 100);
   };
 
@@ -350,6 +460,47 @@ export default function StudentCoursePlayer() {
                 <ChevronRight size={20} />
               </button>
             </div>
+
+            {/* End of Section Quiz Prompt */}
+             {(() => {
+                // Find current section
+                const sectionIndex = course.lectures.findIndex(sec => 
+                    sec.lectures && sec.lectures.some(l => l.id === currentLecture?.id)
+                );
+                
+                if (sectionIndex !== -1) {
+                    const section = course.lectures[sectionIndex];
+                    const isLastLecture = section.lectures[section.lectures.length - 1].id === currentLecture?.id;
+                    
+                    if (isLastLecture && section.quiz && section.quiz.length > 0) {
+                        const quizKey = `quiz-${section.id}`;
+                        const isPassed = completedLectures[quizKey];
+                        
+                        return (
+                            <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-8 text-center">
+                                <div className="w-16 h-16 bg-green-100 text-[#0d9c06] rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <HelpCircle size={32} />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                    {isPassed ? "Section Quiz Completed!" : "Ready for a Challenge?"}
+                                </h3>
+                                <p className="text-gray-600 mb-6 max-w-lg mx-auto">
+                                    {isPassed 
+                                        ? "You've already passed this section's quiz. You can retake it to improve your score." 
+                                        : "Complete the quiz to verify your understanding and unlock the next section. You need 55% to pass."}
+                                </p>
+                                <button
+                                    onClick={() => handleStartQuiz(section)}
+                                    className="px-8 py-3 bg-[#0d9c06] text-white rounded-lg font-bold hover:bg-[#0b7e05] shadow-md transition-all cursor-pointer"
+                                >
+                                    {isPassed ? "Retake Quiz" : "Start Quiz"}
+                                </button>
+                            </div>
+                        );
+                    }
+                }
+                return null;
+            })()}
             
             <div className="prose max-w-none">
               <h3 className="font-bold text-lg mb-4 text-gray-900">About this lecture</h3>
@@ -382,7 +533,7 @@ export default function StudentCoursePlayer() {
               ></div>
             </div>
             
-            {progress === 100 && (
+            {progress >= 100 && (
               <button
                 onClick={() => setShowCertificateModal(true)}
                 className="w-full py-2 bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white rounded-lg font-bold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer animate-pulse"
@@ -440,7 +591,7 @@ export default function StudentCoursePlayer() {
                           {section.lectures.map((lecture) => (
                             <button
                               key={lecture.id}
-                              onClick={() => handleLectureClick(lecture)}
+                              onClick={() => handleLectureClick(lecture, idx)}
                               className={`w-full px-4 py-3 flex items-start gap-3 hover:bg-gray-100 transition-all text-left border-l-[3px] ${
                                 currentLecture?.id === lecture.id 
                                   ? 'border-[#0d9c06] bg-green-50/60' 
@@ -448,7 +599,9 @@ export default function StudentCoursePlayer() {
                               }`}
                             >
                               <div className="mt-0.5">
-                                {currentLecture?.id === lecture.id ? (
+                                {isSectionLocked(idx) ? (
+                                    <Lock size={16} className="text-gray-400" />
+                                ) : currentLecture?.id === lecture.id ? (
                                    <PlayCircle size={16} className="text-[#0d9c06]" />
                                 ) : (
                                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${completedLectures[lecture.id] ? 'bg-[#0d9c06] border-[#0d9c06]' : 'border-gray-400'}`}>
@@ -461,7 +614,7 @@ export default function StudentCoursePlayer() {
                                   {lecture.title}
                                 </p>
                                 <span className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                                  <PlayCircle size={10} />
+                                  {isSectionLocked(idx) ? <Lock size={10} /> : <PlayCircle size={10} />}
                                   {lecture.duration}
                                 </span>
                               </div>
@@ -473,7 +626,7 @@ export default function StudentCoursePlayer() {
                   ) : (
                     <button
                       key={section.id}
-                      onClick={() => handleLectureClick(section)}
+                      onClick={() => handleLectureClick(section, idx)}
                       className={`w-full px-4 py-3 flex items-start gap-3 hover:bg-gray-50 transition-all text-left border-l-[3px] border-b border-gray-100 bg-white ${
                         currentLecture?.id === section.id 
                           ? 'border-l-[#0d9c06] bg-green-50/60' 
@@ -535,6 +688,106 @@ export default function StudentCoursePlayer() {
       )}
 
       {/* Certificate Modal */}
+      {/* Quiz Modal */}
+      {showQuizModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+             {/* Header */}
+             <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {quizResult ? "Quiz Result" : "Section Quiz"}
+                </h2>
+                <button onClick={() => setShowQuizModal(false)} className="text-gray-500 hover:text-gray-700">
+                  <X size={24} />
+                </button>
+             </div>
+             
+             {/* Content */}
+             <div className="flex-1 overflow-y-auto p-6">
+                {quizResult ? (
+                   <div className="text-center py-8">
+                      <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${quizResult.passed ? 'bg-green-100 text-[#0d9c06]' : 'bg-red-100 text-red-600'}`}>
+                         {quizResult.passed ? <ShieldCheck size={48} /> : <AlertCircle size={48} />}
+                      </div>
+                      <h3 className="text-2xl font-bold mb-2">{quizResult.passed ? "Congratulations!" : "Keep Trying!"}</h3>
+                      <p className="text-gray-600 mb-6">You scored <span className="font-bold text-gray-900">{quizResult.score}%</span> ({quizResult.correct} / {quizResult.total} correct).</p>
+                      
+                      {quizResult.passed ? (
+                         <div className="p-4 bg-green-50 rounded-lg border border-green-200 text-green-800 text-sm">
+                            You have passed this section! The next section is now unlocked.
+                         </div>
+                      ) : (
+                         <div className="p-4 bg-red-50 rounded-lg border border-red-200 text-red-800 text-sm">
+                            You need 55% to pass. Please review the material and try again.
+                         </div>
+                      )}
+                      
+                      <div className="mt-8 flex justify-center gap-4">
+                         {!quizResult.passed && (
+                            <button 
+                               onClick={() => { setQuizResult(null); setQuizAnswers({}); }}
+                               className="px-6 py-2 bg-[#0d9c06] text-white rounded-lg font-bold hover:bg-[#0b7e05] transition-colors"
+                            >
+                               Try Again
+                            </button>
+                         )}
+                         <button 
+                            onClick={() => setShowQuizModal(false)}
+                            className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg font-bold hover:bg-gray-300 transition-colors"
+                         >
+                            Close
+                         </button>
+                      </div>
+                   </div>
+                ) : (
+                   <div className="space-y-8">
+                      {currentQuiz.questions.map((q, idx) => (
+                         <div key={idx} className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                            <p className="font-semibold text-gray-900 mb-4 flex gap-3">
+                               <span className="text-[#0d9c06]">{idx + 1}.</span>
+                               {q.question}
+                            </p>
+                            <div className="space-y-3 pl-6">
+                               {q.options.map((opt, optIdx) => (
+                                  <label key={optIdx} className="flex items-center gap-3 cursor-pointer group">
+                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${quizAnswers[idx] === opt ? 'border-[#0d9c06] bg-white' : 'border-gray-400 group-hover:border-gray-500'}`}>
+                                        {quizAnswers[idx] === opt && <div className="w-2.5 h-2.5 rounded-full bg-[#0d9c06]" />}
+                                     </div>
+                                     <input 
+                                        type="radio" 
+                                        name={`q-${idx}`} 
+                                        className="hidden" 
+                                        checked={quizAnswers[idx] === opt}
+                                        onChange={() => handleQuizAnswer(idx, opt)}
+                                     />
+                                     <span className={`${quizAnswers[idx] === opt ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
+                                        {opt}
+                                     </span>
+                                  </label>
+                               ))}
+                            </div>
+                         </div>
+                      ))}
+                   </div>
+                )}
+             </div>
+             
+             {/* Footer */}
+             {!quizResult && (
+                <div className="p-6 border-t border-gray-200 bg-gray-50 flex justify-end">
+                   <button 
+                      onClick={handleQuizSubmit}
+                      disabled={Object.keys(quizAnswers).length < currentQuiz.questions.length}
+                      className="px-8 py-3 bg-[#0d9c06] text-white rounded-lg font-bold hover:bg-[#0b7e05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
+                   >
+                      Submit Answers
+                   </button>
+                </div>
+             )}
+          </div>
+        </div>
+      )}
+
       {/* Certificate Modal */}
       {showCertificateModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
@@ -612,25 +865,31 @@ function CertificateCanvas({ templateUrl, studentName, courseTitle, regNo, issue
       ctx.textAlign = 'center';
       
       // Draw Student Name
-      ctx.font = 'bold 60px "Outfit", sans-serif';
-      ctx.fillStyle = '#1f2937'; // Gray-800
-      ctx.fillText(studentName, canvas.width / 2, canvas.height / 2 - 60);
+      ctx.font = 'bold 70px "Outfit", sans-serif';
+      
+      // Color Logic: Skin Care gets Gold (previous style), others get Brand Green
+      const isSkinCare = courseTitle && courseTitle.toLowerCase().includes('skin');
+      ctx.fillStyle = isSkinCare ? '#C5A059' : '#0d9c06';
+      
+      // Position: Just above the line (adjusted to +15 from center based on feedback)
+      ctx.fillText(studentName, canvas.width / 2, canvas.height / 2 + 15);
 
       // Draw Course Title (Optional, if not on template)
       // ctx.font = '40px "Outfit", sans-serif';
       // ctx.fillText(courseTitle, canvas.width / 2, canvas.height / 2 + 60);
 
       // Draw Registration Number (Removed as per request)
-      /*
+      // Draw Registration Number
       if (regNo) {
-        ctx.font = '24px "Outfit", sans-serif';
+        ctx.font = 'bold 24px "Outfit", sans-serif';
         ctx.fillStyle = '#4b5563'; // Gray-600
-        ctx.textAlign = 'left';
-        ctx.fillText(`Reg No: ${regNo}`, 100, canvas.height - 100);
+        ctx.textAlign = 'right';
+        // Position at Top Right
+        ctx.fillText(`Reference No: ${regNo}`, canvas.width - 60, 80);
       }
-      */
 
-      // Draw Date
+      // Draw Date - HIDDEN
+      /*
       if (issueDate) {
         const dateStr = new Date(issueDate).toLocaleDateString('en-US', { 
           year: 'numeric', month: 'long', day: 'numeric' 
@@ -638,6 +897,7 @@ function CertificateCanvas({ templateUrl, studentName, courseTitle, regNo, issue
         ctx.textAlign = 'right';
         ctx.fillText(`Date: ${dateStr}`, canvas.width - 100, canvas.height - 100);
       }
+      */
     };
   }, [templateUrl, studentName, courseTitle, regNo, issueDate]);
 

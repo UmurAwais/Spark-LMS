@@ -1637,7 +1637,8 @@ app.post('/api/student/courses', express.json(), async (req, res) => {
         lectures: course.lectures,
         status,
         progress,
-        hoursWatched: Math.floor(progress / 10) // Estimate hours based on progress
+        hoursWatched: Math.floor(progress / 10), // Estimate hours based on progress
+        certificateTemplate: course.certificateTemplate
       };
     });
     
@@ -1661,13 +1662,66 @@ app.post('/api/student/progress', express.json(), async (req, res) => {
 
     const progress = await StudentProgress.findOne({ email, courseId });
     
-    // Convert array of completed lectures to map for frontend compatibility
-    // Frontend expects: { "lectureId1": true, "lectureId2": true }
+    // Convert array to map
     const progressMap = {};
+    let completedCount = 0;
     if (progress && progress.completedLectures) {
       progress.completedLectures.forEach(lecId => {
         progressMap[lecId] = true;
       });
+      completedCount = progress.completedLectures.length;
+    }
+
+    // Check for Certificate (Self-healing: Generate if missing but completed)
+    let certificate = await Certificate.findOne({ email, courseId });
+
+    if (!certificate) {
+        // Double check completion status
+        const course = await OnlineCourse.findOne({ id: courseId }) || await Course.findOne({ id: courseId });
+        if (course) {
+            let totalLectures = 0;
+            if (course.lectures) {
+                course.lectures.forEach(section => {
+                    if (section.lectures) {
+                        totalLectures += section.lectures.length;
+                    } else {
+                        totalLectures += 1;
+                    }
+                    // Include quizzes in count (Frontend logic alignment)
+                    if (section.quiz && section.quiz.length > 0) {
+                        totalLectures += 1;
+                    }
+                });
+            }
+
+            // If 100% complete (or close enough/completed count matches total)
+            // Using >= totalLectures to be safe (if backend count logic aligns)
+            const percentage = totalLectures > 0 ? (completedCount / totalLectures) * 100 : 0;
+            
+            if (percentage >= 100) {
+                 // Use Student's Reference Number
+                 const user = await User.findOne({ email });
+                 const regNo = user ? user.referenceNumber : `SPARK-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+                 
+                 certificate = await Certificate.create({
+                    email,
+                    courseId,
+                    courseTitle: course.title,
+                    regNo,
+                    issueDate: new Date()
+                 });
+            }
+        }
+    }
+
+    if (certificate) {
+      // Sync Reg No with User Profile if mismatch (Fix for existing random certs)
+      const user = await User.findOne({ email });
+      if (user && user.referenceNumber && certificate.regNo !== user.referenceNumber) {
+          certificate.regNo = user.referenceNumber;
+          await certificate.save();
+      }
+      progressMap.certificate = certificate;
     }
 
     res.json({ ok: true, progress: progressMap });
@@ -1772,8 +1826,10 @@ app.post('/api/student/progress/update', express.json(), async (req, res) => {
           let existingCert = await Certificate.findOne({ email, courseId });
 
           if (!existingCert) {
-            // Generate new certificate
-            const regNo = `SPARK-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+            // Generate new certificate using User Reference Number
+            const userDoc = await User.findOne({ email });
+            const regNo = userDoc ? userDoc.referenceNumber : `SPARK-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+            
             certificate = await Certificate.create({
               email,
               courseId,

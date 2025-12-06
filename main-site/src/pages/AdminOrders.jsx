@@ -56,7 +56,7 @@ export default function AdminOrders(){
     if (!order) return;
 
     try {
-      const res = await apiFetch(`/api/admin/orders/${order.id}/status`, {
+      const res = await apiFetch(`/api/admin/orders/${order._id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -253,7 +253,7 @@ export default function AdminOrders(){
                 </tr>
               ) : (
                 orders.slice(0, 10).map((o) => (
-                  <tr key={o.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={o._id} className="hover:bg-gray-50 transition-colors">
                     <td className="p-4">
                       <div className="font-medium text-[14px] text-gray-900">{o.firstName} {o.lastName}</div>
                       <div className="text-xs text-gray-500">{o.email}</div>

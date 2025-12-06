@@ -37,7 +37,7 @@ export default function StudentDashboard() {
   const filteredCourses = enrolledCourses.filter(course => {
     const progress = course.progress || 0;
     if (activeTab === 'completed') {
-      return progress === 100;
+      return progress >= 100;
     }
     // In Progress includes not started (0%), in progress (<100%), and pending approval
     return progress < 100 || course.status === 'Pending';
@@ -65,7 +65,7 @@ export default function StudentDashboard() {
       if (data.ok && data.courses) {
         setEnrolledCourses(data.courses);
         
-        const completed = data.courses.filter(c => c.progress === 100).length;
+        const completed = data.courses.filter(c => c.progress >= 100).length;
         const inProgress = data.courses.filter(c => c.progress > 0 && c.progress < 100).length;
         
         setStats({

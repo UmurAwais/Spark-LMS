@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { Plus, X, Loader, Trash2, Check, Star, FileVideo, FileImage, Search, BookOpen, Edit, Save, ChevronDown, ChevronUp, PlayCircle, Layers, CheckCircle, AlertTriangle } from "lucide-react";
+import { Plus, X, Loader, Trash2, Check, Star, FileVideo, FileImage, Search, BookOpen, Edit, Save, ChevronDown, ChevronUp, PlayCircle, Layers, CheckCircle, AlertTriangle, HelpCircle } from "lucide-react";
 import { initialCourses } from "../data/initialCourses";
 import { onlineCourses as initialOnlineCourses } from "../data/onlineCourses";
 import { apiFetch } from "../config";
@@ -65,6 +65,73 @@ export default function AdminCourses() {
   
   // Delete Courses Confirmation Modal
   const [showDeleteCoursesModal, setShowDeleteCoursesModal] = useState(false);
+
+  // Quiz Modal State & Functions
+  const [showQuizModal, setShowQuizModal] = useState(false);
+  const [currentQuizSectionId, setCurrentQuizSectionId] = useState(null);
+  const [currentQuiz, setCurrentQuiz] = useState([]); // Array of questions
+
+  function openQuizModal(sectionId) {
+    const section = curriculumSections.find(s => s.id === sectionId);
+    if (section) {
+      setCurrentQuizSectionId(sectionId);
+      // Initialize with existing quiz or empty array
+      // If quiz exists but serves as object (legacy), convert to array or handle accordingly
+      // We'll assume structure: section.quiz = [{ question, options: [], answer: "" }]
+      setCurrentQuiz(section.quiz || []);
+      setShowQuizModal(true);
+    }
+  }
+
+  function addQuestion() {
+    setCurrentQuiz([
+      ...currentQuiz,
+      {
+        id: Date.now(),
+        question: "",
+        options: ["", "", "", ""],
+        answer: "" // String matching one of the options or index (let's use the exact string value for simplicity)
+      }
+    ]);
+  }
+
+  function updateQuestion(index, field, value) {
+    const updatedQuiz = [...currentQuiz];
+    updatedQuiz[index] = { ...updatedQuiz[index], [field]: value };
+    setCurrentQuiz(updatedQuiz);
+  }
+  
+  function updateOption(qIndex, oIndex, value) {
+    const updatedQuiz = [...currentQuiz];
+    const newOptions = [...updatedQuiz[qIndex].options];
+    newOptions[oIndex] = value;
+    updatedQuiz[qIndex].options = newOptions;
+    
+    // If we changed the correct answer text, we might need to update the answer field too
+    // But for now let's rely on the user re-selecting the correct answer if text changes significantly
+    setCurrentQuiz(updatedQuiz);
+  }
+
+  function deleteQuestion(index) {
+    const updatedQuiz = currentQuiz.filter((_, i) => i !== index);
+    setCurrentQuiz(updatedQuiz);
+  }
+
+  function saveQuiz() {
+    if (currentQuizSectionId) {
+      setCurriculumSections(prev => prev.map(sec => 
+        sec.id === currentQuizSectionId ? { ...sec, quiz: currentQuiz } : sec
+      ));
+      
+      addNotification({
+        type: 'success',
+        title: 'Quiz Saved',
+        message: 'Quiz questions saved to section temporarily. Click "Save Curriculum" to persist changes.'
+      });
+      
+      setShowQuizModal(false);
+    }
+  }
 
   // Curriculum functions
   function openCurriculumModal(course) {
@@ -961,9 +1028,21 @@ export default function AdminCourses() {
                             <button 
                               onClick={() => deleteSection(section.id)}
                               className="text-red-500 hover:bg-[#ffd8d8] p-2 rounded-lg transition-colors cursor-pointer"
-                              title="Delete Section"
                             >
                               <Trash2 size={18} />
+                            </button>
+                          </div>
+                          <div className="mt-4 pt-3 border-t border-gray-200 flex justify-end">
+                            <button
+                              onClick={() => openQuizModal(section.id)}
+                              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                                section.quiz && section.quiz.length > 0 
+                                  ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' 
+                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              }`}
+                            >
+                              <HelpCircle size={14} />
+                              {section.quiz && section.quiz.length > 0 ? `Edit Quiz (${section.quiz.length})` : 'Add Quiz'}
                             </button>
                           </div>
                         </div>
@@ -1184,6 +1263,135 @@ export default function AdminCourses() {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Quiz Editor Modal */}
+        {showQuizModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-70 p-4">
+             <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+               <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-purple-50 rounded-t-xl">
+                 <div>
+                   <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                     <HelpCircle className="text-[#0d9c06]" />
+                     Quiz Editor
+                   </h2>
+                   <p className="text-sm text-gray-500">Add checklist/MCQs for this section</p>
+                 </div>
+                 <button 
+                   onClick={() => setShowQuizModal(false)}
+                   className="text-gray-400 hover:text-gray-600 cursor-pointer p-2 rounded-full hover:bg-white/50"
+                 >
+                   <X size={24} />
+                 </button>
+               </div>
+               
+               <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+                 {currentQuiz.length === 0 ? (
+                   <div className="text-center py-10 bg-white rounded-lg border-2 border-dashed border-gray-300">
+                     <HelpCircle size={48} className="mx-auto text-gray-300 mb-3" />
+                     <p className="text-gray-500 font-medium">No questions added yet</p>
+                     <p className="text-gray-400 text-sm mb-4">Create a quiz to test student knowledge</p>
+                     <button
+                       onClick={addQuestion}
+                       className="px-4 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0d9c06] transition-colors font-medium text-sm cursor-pointer"
+                     >
+                       + Add First Question
+                     </button>
+                   </div>
+                 ) : (
+                   <div className="space-y-6">
+                     {currentQuiz.map((q, qIdx) => (
+                       <div key={q.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm relative group">
+                         <div className="absolute right-4 top-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                           <button
+                             onClick={() => deleteQuestion(qIdx)}
+                             className="text-red-400 hover:text-red-600 p-1 hover:bg-red-50 rounded cursor-pointer"
+                             title="Delete Question"
+                           >
+                             <Trash2 size={18} />
+                           </button>
+                         </div>
+                         
+                         <div className="mb-4 pr-8">
+                           <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+                             Question {qIdx + 1}
+                           </label>
+                           <input
+                             type="text"
+                             value={q.question}
+                             onChange={(e) => updateQuestion(qIdx, 'question', e.target.value)}
+                             className="w-full border-b-2 border-gray-200 focus:border-[#0d9c06] focus:outline-none py-2 text-gray-800 font-medium transition-colors bg-transparent placeholder-gray-400"
+                             placeholder="Enter your question here..."
+                           />
+                         </div>
+                         
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           {q.options.map((opt, oIdx) => (
+                             <div key={oIdx} className="flex items-center gap-3">
+                               <input
+                                 type="radio"
+                                 name={`correct-answer-${q.id}`}
+                                 checked={q.answer === opt && opt !== ""}
+                                 onChange={() => updateQuestion(qIdx, 'answer', opt)}
+                                 className="w-4 h-4 text-[#0d9c06] focus:ring-[#0d9c06] cursor-pointer"
+                                 title="Mark as correct answer"
+                                 disabled={!opt}
+                               />
+                               <input
+                                 type="text"
+                                 value={opt}
+                                 onChange={(e) => updateOption(qIdx, oIdx, e.target.value)}
+                                 className={`flex-1 border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-all ${
+                                   q.answer === opt && opt !== "" 
+                                     ? 'border-[#0d9c06] ring-[#0d9c06] bg-[#0d9c06]' 
+                                     : 'focus:border-[#0d9c06] focus:ring-[#0d9c06]'
+                                 }`}
+                                 placeholder={`Option ${oIdx + 1}`}
+                               />
+                             </div>
+                           ))}
+                         </div>
+                         
+                         <div className="mt-3 text-xs text-gray-500 flex items-center justify-between">
+                           <span>Select the radio button next to the correct answer.</span>
+                           {(!q.answer || !q.options.includes(q.answer)) && (
+                             <span className="text-amber-600 font-medium flex items-center gap-1">
+                               <AlertTriangle size={12} />
+                               Select a correct answer
+                             </span>
+                           )}
+                         </div>
+                       </div>
+                     ))}
+                     
+                     <button
+                       onClick={addQuestion}
+                       className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-[#0d9c06] hover:text-[#0d9c06] hover:bg-[#0c8506] transition-all font-medium flex items-center justify-center gap-2 cursor-pointer"
+                     >
+                       <Plus size={18} />
+                       Add Another Question
+                     </button>
+                   </div>
+                 )}
+               </div>
+               
+               <div className="p-6 border-t border-gray-200 flex justify-end gap-3 bg-white rounded-b-xl">
+                 <button
+                   onClick={() => setShowQuizModal(false)}
+                   className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition-colors cursor-pointer"
+                 >
+                   Cancel
+                 </button>
+                 <button
+                   onClick={saveQuiz}
+                   className="px-6 py-2 bg-[#0d9c06] hover:bg-[#0c8506] text-white rounded-lg font-bold shadow-sm transition-colors cursor-pointer flex items-center gap-2"
+                 >
+                   <Save size={18} />
+                   Save Quiz
+                 </button>
+               </div>
+             </div>
           </div>
         )}
         
