@@ -725,6 +725,12 @@ app.post('/api/admin/role-login', express.json(), async (req, res) => {
 
 // Enhanced middleware to protect admin routes with role checking
 async function adminAuth(req, res, next) {
+  // Set CORS headers first, before any authentication checks
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-admin-token');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
   const token = req.get('x-admin-token');
   if (!token) return res.status(401).json({ error: 'missing token' });
   
@@ -1244,6 +1250,31 @@ app.post('/api/courses/upload', adminAuth, upload.fields([
         : { label: "Best One", color: "bg-[#0d9c06] text-white" };
     }
 
+    // Add array fields if provided (parse JSON strings)
+    if (courseData.whatYouWillLearn) {
+      try {
+        newCourseData.whatYouWillLearn = JSON.parse(courseData.whatYouWillLearn);
+      } catch (e) {
+        newCourseData.whatYouWillLearn = [];
+      }
+    }
+
+    if (courseData.includes) {
+      try {
+        newCourseData.includes = JSON.parse(courseData.includes);
+      } catch (e) {
+        newCourseData.includes = [];
+      }
+    }
+
+    if (courseData.fullDescription) {
+      try {
+        newCourseData.fullDescription = JSON.parse(courseData.fullDescription);
+      } catch (e) {
+        newCourseData.fullDescription = [];
+      }
+    }
+
     let createdCourse;
 
     if (courseType === 'online') {
@@ -1299,17 +1330,36 @@ app.post('/api/courses/curriculum', adminAuth, async (req, res) => {
   }
 });
 
+// Handle preflight for onsite course deletion
+app.options('/api/courses/onsite/:courseId', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-admin-token');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
+
 // Delete onsite course
-app.delete('/api/courses/onsite/:courseId', adminAuth, async (req, res) => {
+app.delete('/api/courses/onsite/:courseId', (req, res, next) => {
+  // Set CORS headers first
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-admin-token');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+}, adminAuth, async (req, res) => {
   try {
     const { courseId } = req.params;
+    console.log(`🗑️  Attempting to delete onsite course: ${courseId}`);
     
     const deletedCourse = await Course.findOneAndDelete({ id: courseId });
     
     if (!deletedCourse) {
+      console.log(`❌ Onsite course not found: ${courseId}`);
       return res.status(404).json({ ok: false, message: 'Course not found' });
     }
     
+    console.log(`✅ Successfully deleted onsite course: ${deletedCourse.title}`);
     res.json({ ok: true, message: 'Course deleted successfully' });
   } catch (error) {
     console.error('Error deleting onsite course:', error);
@@ -1317,17 +1367,36 @@ app.delete('/api/courses/onsite/:courseId', adminAuth, async (req, res) => {
   }
 });
 
+// Handle preflight for online course deletion
+app.options('/api/courses/online/:courseId', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-admin-token');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
+
 // Delete online course
-app.delete('/api/courses/online/:courseId', adminAuth, async (req, res) => {
+app.delete('/api/courses/online/:courseId', (req, res, next) => {
+  // Set CORS headers first
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-admin-token');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+}, adminAuth, async (req, res) => {
   try {
     const { courseId } = req.params;
+    console.log(`🗑️  Attempting to delete online course: ${courseId}`);
     
     const deletedCourse = await OnlineCourse.findOneAndDelete({ id: courseId });
     
     if (!deletedCourse) {
+      console.log(`❌ Online course not found: ${courseId}`);
       return res.status(404).json({ ok: false, message: 'Course not found' });
     }
     
+    console.log(`✅ Successfully deleted online course: ${deletedCourse.title}`);
     res.json({ ok: true, message: 'Course deleted successfully' });
   } catch (error) {
     console.error('Error deleting online course:', error);
@@ -1926,6 +1995,108 @@ app.get('/api/student/badges/:email', async (req, res) => {
 
     res.json({ ok: true, badges: enrichedBadges });
   } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// --- Certificate Management Endpoints ---
+
+// Upload certificate template for a course
+app.post('/api/admin/certificates/upload', adminAuth, upload.single('certificate'), async (req, res) => {
+  try {
+    const { courseId } = req.body;
+    const file = req.file;
+
+    if (!courseId) {
+      return res.status(400).json({ ok: false, message: 'Course ID is required' });
+    }
+
+    if (!file) {
+      return res.status(400).json({ ok: false, message: 'Certificate image is required' });
+    }
+
+    // Find the online course and update its certificate template
+    const course = await OnlineCourse.findOne({ id: courseId });
+    
+    if (!course) {
+      // Clean up uploaded file if course not found
+      fs.unlink(file.path, () => {});
+      return res.status(404).json({ ok: false, message: 'Course not found' });
+    }
+
+    // Delete old certificate file if it exists
+    if (course.certificateTemplate) {
+      const oldPath = path.join(__dirname, course.certificateTemplate.replace('/uploads/', 'uploads/'));
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+
+    // Update course with new certificate template path
+    const certificatePath = `/uploads/courses/${file.filename}`;
+    course.certificateTemplate = certificatePath;
+    await course.save();
+
+    res.json({ 
+      ok: true, 
+      message: 'Certificate template uploaded successfully',
+      certificateTemplate: certificatePath
+    });
+  } catch (err) {
+    console.error('Error uploading certificate:', err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// Delete certificate templates for multiple courses
+app.delete('/api/admin/certificates/delete', adminAuth, express.json(), async (req, res) => {
+  try {
+    const { courseIds } = req.body;
+
+    if (!courseIds || !Array.isArray(courseIds) || courseIds.length === 0) {
+      return res.status(400).json({ ok: false, message: 'Course IDs array is required' });
+    }
+
+    let deletedCount = 0;
+    const errors = [];
+
+    for (const courseId of courseIds) {
+      try {
+        const course = await OnlineCourse.findOne({ id: courseId });
+        
+        if (course && course.certificateTemplate) {
+          // Delete the certificate file
+          const filePath = path.join(__dirname, course.certificateTemplate.replace('/uploads/', 'uploads/'));
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+
+          // Remove certificate template from course
+          course.certificateTemplate = null;
+          await course.save();
+          deletedCount++;
+        }
+      } catch (err) {
+        errors.push({ courseId, error: err.message });
+      }
+    }
+
+    if (errors.length > 0) {
+      return res.json({ 
+        ok: true, 
+        message: `Deleted ${deletedCount} certificate(s) with ${errors.length} error(s)`,
+        deletedCount,
+        errors
+      });
+    }
+
+    res.json({ 
+      ok: true, 
+      message: `Successfully deleted ${deletedCount} certificate template(s)`,
+      deletedCount
+    });
+  } catch (err) {
+    console.error('Error deleting certificates:', err);
     res.status(500).json({ ok: false, message: err.message });
   }
 });

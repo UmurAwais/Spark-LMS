@@ -126,13 +126,6 @@ export default function OnlineCoursePage() {
               <Globe size={16} />
               <span>{course.language || "Urdu / English (Online)"}</span>
             </div>
-
-            {course.duration && (
-              <>
-                <span className="text-[#d1d7dc]">•</span>
-                <span className="text-[#d1d7dc]">{course.duration}</span>
-              </>
-            )}
           </div>
         </div>
       </section>
@@ -238,10 +231,10 @@ export default function OnlineCoursePage() {
                 {course.whatYouWillLearn.map((item, i) => (
                   <p
                     key={i}
-                    className="flex items-center gap-2 text-sm text-[#1c1d1f]"
+                    className="flex items-start gap-2 text-sm text-[#1c1d1f]"
                   >
-                    <CheckCircle className="text-[#0d9c06]" size={18} />
-                    {item}
+                    <CheckCircle className="text-[#0d9c06] shrink-0 mt-0.5" size={20} />
+                    <span>{item}</span>
                   </p>
                 ))}
               </div>
@@ -249,12 +242,47 @@ export default function OnlineCoursePage() {
           )}
 
           {/* Description */}
-          {course.excerpt && (
+          {course.fullDescription && course.fullDescription.length > 0 && (
             <section className="bg-white rounded-xl shadow-sm p-6 mb-6">
               <h2 className="text-xl font-bold mb-3">Course description</h2>
               <div className="space-y-3 text-sm sm:text-[15px] leading-7 text-[#1c1d1f]">
-                 <p>{course.excerpt}</p>
+                {course.fullDescription.map((paragraph, index) => (
+                  <div 
+                    key={index} 
+                    dangerouslySetInnerHTML={{ __html: paragraph }}
+                    className="course-description-content"
+                  />
+                ))}
               </div>
+              
+              <style>{`
+                .course-description-content ul {
+                  list-style-type: disc;
+                  margin-left: 1.5rem;
+                  margin-top: 0.5rem;
+                  margin-bottom: 0.5rem;
+                }
+                
+                .course-description-content ol {
+                  list-style-type: decimal;
+                  margin-left: 1.5rem;
+                  margin-top: 0.5rem;
+                  margin-bottom: 0.5rem;
+                }
+                
+                .course-description-content li {
+                  margin-bottom: 0.25rem;
+                  padding-left: 0.25rem;
+                }
+                
+                .course-description-content ul li {
+                  display: list-item;
+                }
+                
+                .course-description-content ol li {
+                  display: list-item;
+                }
+              `}</style>
             </section>
           )}
         </div>
@@ -309,10 +337,18 @@ export default function OnlineCoursePage() {
                 This online course includes:
               </p>
               <ul className="mt-1 text-xs text-[#1c1d1f] space-y-1">
-                <li>• Live online sessions</li>
-                <li>• Access to class recordings</li>
-                <li>• Practical projects & assignments</li>
-                <li>• Certificate of completion from Spark Trainings</li>
+                {course.includes && course.includes.length > 0 ? (
+                  course.includes.map((item, index) => (
+                    <li key={index}>• {item}</li>
+                  ))
+                ) : (
+                  <>
+                    <li>• Live online sessions</li>
+                    <li>• Access to class recordings</li>
+                    <li>• Practical projects & assignments</li>
+                    <li>• Certificate of completion from Spark Trainings</li>
+                  </>
+                )}
               </ul>
 
               <div className="mt-4 text-center">

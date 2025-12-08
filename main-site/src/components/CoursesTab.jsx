@@ -6,7 +6,7 @@ import { CourseCardSkeleton } from "./SkeletonLoaders";
 import { apiFetch } from "../config";
 
 export default function UdemyCoursesCarousel({ hideHeading = false }) {
-  const [courses, setCourses] = useState(initialCourses);
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
@@ -16,12 +16,13 @@ export default function UdemyCoursesCarousel({ hideHeading = false }) {
     // Fetch dynamic courses from API
     async function fetchDynamicCourses() {
       try {
-        const response = await apiFetch('/api/courses/onsite');
+        const timestamp = new Date().getTime();
+        const response = await apiFetch(`/api/courses/onsite?t=${timestamp}`);
         const data = await response.json();
         
-        if (data.ok && data.courses.length > 0) {
-          // Use API data if available
-          setCourses(data.courses);
+        if (data.ok) {
+          // Use API data if available (even if empty array)
+          setCourses(data.courses || []);
         }
       } catch (e) {
         console.error("CoursesTab: Error fetching dynamic courses:", e);

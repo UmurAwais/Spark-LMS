@@ -6,6 +6,7 @@ import { onlineCourses as initialOnlineCourses } from "../data/onlineCourses";
 import { apiFetch } from "../config";
 import { useNotifications } from "../context/NotificationContext";
 import { AdminGridSkeleton } from "../components/SkeletonLoaders";
+import RichTextEditor from "../components/RichTextEditor";
 
 export default function AdminCourses() {
   const { addNotification } = useNotifications();
@@ -18,6 +19,7 @@ export default function AdminCourses() {
   // Selection state
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [hoveredCourse, setHoveredCourse] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
   
   // Form state with all required fields
   const [formData, setFormData] = useState({
@@ -29,7 +31,10 @@ export default function AdminCourses() {
     ratingCount: "0 ratings",
     duration: "2 Months",
     language: "Urdu / Hindi",
-    badge: ""
+    badge: "",
+    whatYouWillLearn: [""],
+    includes: [""],
+    fullDescription: [""]
   });
   
   const [imageFile, setImageFile] = useState(null);
@@ -252,29 +257,35 @@ export default function AdminCourses() {
 
   async function fetchDynamicCourses() {
     try {
+      // Add timestamp to prevent caching
+      const timestamp = new Date().getTime();
       const [onsiteRes, onlineRes] = await Promise.all([
-        apiFetch('/api/courses/onsite'),
-        apiFetch('/api/courses/online')
+        apiFetch(`/api/courses/onsite?t=${timestamp}`),
+        apiFetch(`/api/courses/online?t=${timestamp}`)
       ]);
 
       const onsiteData = await onsiteRes.json();
       const onlineData = await onlineRes.json();
 
-      // Use API data if available, otherwise fallback to initial courses
-      if (onsiteData.ok && onsiteData.courses.length > 0) {
-        setCourses(onsiteData.courses);
+      // Prioritize MongoDB data, use static only as fallback on error
+      if (onsiteData.ok) {
+        // Use MongoDB data (even if empty - means no courses in DB)
+        setCourses(onsiteData.courses || []);
       } else {
+        // API error - show static courses as fallback
         setCourses(initialCourses);
       }
       
-      if (onlineData.ok && onlineData.courses.length > 0) {
-        setOnlineCourses(onlineData.courses);
+      if (onlineData.ok) {
+        // Use MongoDB data (even if empty - means no courses in DB)
+        setOnlineCourses(onlineData.courses || []);
       } else {
+        // API error - show static courses as fallback
         setOnlineCourses(initialOnlineCourses);
       }
     } catch (error) {
       console.error("Error fetching dynamic courses:", error);
-      // Keep static courses if API fails
+      // On network error, show static courses
       setCourses(initialCourses);
       setOnlineCourses(initialOnlineCourses);
     }
@@ -378,6 +389,11 @@ export default function AdminCourses() {
       formDataToSend.append('language', formData.language);
       formDataToSend.append('badge', formData.badge);
       
+      // Add array fields (filter out empty strings)
+      formDataToSend.append('whatYouWillLearn', JSON.stringify(formData.whatYouWillLearn.filter(item => item.trim())));
+      formDataToSend.append('includes', JSON.stringify(formData.includes.filter(item => item.trim())));
+      formDataToSend.append('fullDescription', JSON.stringify(formData.fullDescription.filter(item => item.trim())));
+      
       // Add image (file or URL)
       if (imageFile) {
         formDataToSend.append('image', imageFile);
@@ -437,7 +453,10 @@ export default function AdminCourses() {
       ratingCount: "0 ratings",
       duration: "2 Months",
       language: "Urdu / Hindi",
-      badge: ""
+      badge: "",
+      whatYouWillLearn: [""],
+      includes: [""],
+      fullDescription: [""]
     });
     setImageFile(null);
     setImagePreview(null);
@@ -613,16 +632,64 @@ export default function AdminCourses() {
           </div>
           <div className="flex gap-2">
             {selectedCourses.length > 0 && (
-              <button
-                onClick={deleteSelected}
-                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
-              >
-                <Trash2 size={20} />
-                Delete ({selectedCourses.length})
-              </button>
+              <>
+                {selectedCourses.length === 1 && (
+                  <button
+                    onClick={() => {
+                      // Get the selected course
+                      const [type, courseId] = selectedCourses[0].split('-');
+                      const courseList = type === 'onsite' ? courses : onlineCourses;
+                      const courseToEdit = courseList.find(c => c.id === courseId);
+                      
+                      if (courseToEdit) {
+                        // Set editing mode
+                        setIsEditing(true);
+                        
+                        // Populate form with course data
+                        setFormData({
+                          id: courseToEdit.id || '',
+                          title: courseToEdit.title || '',
+                          excerpt: courseToEdit.excerpt || '',
+                          price: courseToEdit.price || '',
+                          rating: courseToEdit.rating || '4.5',
+                          ratingCount: courseToEdit.ratingCount || '0 ratings',
+                          duration: courseToEdit.duration || '2 Months',
+                          language: courseToEdit.language || 'Urdu / Hindi',
+                          badge: courseToEdit.badge?.label || '',
+                          whatYouWillLearn: courseToEdit.whatYouWillLearn || [''],
+                          includes: courseToEdit.includes || [''],
+                          fullDescription: courseToEdit.fullDescription || ['']
+                        });
+                        
+                        // Set image preview if exists
+                        if (courseToEdit.image) {
+                          setImagePreview(courseToEdit.image);
+                        }
+                        
+                        // Set course type
+                        setCourseType(type);
+                        
+                        // Open modal
+                        setShowModal(true);
+                      }
+                    }}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
+                  >
+                    <Edit size={20} />
+                    Edit Course
+                  </button>
+                )}
+                <button
+                  onClick={deleteSelected}
+                  className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
+                >
+                  <Trash2 size={20} />
+                  Delete ({selectedCourses.length})
+                </button>
+              </>
             )}
             <button
-              onClick={() => { resetForm(); setShowModal(true); }}
+              onClick={() => { setIsEditing(false); resetForm(); setShowModal(true); }}
               className="flex items-center gap-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white px-4 py-2 rounded-lg transition cursor-pointer"
             >
               <Plus size={20} />
@@ -675,10 +742,10 @@ export default function AdminCourses() {
 
         {/* Add Course Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
             <div className="bg-white rounded-xl max-w-3xl w-full my-8">
               <div className="sticky top-0 bg-gray-50 border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl z-10">
-                <h2 className="text-xl font-bold text-gray-900">Add New Course</h2>
+                <h2 className="text-xl font-bold text-gray-900">{isEditing ? 'Edit Course' : 'Add New Course'}</h2>
                 <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
                   <X size={24} />
                 </button>
@@ -856,6 +923,153 @@ export default function AdminCourses() {
                       </div>
                     </div>
 
+                    {/* What You Will Learn */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        What You Will Learn
+                      </label>
+                      <div className="space-y-2">
+                        {formData.whatYouWillLearn.map((item, index) => (
+                          <div key={index} className="flex gap-2">
+                            <input
+                              type="text"
+                              value={item}
+                              onChange={(e) => {
+                                const newItems = [...formData.whatYouWillLearn];
+                                newItems[index] = e.target.value;
+                                setFormData({ ...formData, whatYouWillLearn: newItems });
+                              }}
+                              className="flex-1 border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                              placeholder="e.g., Master the fundamentals of..."
+                            />
+                            {formData.whatYouWillLearn.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newItems = formData.whatYouWillLearn.filter((_, i) => i !== index);
+                                  setFormData({ ...formData, whatYouWillLearn: newItems });
+                                }}
+                                className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors cursor-pointer"
+                              >
+                                <X size={20} />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({ 
+                              ...formData, 
+                              whatYouWillLearn: [...formData.whatYouWillLearn, ""] 
+                            });
+                          }}
+                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors cursor-pointer flex items-center justify-center gap-2"
+                        >
+                          <Plus size={18} />
+                          Add Learning Point
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Includes */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Course Includes
+                      </label>
+                      <div className="space-y-2">
+                        {formData.includes.map((item, index) => (
+                          <div key={index} className="flex gap-2">
+                            <input
+                              type="text"
+                              value={item}
+                              onChange={(e) => {
+                                const newItems = [...formData.includes];
+                                newItems[index] = e.target.value;
+                                setFormData({ ...formData, includes: newItems });
+                              }}
+                              className="flex-1 border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                              placeholder="e.g., Certificate of completion"
+                            />
+                            {formData.includes.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newItems = formData.includes.filter((_, i) => i !== index);
+                                  setFormData({ ...formData, includes: newItems });
+                                }}
+                                className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors cursor-pointer"
+                              >
+                                <X size={20} />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({ 
+                              ...formData, 
+                              includes: [...formData.includes, ""] 
+                            });
+                          }}
+                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors cursor-pointer flex items-center justify-center gap-2"
+                        >
+                          <Plus size={18} />
+                          Add Include Item
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Full Description */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Course Description (Paragraphs)
+                      </label>
+                      <div className="space-y-2">
+                        {formData.fullDescription.map((item, index) => (
+                          <div key={index} className="flex gap-2">
+                            <div className="flex-1">
+                              <RichTextEditor
+                                value={item}
+                                onChange={(html) => {
+                                  const newItems = [...formData.fullDescription];
+                                  newItems[index] = html;
+                                  setFormData({ ...formData, fullDescription: newItems });
+                                }}
+                                placeholder="Write a detailed paragraph about the course..."
+                              />
+                            </div>
+                            {formData.fullDescription.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newItems = formData.fullDescription.filter((_, i) => i !== index);
+                                  setFormData({ ...formData, fullDescription: newItems });
+                                }}
+                                className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors cursor-pointer h-fit"
+                              >
+                                <X size={20} />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({ 
+                              ...formData, 
+                              fullDescription: [...formData.fullDescription, ""] 
+                            });
+                          }}
+                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors cursor-pointer flex items-center justify-center gap-2"
+                        >
+                          <Plus size={18} />
+                          Add Paragraph
+                        </button>
+                      </div>
+                    </div>
+
                     {uploading && (
                       <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-5">
                         <div className="flex items-center gap-3 mb-3">
@@ -897,7 +1111,7 @@ export default function AdminCourses() {
 
         {/* Resource Picker Modal */}
         {showResourcePicker && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-60 p-4">
             <div className="bg-white rounded-xl max-w-4xl w-full max-h-[80vh] flex flex-col">
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -995,7 +1209,7 @@ export default function AdminCourses() {
         )}
         {/* Curriculum Modal */}
         {showCurriculumModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <div>
@@ -1239,7 +1453,7 @@ export default function AdminCourses() {
         )}
         {/* Delete Section Confirmation Modal */}
         {showDeleteSectionModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-60 p-4">
             <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl transform transition-all scale-100">
               <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
                 <Trash2 className="text-red-600" size={24} />
@@ -1268,7 +1482,7 @@ export default function AdminCourses() {
 
         {/* Quiz Editor Modal */}
         {showQuizModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-70 p-4">
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-70 p-4">
              <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
                <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-purple-50 rounded-t-xl">
                  <div>
@@ -1397,7 +1611,7 @@ export default function AdminCourses() {
         
         {/* Success Modal */}
         {showSuccessModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
               <div className="p-6 border-b border-gray-100 bg-linear-to-r from-green-50 to-emerald-50">
                 <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full mb-4">
@@ -1424,7 +1638,7 @@ export default function AdminCourses() {
         
         {/* Delete Courses Confirmation Modal */}
         {showDeleteCoursesModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
               <div className="p-6 border-b border-gray-100 bg-linear-to-r from-red-50 to-orange-50">
                 <div className="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full mb-4">

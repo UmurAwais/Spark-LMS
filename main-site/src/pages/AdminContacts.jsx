@@ -3,7 +3,7 @@ import AdminLayout from "../components/AdminLayout";
 import { Search, Mail, Phone, BookOpen, MessageSquare, RefreshCw, Eye, Trash2, X, Download, ChevronDown } from "lucide-react";
 import { apiFetch } from "../config";
 import { useNotifications } from "../context/NotificationContext";
-import { AdminTableSkeleton } from "../components/SkeletonLoaders";
+import { AdminLoader } from "../components/SkeletonLoaders";
 
 export default function AdminContacts() {
   const { addNotification } = useNotifications();
@@ -13,6 +13,8 @@ export default function AdminContacts() {
   const [selectedContact, setSelectedContact] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState(null);
 
   useEffect(() => {
     fetchContacts();
@@ -43,16 +45,21 @@ export default function AdminContacts() {
       }
     } catch (err) {
       console.error("Error fetching contacts:", err);
+    } finally {
+      setLoading(false);
     }
   }
 
-  async function handleDelete(id) {
-    if (!confirm("Are you sure you want to delete this contact submission?")) {
-      return;
-    }
+  function openDeleteModal(contact) {
+    setContactToDelete(contact);
+    setShowDeleteModal(true);
+  }
+
+  async function confirmDelete() {
+    if (!contactToDelete) return;
 
     try {
-      const res = await apiFetch(`/api/contacts/${id}`, {
+      const res = await apiFetch(`/api/contacts/${contactToDelete.id}`, {
         method: "DELETE",
         headers: { "x-admin-token": localStorage.getItem("admin_token") }
       });
@@ -66,6 +73,8 @@ export default function AdminContacts() {
           message: 'Contact submission deleted successfully'
         });
         fetchContacts();
+        setShowDeleteModal(false);
+        setContactToDelete(null);
       } else {
         addNotification({
           type: 'error',
@@ -152,6 +161,30 @@ export default function AdminContacts() {
     contact.course?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contact.message?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="relative min-h-screen">
+          <AdminLoader />
+          <div className="opacity-50 pointer-events-none">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                  <Mail className="text-[#0d9c06]" />
+                  Contact Form Submissions
+                </h1>
+                <p className="text-gray-500 text-sm mt-1">
+                  View and manage contact form submissions from your website
+                </p>
+              </div>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden h-96" />
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -286,7 +319,7 @@ export default function AdminContacts() {
                         <Eye size={18} />
                       </button>
                       <button
-                        onClick={() => handleDelete(contact.id)}
+                        onClick={() => openDeleteModal(contact)}
                         className="p-1.5 text-red-600 hover:bg-[#ffd8d8] rounded-lg transition-colors cursor-pointer"
                         title="Delete"
                       >
@@ -303,7 +336,7 @@ export default function AdminContacts() {
 
       {/* Detail Modal */}
       {showDetailModal && selectedContact && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white">
               <h2 className="text-xl font-bold flex items-center gap-2">
@@ -381,12 +414,67 @@ export default function AdminContacts() {
               </button>
               <button
                 onClick={() => {
-                  handleDelete(selectedContact.id);
+                  openDeleteModal(selectedContact);
                   setShowDetailModal(false);
                 }}
                 className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg font-medium transition-colors flex items-center gap-2 cursor-pointer"
               >
                 <Trash2 size={16} />
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && contactToDelete && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-gray-100 bg-linear-to-r from-red-50 to-orange-50">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full mb-4">
+                <Trash2 className="text-red-600" size={32} />
+              </div>
+              <h2 className="text-xl font-bold text-center text-gray-900">Delete Contact Submission?</h2>
+              <p className="text-center text-gray-600 mt-2">
+                This action cannot be undone. The contact submission will be permanently deleted.
+              </p>
+            </div>
+            
+            <div className="p-6 bg-gray-50">
+              <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-500">Name:</span>
+                    <span className="text-sm font-semibold text-gray-900">{contactToDelete.name}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-500">Phone:</span>
+                    <span className="text-sm font-semibold text-gray-900">{contactToDelete.phone}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-500">Course:</span>
+                    <span className="text-sm font-semibold text-gray-900">{contactToDelete.course}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-100 flex gap-3 bg-gray-50">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setContactToDelete(null);
+                }}
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 font-medium transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2.5 bg-red-600 text-white hover:bg-red-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Trash2 size={18} />
                 Delete
               </button>
             </div>

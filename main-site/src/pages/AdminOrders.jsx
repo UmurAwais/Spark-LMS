@@ -326,7 +326,7 @@ export default function AdminOrders(){
       {/* Payment Screenshot Modal */}
       {selectedScreenshot && (
         <div 
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedScreenshot(null)}
         >
           <div 
@@ -379,7 +379,7 @@ export default function AdminOrders(){
 
       {/* Status Confirmation Modal */}
       {statusModal.show && statusModal.order && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className={`p-6 border-b border-gray-100 flex justify-between items-center ${statusModal.newStatus === 'Approved' ? 'bg-linear-to-r from-[#0d9c06] to-[#0b7e05]' : 'bg-linear-to-r from-red-600 to-red-700'} text-white`}>
               <h2 className="text-xl font-bold flex items-center gap-2">

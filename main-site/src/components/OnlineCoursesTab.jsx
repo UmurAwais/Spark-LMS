@@ -4,8 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { onlineCourses as initialOnlineCourses } from "../data/onlineCourses";
 import { CourseCardSkeleton } from "./SkeletonLoaders";
 import { apiFetch } from "../config";
-
-// for adding to cart and navigating
 import { useCart } from "../components/CartContext";
 
 function OnlineCourseCard({ c }) {
@@ -101,18 +99,19 @@ function OnlineCourseCard({ c }) {
 }
 
 export default function OnlineCoursesGrid() {
-  const [courses, setCourses] = useState(initialOnlineCourses);
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch dynamic courses from API
   async function fetchDynamicCourses() {
     try {
-      const response = await apiFetch('/api/courses/online');
+      const timestamp = new Date().getTime();
+      const response = await apiFetch(`/api/courses/online?t=${timestamp}`);
       const data = await response.json();
       
-      if (data.ok && data.courses.length > 0) {
-        // Use API data if available
-        setCourses(data.courses);
+      if (data.ok) {
+        // Use API data if available (even if empty array)
+        setCourses(data.courses || []);
       }
     } catch (e) {
       console.error("Error fetching dynamic online courses:", e);

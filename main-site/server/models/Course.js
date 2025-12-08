@@ -13,6 +13,9 @@ const courseSchema = new mongoose.Schema({
   badge: mongoose.Schema.Types.Mixed,
   instructor: String,
   lectures: Array,
+  whatYouWillLearn: [String],
+  includes: [String],
+  fullDescription: [String],
   createdAt: { type: Date, default: Date.now }
 });
 

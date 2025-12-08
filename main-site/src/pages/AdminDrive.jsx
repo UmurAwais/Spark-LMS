@@ -409,7 +409,7 @@ export default function AdminDrive() {
 
       {/* Google Drive Picker Modal */}
       {showDrivePicker && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] flex flex-col">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50 rounded-t-xl">
@@ -531,7 +531,7 @@ export default function AdminDrive() {
 
       {/* Import Success Modal */}
       {showImportModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-6 max-w-md w-full">
             <div className="text-center">
               <div className="w-16 h-16 bg-[#0d9c06]/10 rounded-full flex items-center justify-center mx-auto mb-4">
