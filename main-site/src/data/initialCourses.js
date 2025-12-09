@@ -1,13 +1,13 @@
 // images
-import webImg from "../assets/web development course.png";
-import graphicImg from "../assets/graphic design course.png";
-import videoImg from "../assets/video editing course.png";
-import tiktokImg from "../assets/tiktok course.png";
-import ytImg from "../assets/youtube automation course.png";
-import shopifyImg from "../assets/shopify course.png";
-import shopify2Img from "../assets/shopify masterclass course.png";
-import socialMediaImg from "../assets/social media marketing.png";
-import englishImg from "../assets/english speaking course.png";
+import webImg from "../assets/web development course.jpg";
+import graphicImg from "../assets/graphic design course.jpg";
+import videoImg from "../assets/video editing course.jpg";
+import tiktokImg from "../assets/tiktok course.jpg";
+import ytImg from "../assets/youtube automation course.jpg";
+import shopifyImg from "../assets/shopify course.jpg";
+import shopify2Img from "../assets/shopify masterclass course.jpg";
+import socialMediaImg from "../assets/social media marketing.jpg";
+import englishImg from "../assets/english speaking course.jpg";
 
 export const initialCourses = [
   {
