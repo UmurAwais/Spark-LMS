@@ -55,8 +55,8 @@ mongoose.connect(MONGODB_URI, {
 // Export connection status checker
 function checkMongoConnection(req, res, next) {
   if (!isMongoDBConnected) {
-    return res.status(503).json({ 
-      ok: false, 
+    return res.status(503).json({
+      ok: false,
       message: 'Database not connected. Please check server logs for setup instructions.',
       error: 'MongoDB connection not established'
     });
@@ -180,7 +180,7 @@ app.post('/api/orders', upload.single('screenshot'), async (req, res) => {
       paymentScreenshot: `/uploads/courses/${file.filename}`,
       status: 'Pending'
     };
-    
+   
     console.log('📝 Saving order to MongoDB:', { amount: orderData.amount });
 
     const newOrder = await Order.create(orderData);
@@ -222,10 +222,10 @@ app.put('/api/admin/orders/:id/status', adminAuth, express.json(), async (req, r
   try {
     const { id } = req.params;
     const { status } = req.body;
-    
+   
     const updatedOrder = await Order.findByIdAndUpdate(
-      id, 
-      { status }, 
+      id,
+      { status },
       { new: true }
     );
 
@@ -262,7 +262,7 @@ app.post('/api/auth/session', express.json(), async (req, res) => {
     };
 
     fs.writeFileSync(sessionsFile, JSON.stringify(sessions, null, 2));
-    
+   
     // Log user login activity
     try {
       // Only log if this session is relatively new (e.g., within last minute) or we can just log every session update as 'active'
@@ -326,21 +326,21 @@ async function generateReferenceNumber() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let referenceNumber;
   let isUnique = false;
-  
+ 
   while (!isUnique) {
     // Generate format: UC-XXXX-XXXX-XXXX (similar to Udemy)
     const part1 = Array.from({length: 4}, () => characters[Math.floor(Math.random() * characters.length)]).join('');
     const part2 = Array.from({length: 4}, () => characters[Math.floor(Math.random() * characters.length)]).join('');
     const part3 = Array.from({length: 4}, () => characters[Math.floor(Math.random() * characters.length)]).join('');
     referenceNumber = `UC-${part1}-${part2}-${part3}`;
-    
+   
     // Check if this reference number already exists
     const existing = await User.findOne({ referenceNumber });
     if (!existing) {
       isUnique = true;
     }
   }
-  
+ 
   return referenceNumber;
 }
 
@@ -352,14 +352,14 @@ app.get('/api/admin/users', adminAuth, async (req, res) => {
     }
 
     const listUsersResult = await admin.auth().listUsers(1000); // Max 1000 users
-    
+   
     // Fetch reference numbers from MongoDB
     const userRecords = await User.find({});
     const referenceMap = {};
     userRecords.forEach(user => {
       referenceMap[user.uid] = user.referenceNumber;
     });
-    
+   
     const users = listUsersResult.users.map(user => ({
       uid: user.uid,
       email: user.email,
@@ -411,8 +411,8 @@ app.post('/api/admin/users/create', adminAuth, express.json(), async (req, res) 
       referenceNumber
     });
 
-    res.json({ 
-      ok: true, 
+    res.json({
+      ok: true,
       message: 'User created successfully',
       user: {
         uid: userRecord.uid,
@@ -439,8 +439,8 @@ app.post('/api/users/register', express.json(), async (req, res) => {
     // Check if user already has a reference number
     const existingUser = await User.findOne({ uid });
     if (existingUser) {
-      return res.json({ 
-        ok: true, 
+      return res.json({
+        ok: true,
         message: 'User already registered',
         referenceNumber: existingUser.referenceNumber
       });
@@ -455,8 +455,8 @@ app.post('/api/users/register', express.json(), async (req, res) => {
       referenceNumber
     });
 
-    res.json({ 
-      ok: true, 
+    res.json({
+      ok: true,
       message: 'User registered successfully',
       referenceNumber
     });
@@ -484,8 +484,8 @@ app.post('/api/admin/users/reset-password', adminAuth, express.json(), async (re
 
     // In production, you would send this via email service
     // For now, we'll return it so admin can share it
-    res.json({ 
-      ok: true, 
+    res.json({
+      ok: true,
       message: `Password reset link generated for ${email}`,
       resetLink: resetLink
     });
@@ -499,7 +499,7 @@ app.post('/api/admin/users/reset-password', adminAuth, express.json(), async (re
 app.post('/api/admin/send-email', adminAuth, express.json(), (req, res) => {
   try {
     const { email, subject, body } = req.body;
-    
+   
     if (!email || !subject || !body) {
       return res.status(400).json({ ok: false, message: 'Missing required fields' });
     }
@@ -535,8 +535,8 @@ app.post('/api/admin/users/toggle-status', adminAuth, express.json(), async (req
       disabled: disabled
     });
 
-    res.json({ 
-      ok: true, 
+    res.json({
+      ok: true,
       message: `User ${disabled ? 'disabled' : 'enabled'} successfully`,
       user: {
         uid: userRecord.uid,
@@ -565,8 +565,8 @@ app.delete('/api/admin/users/:uid', adminAuth, async (req, res) => {
 
     await admin.auth().deleteUser(uid);
 
-    res.json({ 
-      ok: true, 
+    res.json({
+      ok: true,
       message: 'User deleted successfully'
     });
   } catch (err) {
@@ -644,7 +644,7 @@ app.post('/api/admin/login', express.json(), async (req, res) => {
     console.log('Password match failed:', password, '!==', ADMIN_PASSWORD);
     return res.status(401).json({ error: 'invalid password' });
   }
-  
+ 
   // Log admin login
   try {
     await ActivityLog.create({
@@ -669,21 +669,21 @@ app.post('/api/admin/login', express.json(), async (req, res) => {
 app.post('/api/admin/role-login', express.json(), async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+   
     if (!email || !password) {
       return res.status(400).json({ ok: false, error: 'Email and password required' });
     }
 
     // Find admin role
     const adminRole = await AdminRole.findOne({ email: email.toLowerCase(), status: 'active' });
-    
+   
     if (!adminRole) {
       return res.status(401).json({ ok: false, error: 'Invalid credentials' });
     }
 
     // Verify password
     const isValid = await bcrypt.compare(password, adminRole.password);
-    
+   
     if (!isValid) {
       return res.status(401).json({ ok: false, error: 'Invalid credentials' });
     }
@@ -709,9 +709,9 @@ app.post('/api/admin/role-login', express.json(), async (req, res) => {
     // Create token with role info
     const tokenData = JSON.stringify({ email, role: adminRole.role });
     const token = Buffer.from(tokenData).toString('base64');
-    
-    res.json({ 
-      ok: true, 
+   
+    res.json({
+      ok: true,
       token,
       role: adminRole.role,
       email: adminRole.email,
@@ -730,31 +730,31 @@ async function adminAuth(req, res, next) {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-admin-token');
   res.header('Access-Control-Allow-Credentials', 'true');
-  
+ 
   const token = req.get('x-admin-token');
   if (!token) return res.status(401).json({ error: 'missing token' });
-  
+ 
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf8');
-    
+   
     // Check if it's super admin password
     if (decoded === ADMIN_PASSWORD) {
       req.adminRole = 'super_admin';
       req.adminEmail = 'admin';
       return next();
     }
-    
+   
     // Check if it's a role-based token
     try {
       const tokenData = JSON.parse(decoded);
       if (tokenData.email && tokenData.role) {
         // Verify role is still active
-        const adminRole = await AdminRole.findOne({ 
-          email: tokenData.email, 
+        const adminRole = await AdminRole.findOne({
+          email: tokenData.email,
           role: tokenData.role,
           status: 'active'
         });
-        
+       
         if (adminRole) {
           req.adminRole = adminRole.role;
           req.adminEmail = adminRole.email;
@@ -764,7 +764,7 @@ async function adminAuth(req, res, next) {
     } catch (e) {
       // Not a JSON token, invalid
     }
-    
+   
     return res.status(403).json({ error: 'forbidden' });
   } catch (err) {
     return res.status(403).json({ error: 'invalid token' });
@@ -777,11 +777,11 @@ function requirePermission(permission) {
     if (!req.adminRole) {
       return res.status(401).json({ error: 'Not authenticated' });
     }
-    
+   
     if (!hasPermission(req.adminRole, permission)) {
       return res.status(403).json({ error: 'Insufficient permissions' });
     }
-    
+   
     next();
   };
 }
@@ -792,7 +792,7 @@ function requirePermission(permission) {
 app.get('/api/admin/roles', adminAuth, requirePermission(PERMISSIONS.VIEW_ROLES), async (req, res) => {
   try {
     const roles = await AdminRole.find().select('-password').sort({ invitedAt: -1 });
-    
+   
     const rolesWithDetails = roles.map(role => ({
       _id: role._id,
       email: role.email,
@@ -805,7 +805,7 @@ app.get('/api/admin/roles', adminAuth, requirePermission(PERMISSIONS.VIEW_ROLES)
       lastLogin: role.lastLogin,
       permissions: getRolePermissions(role.role)
     }));
-    
+   
     res.json({ ok: true, roles: rolesWithDetails });
   } catch (err) {
     console.error('Error fetching roles:', err);
@@ -817,27 +817,27 @@ app.get('/api/admin/roles', adminAuth, requirePermission(PERMISSIONS.VIEW_ROLES)
 app.post('/api/admin/roles/invite', adminAuth, requirePermission(PERMISSIONS.MANAGE_ROLES), express.json(), async (req, res) => {
   try {
     const { email, role } = req.body;
-    
+   
     if (!email || !role) {
       return res.status(400).json({ ok: false, message: 'Email and role are required' });
     }
-    
+   
     // Validate role
     const validRoles = Object.values(ROLES).filter(r => r !== ROLES.SUPER_ADMIN);
     if (!validRoles.includes(role)) {
       return res.status(400).json({ ok: false, message: 'Invalid role' });
     }
-    
+   
     // Check if email already exists
     const existing = await AdminRole.findOne({ email: email.toLowerCase() });
     if (existing) {
       return res.status(400).json({ ok: false, message: 'This email already has an admin role' });
     }
-    
+   
     // Generate invitation token
     const inviteToken = crypto.randomBytes(32).toString('hex');
     const tokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-    
+   
     // Create admin role
     const adminRole = await AdminRole.create({
       email: email.toLowerCase(),
@@ -847,10 +847,11 @@ app.post('/api/admin/roles/invite', adminAuth, requirePermission(PERMISSIONS.MAN
       tokenExpiry,
       status: 'pending'
     });
-    
+   
     // Generate invitation link
-    const inviteLink = `${req.protocol}://${req.get('host')}/admin/accept-invite?token=${inviteToken}`;
-    
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const inviteLink = `${frontendUrl}/admin/accept-invite?token=${inviteToken}`;
+   
     // Log activity
     try {
       await ActivityLog.create({
@@ -864,9 +865,9 @@ app.post('/api/admin/roles/invite', adminAuth, requirePermission(PERMISSIONS.MAN
     } catch (e) {
       console.error('Failed to log invitation:', e);
     }
-    
-    res.json({ 
-      ok: true, 
+   
+    res.json({
+      ok: true,
       message: 'Invitation created successfully',
       inviteLink,
       email: adminRole.email,
@@ -884,40 +885,40 @@ app.post('/api/admin/roles/invite', adminAuth, requirePermission(PERMISSIONS.MAN
 app.post('/api/admin/roles/accept-invite', express.json(), async (req, res) => {
   try {
     const { token, password } = req.body;
-    
+   
     if (!token || !password) {
       return res.status(400).json({ ok: false, message: 'Token and password are required' });
     }
-    
+   
     if (password.length < 6) {
       return res.status(400).json({ ok: false, message: 'Password must be at least 6 characters' });
     }
-    
+   
     // Find invitation
-    const adminRole = await AdminRole.findOne({ 
+    const adminRole = await AdminRole.findOne({
       inviteToken: token,
       status: 'pending'
     });
-    
+   
     if (!adminRole) {
       return res.status(404).json({ ok: false, message: 'Invalid or expired invitation' });
     }
-    
+   
     // Check if token expired
     if (adminRole.tokenExpiry < new Date()) {
       return res.status(400).json({ ok: false, message: 'Invitation has expired' });
     }
-    
+   
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+   
     // Update admin role
     adminRole.password = hashedPassword;
     adminRole.status = 'active';
     adminRole.inviteToken = undefined;
     adminRole.tokenExpiry = undefined;
     await adminRole.save();
-    
+   
     // Log activity
     try {
       await ActivityLog.create({
@@ -931,9 +932,9 @@ app.post('/api/admin/roles/accept-invite', express.json(), async (req, res) => {
     } catch (e) {
       console.error('Failed to log activation:', e);
     }
-    
-    res.json({ 
-      ok: true, 
+   
+    res.json({
+      ok: true,
       message: 'Account activated successfully',
       email: adminRole.email,
       role: adminRole.role
@@ -948,21 +949,21 @@ app.post('/api/admin/roles/accept-invite', express.json(), async (req, res) => {
 app.get('/api/admin/roles/verify-token/:token', async (req, res) => {
   try {
     const { token } = req.params;
-    
-    const adminRole = await AdminRole.findOne({ 
+   
+    const adminRole = await AdminRole.findOne({
       inviteToken: token,
       status: 'pending'
     }).select('-password');
-    
+   
     if (!adminRole) {
       return res.status(404).json({ ok: false, message: 'Invalid invitation' });
     }
-    
+   
     if (adminRole.tokenExpiry < new Date()) {
       return res.status(400).json({ ok: false, message: 'Invitation has expired' });
     }
-    
-    res.json({ 
+   
+    res.json({
       ok: true,
       email: adminRole.email,
       role: adminRole.role,
@@ -981,27 +982,27 @@ app.put('/api/admin/roles/:id', adminAuth, requirePermission(PERMISSIONS.MANAGE_
   try {
     const { id } = req.params;
     const { role } = req.body;
-    
+   
     if (!role) {
       return res.status(400).json({ ok: false, message: 'Role is required' });
     }
-    
+   
     // Validate role
     const validRoles = Object.values(ROLES).filter(r => r !== ROLES.SUPER_ADMIN);
     if (!validRoles.includes(role)) {
       return res.status(400).json({ ok: false, message: 'Invalid role' });
     }
-    
+   
     const adminRole = await AdminRole.findById(id);
-    
+   
     if (!adminRole) {
       return res.status(404).json({ ok: false, message: 'Admin role not found' });
     }
-    
+   
     const oldRole = adminRole.role;
     adminRole.role = role;
     await adminRole.save();
-    
+   
     // Log activity
     try {
       await ActivityLog.create({
@@ -1015,9 +1016,9 @@ app.put('/api/admin/roles/:id', adminAuth, requirePermission(PERMISSIONS.MANAGE_
     } catch (e) {
       console.error('Failed to log role update:', e);
     }
-    
-    res.json({ 
-      ok: true, 
+   
+    res.json({
+      ok: true,
       message: 'Role updated successfully',
       role: adminRole.role,
       roleDisplay: getRoleDisplayName(adminRole.role)
@@ -1032,16 +1033,16 @@ app.put('/api/admin/roles/:id', adminAuth, requirePermission(PERMISSIONS.MANAGE_
 app.delete('/api/admin/roles/:id', adminAuth, requirePermission(PERMISSIONS.MANAGE_ROLES), async (req, res) => {
   try {
     const { id } = req.params;
-    
+   
     const adminRole = await AdminRole.findById(id);
-    
+   
     if (!adminRole) {
       return res.status(404).json({ ok: false, message: 'Admin role not found' });
     }
-    
+   
     adminRole.status = 'revoked';
     await adminRole.save();
-    
+   
     // Log activity
     try {
       await ActivityLog.create({
@@ -1055,9 +1056,9 @@ app.delete('/api/admin/roles/:id', adminAuth, requirePermission(PERMISSIONS.MANA
     } catch (e) {
       console.error('Failed to log revocation:', e);
     }
-    
-    res.json({ 
-      ok: true, 
+   
+    res.json({
+      ok: true,
       message: 'Access revoked successfully'
     });
   } catch (err) {
@@ -1077,7 +1078,7 @@ app.get('/api/admin/roles/available', adminAuth, async (req, res) => {
         description: getRoleDescription(role),
         permissions: getRolePermissions(role)
       }));
-    
+   
     res.json({ ok: true, roles: availableRoles });
   } catch (err) {
     console.error('Error fetching available roles:', err);
@@ -1085,24 +1086,407 @@ app.get('/api/admin/roles/available', adminAuth, async (req, res) => {
   }
 });
 
+// Get admin profile
+app.get('/api/admin/profile', adminAuth, async (req, res) => {
+  try {
+    const email = req.adminEmail;
+   
+    // Try to find in AdminRole collection first
+    let profile = await AdminRole.findOne({ email }).select('-password -inviteToken -tokenExpiry');
+   
+    if (!profile) {
+      // Return default profile for super admin
+      return res.json({
+        ok: true,
+        profile: {
+          email: email,
+          name: 'Sajid Ali',
+          role: 'super_admin',
+          recoveryEmail: '',
+          profilePicture: null
+        }
+      });
+    }
+   
+    res.json({
+      ok: true,
+      profile: {
+        email: profile.email,
+        name: profile.name || 'Sajid Ali',
+        role: profile.role,
+        recoveryEmail: profile.recoveryEmail || '',
+        profilePicture: profile.profilePicture || null
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching profile:', err);
+    res.status(500).json({ ok: false, message: 'Failed to fetch profile' });
+  }
+});
+
+// Update admin profile
+app.put('/api/admin/profile', adminAuth, upload.single('profilePicture'), async (req, res) => {
+  try {
+    const email = req.adminEmail;
+    const { name } = req.body;
+   
+    console.log('📝 Updating profile for:', email);
+    console.log('📝 Name:', name);
+    console.log('📝 File:', req.file ? req.file.filename : 'No file');
+   
+    const updateData = {};
+    if (name) updateData.name = name;
+   
+    // Handle recovery email
+    const { recoveryEmail } = req.body;
+    if (recoveryEmail !== undefined) updateData.recoveryEmail = recoveryEmail;
+   
+    // Handle profile picture upload
+    if (req.file) {
+      const profilePictureUrl = `/uploads/courses/${req.file.filename}`;
+      updateData.profilePicture = `http://localhost:${PORT}${profilePictureUrl}`;
+      console.log('📸 Profile picture URL:', updateData.profilePicture);
+    }
+   
+    // Try to update in AdminRole collection
+    let profile = await AdminRole.findOneAndUpdate(
+      { email },
+      { $set: updateData },
+      { new: true, upsert: false }
+    );
+   
+    // If not found in AdminRole (super admin), create a record
+    if (!profile) {
+      console.log('⚠️  Profile not found, creating new record for super admin');
+      profile = await AdminRole.create({
+        email: email,
+        name: name || 'Sajid Ali',
+        role: 'super_admin',
+        status: 'active',
+        invitedBy: 'system', // Required field for super admin
+        profilePicture: updateData.profilePicture || null
+      });
+      console.log('✅ Created new profile for super admin');
+    } else {
+      console.log('✅ Updated existing profile');
+    }
+   
+    res.json({
+      ok: true,
+      message: 'Profile updated successfully',
+      profilePictureUrl: updateData.profilePicture || profile.profilePicture
+    });
+  } catch (err) {
+    console.error('❌ Error updating profile:', err);
+    console.error('Error details:', err.message);
+    res.status(500).json({ ok: false, message: err.message || 'Failed to update profile' });
+  }
+});
+
+// Change admin password
+app.put('/api/admin/change-password', adminAuth, express.json(), async (req, res) => {
+  try {
+    const email = req.adminEmail;
+    const { currentPassword, newPassword } = req.body;
+   
+    console.log('🔐 Password change request for:', email);
+   
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ ok: false, message: 'Current and new password are required' });
+    }
+   
+    if (newPassword.length < 6) {
+      return res.status(400).json({ ok: false, message: 'New password must be at least 6 characters' });
+    }
+   
+    // Find admin profile
+    const profile = await AdminRole.findOne({ email });
+   
+    if (!profile || !profile.password) {
+      return res.status(400).json({ ok: false, message: 'No password set for this account' });
+    }
+   
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, profile.password);
+   
+    if (!isMatch) {
+      return res.status(401).json({ ok: false, message: 'Current password is incorrect' });
+    }
+   
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+   
+    // Update password
+    profile.password = hashedPassword;
+    await profile.save();
+   
+    console.log('✅ Password changed successfully for:', email);
+   
+    res.json({
+      ok: true,
+      message: 'Password changed successfully'
+    });
+  } catch (err) {
+    console.error('❌ Error changing password:', err);
+    res.status(500).json({ ok: false, message: err.message || 'Failed to change password' });
+  }
+});
+
+// Get all admin roles
+app.get('/api/admin/roles', adminAuth, async (req, res) => {
+  try {
+    const roles = await AdminRole.find({}).select('-password -inviteToken').sort({ invitedAt: -1 });
+   
+    const rolesWithDisplay = roles.map(role => ({
+      _id: role._id,
+      email: role.email,
+      name: role.name,
+      role: role.role,
+      roleDisplay: getRoleDisplayName(role.role),
+      roleDescription: getRoleDescription(role.role),
+      status: role.status,
+      invitedBy: role.invitedBy,
+      invitedAt: role.invitedAt,
+      lastLogin: role.lastLogin
+    }));
+   
+    res.json({ ok: true, roles: rolesWithDisplay });
+  } catch (err) {
+    console.error('Error fetching roles:', err);
+    res.status(500).json({ ok: false, message: 'Failed to fetch roles' });
+  }
+});
+
+// Get available roles for invitation
+app.get('/api/admin/roles/available', adminAuth, async (req, res) => {
+  try {
+    const availableRoles = [
+      { value: 'content_manager', label: 'Content Manager', description: 'Can manage courses, certificates, and badges' },
+      { value: 'instructor', label: 'Instructor', description: 'Can manage courses and view student progress' },
+      { value: 'support_staff', label: 'Support Staff', description: 'Can view users, contacts, and activity logs' },
+      { value: 'finance_manager', label: 'Finance Manager', description: 'Can manage orders and view financial data' }
+    ];
+   
+    res.json({ ok: true, roles: availableRoles });
+  } catch (err) {
+    console.error('Error fetching available roles:', err);
+    res.status(500).json({ ok: false, message: 'Failed to fetch available roles' });
+  }
+});
+
+// Create invitation
+app.post('/api/admin/roles/invite', adminAuth, express.json(), async (req, res) => {
+  try {
+    const { email, role } = req.body;
+   
+    if (!email || !role) {
+      return res.status(400).json({ ok: false, message: 'Email and role are required' });
+    }
+   
+    // Check if email already exists
+    const existing = await AdminRole.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ ok: false, message: 'This email is already invited or active' });
+    }
+   
+    // Generate invitation token
+    const inviteToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+   
+    // Create admin role
+    const adminRole = await AdminRole.create({
+      email,
+      role,
+      invitedBy: req.adminEmail,
+      status: 'pending',
+      inviteToken,
+      tokenExpiry
+    });
+   
+    // Generate invitation link (pointing to frontend)
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const inviteLink = `${frontendUrl}/admin/accept-invite?token=${inviteToken}`;
+    console.log('🔗 Generated invitation link:', inviteLink);
+   
+    // Log activity
+    try {
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: 'admin',
+        title: 'Admin Role Invited',
+        message: `${req.adminEmail} invited ${email} as ${getRoleDisplayName(role)}`,
+        user: req.adminEmail,
+        time: new Date()
+      });
+    } catch (e) {
+      console.error('Failed to log invitation:', e);
+    }
+   
+    res.json({
+      ok: true,
+      message: 'Invitation created successfully',
+      inviteLink,
+      email: adminRole.email,
+      role: adminRole.role,
+      roleDisplay: getRoleDisplayName(adminRole.role),
+      expiresAt: tokenExpiry
+    });
+  } catch (err) {
+    console.error('Error creating invitation:', err);
+    res.status(500).json({ ok: false, message: 'Failed to create invitation' });
+  }
+});
+
+// Revoke admin role
+app.delete('/api/admin/roles/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+   
+    const role = await AdminRole.findById(id);
+   
+    if (!role) {
+      return res.status(404).json({ ok: false, message: 'Role not found' });
+    }
+   
+    // Update status to revoked
+    role.status = 'revoked';
+    await role.save();
+   
+    // Log activity
+    try {
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: 'admin',
+        title: 'Admin Access Revoked',
+        message: `${req.adminEmail} revoked access for ${role.email}`,
+        user: req.adminEmail,
+        time: new Date()
+      });
+    } catch (e) {
+      console.error('Failed to log revocation:', e);
+    }
+   
+    res.json({ ok: true, message: 'Access revoked successfully' });
+  } catch (err) {
+    console.error('Error revoking role:', err);
+    res.status(500).json({ ok: false, message: 'Failed to revoke access' });
+  }
+});
+
+// Verify invitation token
+app.get('/api/admin/roles/verify-token/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+   
+    const role = await AdminRole.findOne({
+      inviteToken: token,
+      status: 'pending'
+    });
+   
+    if (!role) {
+      return res.status(404).json({ ok: false, message: 'Invalid or expired invitation' });
+    }
+   
+    // Check if token is expired
+    if (role.tokenExpiry && new Date() > role.tokenExpiry) {
+      return res.status(400).json({ ok: false, message: 'Invitation has expired' });
+    }
+   
+    res.json({
+      ok: true,
+      email: role.email,
+      role: role.role,
+      roleDisplay: getRoleDisplayName(role.role),
+      roleDescription: getRoleDescription(role.role)
+    });
+  } catch (err) {
+    console.error('Error verifying token:', err);
+    res.status(500).json({ ok: false, message: 'Failed to verify invitation' });
+  }
+});
+
+// Accept invitation and set password
+app.post('/api/admin/roles/accept-invite', express.json(), async (req, res) => {
+  try {
+    const { token, password } = req.body;
+   
+    if (!token || !password) {
+      return res.status(400).json({ ok: false, message: 'Token and password are required' });
+    }
+   
+    if (password.length < 6) {
+      return res.status(400).json({ ok: false, message: 'Password must be at least 6 characters' });
+    }
+   
+    // Find invitation
+    const adminRole = await AdminRole.findOne({
+      inviteToken: token,
+      status: 'pending'
+    });
+   
+    if (!adminRole) {
+      return res.status(404).json({ ok: false, message: 'Invalid or expired invitation' });
+    }
+   
+    // Check if token is expired
+    if (adminRole.tokenExpiry && new Date() > adminRole.tokenExpiry) {
+      return res.status(400).json({ ok: false, message: 'Invitation has expired' });
+    }
+   
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+   
+    // Update admin role
+    adminRole.password = hashedPassword;
+    adminRole.status = 'active';
+    adminRole.inviteToken = undefined;
+    adminRole.tokenExpiry = undefined;
+    await adminRole.save();
+   
+    // Log activity
+    try {
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: 'admin',
+        title: 'Admin Account Activated',
+        message: `${adminRole.email} activated their ${getRoleDisplayName(adminRole.role)} account`,
+        user: adminRole.email,
+        time: new Date()
+      });
+    } catch (e) {
+      console.error('Failed to log activation:', e);
+    }
+   
+    res.json({
+      ok: true,
+      message: 'Account activated successfully',
+      email: adminRole.email
+    });
+  } catch (err) {
+    console.error('Error accepting invitation:', err);
+    res.status(500).json({ ok: false, message: 'Failed to activate account' });
+  }
+});
+
+
 // Create course (admin)
 app.post('/api/admin/courses', adminAuth, express.json(), async (req, res) => {
   const { title, excerpt, price, instructor, image, id } = req.body || {};
   if (!title || !id) return res.status(400).json({ error: 'title and id required' });
-  
+ 
   const exists = await Course.findOne({ id });
   if (exists) return res.status(400).json({ error: 'course id exists' });
-  
-  const newCourse = await Course.create({ 
-    id, 
-    title, 
-    excerpt: excerpt || '', 
-    price: price || 'Free', 
-    instructor: instructor || '', 
-    image: image || '', 
-    lectures: [] 
+ 
+  const newCourse = await Course.create({
+    id,
+    title,
+    excerpt: excerpt || '',
+    price: price || 'Free',
+    instructor: instructor || '',
+    image: image || '',
+    lectures: []
   });
-  
+ 
   res.json(newCourse);
 });
 
@@ -1111,24 +1495,24 @@ app.post('/api/admin/courses/:id/lectures', adminAuth, express.json(), async (re
   const id = req.params.id;
   const { title, driveFileId, preview } = req.body || {};
   if (!title || !driveFileId) return res.status(400).json({ error: 'title and driveFileId required' });
-  
+ 
   const lecture = { id: Date.now().toString(), title, driveFileId, preview: !!preview };
-  
+ 
   const updatedCourse = await Course.findOneAndUpdate(
     { id },
     { $push: { lectures: lecture } },
     { new: true }
   );
-  
+ 
   if (!updatedCourse) return res.status(404).json({ error: 'course not found' });
-  
+ 
   res.json(lecture);
 });
 
 // Google Drive listing (service account)
 app.get('/api/drive/list', adminAuth, async (req, res) => {
   const credPath = path.join(__dirname, 'drive-credentials.json');
-  
+ 
   // Check if credentials file exists
   if (!fs.existsSync(credPath)) {
     console.log('⚠️  Google Drive credentials not found at:', credPath);
@@ -1138,9 +1522,9 @@ app.get('/api/drive/list', adminAuth, async (req, res) => {
     console.log('   3. Restart the server');
     console.log('');
     console.log('🔄 Returning mock data for now...');
-    
+   
     // Return mock data if credentials are missing
-    return res.json({ 
+    return res.json({
       ok: true,
       mock: true,
       message: 'Using mock data. Follow GOOGLE_DRIVE_SETUP.md to connect your Google Drive.',
@@ -1150,7 +1534,7 @@ app.get('/api/drive/list', adminAuth, async (req, res) => {
         { id: '3', name: 'Node.js Basics.mp4', mimeType: 'video/mp4', webViewLink: '#', thumbnailLink: 'https://via.placeholder.com/150' },
         { id: '4', name: 'Firebase Setup.mp4', mimeType: 'video/mp4', webViewLink: '#', thumbnailLink: 'https://via.placeholder.com/150' },
         { id: '5', name: 'Deployment Guide.pdf', mimeType: 'application/pdf', webViewLink: '#', thumbnailLink: 'https://via.placeholder.com/150' },
-      ] 
+      ]
     });
   }
 
@@ -1158,37 +1542,37 @@ app.get('/api/drive/list', adminAuth, async (req, res) => {
     console.log('✅ Google Drive credentials found, connecting...');
     const { google } = require('googleapis');
     const keyFile = credPath;
-    const auth = new google.auth.GoogleAuth({ 
-      keyFilename: keyFile, 
-      scopes: ['https://www.googleapis.com/auth/drive.readonly'] 
+    const auth = new google.auth.GoogleAuth({
+      keyFilename: keyFile,
+      scopes: ['https://www.googleapis.com/auth/drive.readonly']
     });
     const drive = google.drive({ version: 'v3', auth });
 
     // Query for files (videos, images, and documents)
     const q = req.query.q || "mimeType contains 'video/' or mimeType contains 'image/' or mimeType contains 'application/'";
-    
+   
     console.log('📂 Fetching files from Google Drive...');
-    const resp = await drive.files.list({ 
-      pageSize: 100, 
-      q, 
+    const resp = await drive.files.list({
+      pageSize: 100,
+      q,
       fields: 'files(id,name,mimeType,webViewLink,thumbnailLink,size,createdTime)',
       orderBy: 'createdTime desc'
     });
-    
+   
     const files = resp.data.files || [];
     console.log(`✅ Successfully fetched ${files.length} files from Google Drive`);
-    
+   
     if (files.length === 0) {
       console.log('⚠️  No files found. Make sure:');
       console.log('   1. You shared a folder with the service account email');
       console.log('   2. The folder contains video/image files');
       console.log('   3. Permissions have synced (wait a few minutes)');
     }
-    
+   
     res.json({ ok: true, files, mock: false });
   } catch (e) {
     console.error('❌ Google Drive error:', e.message || e);
-    
+   
     // Provide helpful error messages
     if (e.message.includes('invalid_grant')) {
       console.log('💡 Tip: The service account key might be invalid or expired');
@@ -1197,10 +1581,10 @@ app.get('/api/drive/list', adminAuth, async (req, res) => {
       console.log('💡 Tip: Make sure you shared the folder with the service account email');
       console.log('   Check the client_email in drive-credentials.json');
     }
-    
-    res.status(500).json({ 
-      ok: false, 
-      message: 'Drive listing failed', 
+   
+    res.status(500).json({
+      ok: false,
+      message: 'Drive listing failed',
       error: String(e.message || e),
       hint: 'Check server console for detailed error information'
     });
@@ -1215,7 +1599,7 @@ app.post('/api/courses/upload', adminAuth, upload.fields([
 ]), async (req, res) => {
   try {
     const { courseType, ...courseData } = req.body;
-    
+   
     // Get uploaded file URLs
     const imageUrl = req.files['image'] ? `/uploads/courses/${req.files['image'][0].filename}` : null;
     const videoUrl = req.files['video'] ? `/uploads/videos/${req.files['video'][0].filename}` : null;
@@ -1240,12 +1624,12 @@ app.post('/api/courses/upload', adminAuth, upload.fields([
 
     // Add badge if provided
     if (courseData.badge) {
-      newCourseData.badge = { 
-        label: courseData.badge, 
+      newCourseData.badge = {
+        label: courseData.badge,
         color: courseType === 'online' ? 'bg-[#5022C3] text-white' : 'bg-[#0d9c06] text-white'
       };
     } else {
-      newCourseData.badge = courseType === 'online' 
+      newCourseData.badge = courseType === 'online'
         ? { label: "Premium • Online", color: "bg-[#5022C3] text-white" }
         : { label: "Best One", color: "bg-[#0d9c06] text-white" };
     }
@@ -1293,8 +1677,8 @@ app.post('/api/courses/upload', adminAuth, upload.fields([
     console.log(`✅ Course added successfully: ${createdCourse.title}`);
     console.log(`   Type: ${courseType}, ID: ${createdCourse.id}`);
 
-    res.json({ 
-      ok: true, 
+    res.json({
+      ok: true,
       message: 'Course added successfully',
       course: createdCourse
     });
@@ -1304,11 +1688,127 @@ app.post('/api/courses/upload', adminAuth, upload.fields([
   }
 });
 
+// Update existing course endpoint
+app.put('/api/courses/update/:courseType/:courseId', adminAuth, upload.fields([
+  { name: 'image', maxCount: 1 },
+  { name: 'video', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const { courseType, courseId } = req.params;
+    const courseData = req.body;
+   
+    // Get uploaded file URLs if new files were uploaded
+    let imageUrl = null;
+    let videoUrl = null;
+   
+    if (req.files && req.files['image']) {
+      imageUrl = `http://localhost:${PORT}/uploads/courses/${req.files['image'][0].filename}`;
+    } else if (courseData.imageUrl) {
+      // Use imported URL from resources
+      imageUrl = courseData.imageUrl;
+    } else if (courseData.existingImageUrl) {
+      // Keep existing image
+      imageUrl = courseData.existingImageUrl;
+    }
+   
+    if (req.files && req.files['video']) {
+      videoUrl = `http://localhost:${PORT}/uploads/videos/${req.files['video'][0].filename}`;
+    }
+
+    // Create update object with all fields
+    const updateData = {
+      title: courseData.title,
+      excerpt: courseData.excerpt,
+      price: courseData.price,
+      rating: parseFloat(courseData.rating) || 4.5,
+      ratingCount: courseData.ratingCount || "0 ratings",
+      duration: courseData.duration || "2 Months",
+      language: courseData.language || "Urdu / Hindi",
+    };
+
+    // Update image if provided
+    if (imageUrl) {
+      updateData.image = imageUrl;
+    }
+
+    // Add badge if provided
+    if (courseData.badge) {
+      updateData.badge = {
+        label: courseData.badge,
+        color: courseType === 'online' ? 'bg-[#5022C3] text-white' : 'bg-[#0d9c06] text-white'
+      };
+    }
+
+    // Add array fields if provided (parse JSON strings)
+    if (courseData.whatYouWillLearn) {
+      try {
+        updateData.whatYouWillLearn = JSON.parse(courseData.whatYouWillLearn);
+      } catch (e) {
+        updateData.whatYouWillLearn = [];
+      }
+    }
+
+    if (courseData.includes) {
+      try {
+        updateData.includes = JSON.parse(courseData.includes);
+      } catch (e) {
+        updateData.includes = [];
+      }
+    }
+
+    if (courseData.fullDescription) {
+      try {
+        updateData.fullDescription = JSON.parse(courseData.fullDescription);
+      } catch (e) {
+        updateData.fullDescription = [];
+      }
+    }
+
+    let updatedCourse;
+
+    // Update video URL for online courses
+    if (courseType === 'online' && videoUrl) {
+      updateData.videoUrl = videoUrl;
+    }
+
+    // Update the appropriate collection
+    if (courseType === 'online') {
+      updatedCourse = await OnlineCourse.findOneAndUpdate(
+        { id: courseId },
+        { $set: updateData },
+        { new: true }
+      );
+    } else {
+      updatedCourse = await Course.findOneAndUpdate(
+        { id: courseId },
+        { $set: updateData },
+        { new: true }
+      );
+    }
+
+    if (!updatedCourse) {
+      return res.status(404).json({ ok: false, message: 'Course not found' });
+    }
+
+    console.log(`✅ Course updated successfully: ${updatedCourse.title}`);
+    console.log(`   Type: ${courseType}, ID: ${updatedCourse.id}`);
+
+    res.json({
+      ok: true,
+      message: 'Course updated successfully',
+      course: updatedCourse
+    });
+  } catch (error) {
+    console.error('Course update error:', error);
+    res.status(500).json({ ok: false, message: error.message });
+  }
+});
+
 // Update course curriculum
 app.post('/api/courses/curriculum', adminAuth, async (req, res) => {
   try {
     const { courseId, lectures } = req.body;
-    
+   
     if (!courseId || !lectures) {
       return res.status(400).json({ ok: false, message: 'Missing courseId or lectures' });
     }
@@ -1351,14 +1851,14 @@ app.delete('/api/courses/onsite/:courseId', (req, res, next) => {
   try {
     const { courseId } = req.params;
     console.log(`🗑️  Attempting to delete onsite course: ${courseId}`);
-    
+   
     const deletedCourse = await Course.findOneAndDelete({ id: courseId });
-    
+   
     if (!deletedCourse) {
       console.log(`❌ Onsite course not found: ${courseId}`);
       return res.status(404).json({ ok: false, message: 'Course not found' });
     }
-    
+   
     console.log(`✅ Successfully deleted onsite course: ${deletedCourse.title}`);
     res.json({ ok: true, message: 'Course deleted successfully' });
   } catch (error) {
@@ -1388,14 +1888,14 @@ app.delete('/api/courses/online/:courseId', (req, res, next) => {
   try {
     const { courseId } = req.params;
     console.log(`🗑️  Attempting to delete online course: ${courseId}`);
-    
+   
     const deletedCourse = await OnlineCourse.findOneAndDelete({ id: courseId });
-    
+   
     if (!deletedCourse) {
       console.log(`❌ Online course not found: ${courseId}`);
       return res.status(404).json({ ok: false, message: 'Course not found' });
     }
-    
+   
     console.log(`✅ Successfully deleted online course: ${deletedCourse.title}`);
     res.json({ ok: true, message: 'Course deleted successfully' });
   } catch (error) {
@@ -1416,7 +1916,7 @@ app.post('/api/admin/certificates/upload', adminAuth, upload.single('certificate
 
     const certificateUrl = `/uploads/courses/${file.filename}`;
     const fullUrl = `http://localhost:${PORT}${certificateUrl}`;
-    
+   
     const updatedCourse = await OnlineCourse.findOneAndUpdate(
       { id: courseId },
       { certificateTemplate: fullUrl },
@@ -1431,10 +1931,10 @@ app.post('/api/admin/certificates/upload', adminAuth, upload.single('certificate
 
     console.log(`✅ Certificate uploaded for course: ${updatedCourse.title}`);
 
-    res.json({ 
-      ok: true, 
-      message: 'Certificate template uploaded successfully', 
-      certificateUrl: fullUrl 
+    res.json({
+      ok: true,
+      message: 'Certificate template uploaded successfully',
+      certificateUrl: fullUrl
     });
   } catch (error) {
     console.error('Error uploading certificate:', error);
@@ -1479,25 +1979,25 @@ app.get('/api/courses/:id', (req, res) => {
 app.get('/api/course/:id', (req, res) => {
   try {
     const { id } = req.params;
-    
+   
     // Check both files
     const onlineCoursesPath = path.join(__dirname, 'onlineCourses.json');
     const onsiteCoursesPath = path.join(__dirname, 'courses.json');
-    
+   
     let course = null;
-    
+   
     // Check online courses
     if (fs.existsSync(onlineCoursesPath)) {
       const onlineCourses = JSON.parse(fs.readFileSync(onlineCoursesPath, 'utf8'));
       course = onlineCourses.find(c => c.id === id);
     }
-    
+   
     // Check onsite courses if not found
     if (!course && fs.existsSync(onsiteCoursesPath)) {
       const onsiteCourses = JSON.parse(fs.readFileSync(onsiteCoursesPath, 'utf8'));
       course = onsiteCourses.find(c => c.id === id);
     }
-    
+   
     if (course) {
       res.json({ ok: true, course });
     } else {
@@ -1513,8 +2013,8 @@ app.get('/api/course/:id', (req, res) => {
 app.delete('/api/courses/:type/:id', adminAuth, (req, res) => {
   try {
     const { type, id } = req.params;
-    
-    const jsonFilePath = type === 'online' 
+   
+    const jsonFilePath = type === 'online'
       ? path.join(__dirname, 'onlineCourses.json')
       : path.join(__dirname, 'courses.json');
 
@@ -1525,7 +2025,7 @@ app.delete('/api/courses/:type/:id', adminAuth, (req, res) => {
     // Read existing courses
     const fileContent = fs.readFileSync(jsonFilePath, 'utf8');
     let coursesArray = JSON.parse(fileContent);
-    
+   
     // Filter out the course
     coursesArray = coursesArray.filter(c => c.id !== id);
 
@@ -1562,7 +2062,7 @@ app.get('/api/contacts', adminAuth, (req, res) => {
 app.post('/api/contacts', express.json(), (req, res) => {
   try {
     const { name, phone, course, message } = req.body;
-    
+   
     if (!name || !phone || !course || !message) {
       return res.status(400).json({ ok: false, message: 'All fields are required' });
     }
@@ -1580,16 +2080,16 @@ app.post('/api/contacts', express.json(), (req, res) => {
     if (fs.existsSync(contactsFile)) {
       contacts = JSON.parse(fs.readFileSync(contactsFile, 'utf8') || '[]');
     }
-    
+   
     contacts.push(newContact);
-    
+   
     // Keep only last 1000 contacts to prevent file from growing too large
     if (contacts.length > 1000) {
       contacts = contacts.slice(-1000);
     }
 
     fs.writeFileSync(contactsFile, JSON.stringify(contacts, null, 2));
-    
+   
     res.json({ ok: true, contact: newContact });
   } catch (err) {
     console.error('Error creating contact:', err);
@@ -1601,22 +2101,22 @@ app.post('/api/contacts', express.json(), (req, res) => {
 app.delete('/api/contacts/:id', adminAuth, (req, res) => {
   try {
     const { id } = req.params;
-    
+   
     if (!fs.existsSync(contactsFile)) {
       return res.status(404).json({ ok: false, message: 'No contacts found' });
     }
 
     let contacts = JSON.parse(fs.readFileSync(contactsFile, 'utf8') || '[]');
     const initialLength = contacts.length;
-    
+   
     contacts = contacts.filter(c => c.id !== parseInt(id));
-    
+   
     if (contacts.length === initialLength) {
       return res.status(404).json({ ok: false, message: 'Contact not found' });
     }
 
     fs.writeFileSync(contactsFile, JSON.stringify(contacts, null, 2));
-    
+   
     res.json({ ok: true, message: 'Contact deleted successfully' });
   } catch (err) {
     console.error('Error deleting contact:', err);
@@ -1633,31 +2133,31 @@ const studentBadgesFile = path.join(__dirname, 'student_badges.json');
 app.post('/api/student/courses', express.json(), async (req, res) => {
   try {
     const { email } = req.body;
-    
+   
     if (!email) {
       return res.status(400).json({ ok: false, message: 'Email is required' });
     }
 
     // Fetch orders from MongoDB
     console.log(`Fetching courses for student: ${email}`);
-    const studentOrders = await Order.find({ 
+    const studentOrders = await Order.find({
       email: { $regex: new RegExp(`^${email}$`, 'i') } // Case-insensitive match
     });
     console.log(`Found ${studentOrders.length} orders for ${email}`);
-    
+   
     // Get unique course IDs
     const courseIds = [...new Set(studentOrders.map(order => order.courseId?.toString().trim()))].filter(Boolean);
-    
+   
     if (courseIds.length === 0) {
       return res.json({ ok: true, courses: [] });
     }
-    
+   
     // Fetch course details from MongoDB
     const [onlineCourses, onsiteCourses] = await Promise.all([
       OnlineCourse.find({ id: { $in: courseIds } }),
       Course.find({ id: { $in: courseIds } })
     ]);
-    
+   
     const allCourses = [...onlineCourses, ...onsiteCourses];
 
     // Get enrolled courses with progress
@@ -1668,11 +2168,11 @@ app.post('/api/student/courses', express.json(), async (req, res) => {
       // Get progress from MongoDB
       let progress = 0;
       const studentProgress = await StudentProgress.findOne({ email, courseId });
-      
+     
       if (studentProgress) {
         // Calculate progress percentage
         let totalLectures = 0;
-        
+       
         // Count total lectures (handle both flat and nested structure)
         if (course.lectures) {
           course.lectures.forEach(section => {
@@ -1683,7 +2183,7 @@ app.post('/api/student/courses', express.json(), async (req, res) => {
             }
           });
         }
-        
+       
         const completedLectures = studentProgress.completedLectures?.length || 0;
         progress = totalLectures > 0 ? Math.round((completedLectures / totalLectures) * 100) : 0;
       }
@@ -1710,7 +2210,7 @@ app.post('/api/student/courses', express.json(), async (req, res) => {
         certificateTemplate: course.certificateTemplate
       };
     });
-    
+   
     const enrolledCourses = (await Promise.all(enrolledCoursesPromises)).filter(Boolean);
 
     res.json({ ok: true, courses: enrolledCourses });
@@ -1724,13 +2224,13 @@ app.post('/api/student/courses', express.json(), async (req, res) => {
 app.post('/api/student/progress', express.json(), async (req, res) => {
   try {
     const { email, courseId } = req.body;
-    
+   
     if (!email || !courseId) {
       return res.status(400).json({ ok: false, message: 'Email and courseId are required' });
     }
 
     const progress = await StudentProgress.findOne({ email, courseId });
-    
+   
     // Convert array to map
     const progressMap = {};
     let completedCount = 0;
@@ -1766,12 +2266,12 @@ app.post('/api/student/progress', express.json(), async (req, res) => {
             // If 100% complete (or close enough/completed count matches total)
             // Using >= totalLectures to be safe (if backend count logic aligns)
             const percentage = totalLectures > 0 ? (completedCount / totalLectures) * 100 : 0;
-            
+           
             if (percentage >= 100) {
                  // Use Student's Reference Number
                  const user = await User.findOne({ email });
                  const regNo = user ? user.referenceNumber : `SPARK-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-                 
+                
                  certificate = await Certificate.create({
                     email,
                     courseId,
@@ -1804,20 +2304,20 @@ app.post('/api/student/progress', express.json(), async (req, res) => {
 app.post('/api/student/progress/update', express.json(), async (req, res) => {
   try {
     const { email, courseId, lectureId, completed } = req.body;
-    
+   
     if (!email || !courseId || !lectureId) {
       return res.status(400).json({ ok: false, message: 'Email, courseId, and lectureId are required' });
     }
 
     // Find or create progress record
     let progress = await StudentProgress.findOne({ email, courseId });
-    
+   
     if (!progress) {
-      progress = new StudentProgress({ 
-        email, 
-        courseId, 
+      progress = new StudentProgress({
+        email,
+        courseId,
         uid: req.body.uid || 'unknown', // Ideally pass UID from frontend
-        completedLectures: [] 
+        completedLectures: []
       });
     }
 
@@ -1829,7 +2329,7 @@ app.post('/api/student/progress/update', express.json(), async (req, res) => {
     } else {
       progress.completedLectures = progress.completedLectures.filter(id => id !== lectureId);
     }
-    
+   
     progress.lastWatched = new Date();
     await progress.save();
 
@@ -1840,7 +2340,7 @@ app.post('/api/student/progress/update', express.json(), async (req, res) => {
     try {
       // 1. Calculate Course Progress
       const course = await OnlineCourse.findOne({ id: courseId }) || await Course.findOne({ id: courseId });
-      
+     
       if (course) {
         // Count total lectures
         let totalLectures = 0;
@@ -1856,7 +2356,7 @@ app.post('/api/student/progress/update', express.json(), async (req, res) => {
 
         const completedLecturesCount = progress.completedLectures.length;
         const percentage = totalLectures > 0 ? (completedLecturesCount / totalLectures) * 100 : 0;
-        
+       
         // Update percentage in DB
         progress.progressPercentage = percentage;
         await progress.save();
@@ -1898,7 +2398,7 @@ app.post('/api/student/progress/update', express.json(), async (req, res) => {
             // Generate new certificate using User Reference Number
             const userDoc = await User.findOne({ email });
             const regNo = userDoc ? userDoc.referenceNumber : `SPARK-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-            
+           
             certificate = await Certificate.create({
               email,
               courseId,
@@ -1984,10 +2484,10 @@ app.delete('/api/admin/badges/:id', adminAuth, async (req, res) => {
 app.get('/api/student/badges/:email', async (req, res) => {
   try {
     const { email } = req.params;
-    
+   
     const userBadges = await StudentBadge.find({ email });
     const allBadges = await Badge.find();
-    
+   
     const enrichedBadges = userBadges.map(ub => {
       const badgeDef = allBadges.find(b => b.id === ub.badgeId);
       return badgeDef ? { ...badgeDef.toObject(), ...ub.toObject() } : null;
@@ -2017,7 +2517,7 @@ app.post('/api/admin/certificates/upload', adminAuth, upload.single('certificate
 
     // Find the online course and update its certificate template
     const course = await OnlineCourse.findOne({ id: courseId });
-    
+   
     if (!course) {
       // Clean up uploaded file if course not found
       fs.unlink(file.path, () => {});
@@ -2037,8 +2537,8 @@ app.post('/api/admin/certificates/upload', adminAuth, upload.single('certificate
     course.certificateTemplate = certificatePath;
     await course.save();
 
-    res.json({ 
-      ok: true, 
+    res.json({
+      ok: true,
       message: 'Certificate template uploaded successfully',
       certificateTemplate: certificatePath
     });
@@ -2063,7 +2563,7 @@ app.delete('/api/admin/certificates/delete', adminAuth, express.json(), async (r
     for (const courseId of courseIds) {
       try {
         const course = await OnlineCourse.findOne({ id: courseId });
-        
+       
         if (course && course.certificateTemplate) {
           // Delete the certificate file
           const filePath = path.join(__dirname, course.certificateTemplate.replace('/uploads/', 'uploads/'));
@@ -2082,16 +2582,16 @@ app.delete('/api/admin/certificates/delete', adminAuth, express.json(), async (r
     }
 
     if (errors.length > 0) {
-      return res.json({ 
-        ok: true, 
+      return res.json({
+        ok: true,
         message: `Deleted ${deletedCount} certificate(s) with ${errors.length} error(s)`,
         deletedCount,
         errors
       });
     }
 
-    res.json({ 
-      ok: true, 
+    res.json({
+      ok: true,
       message: `Successfully deleted ${deletedCount} certificate template(s)`,
       deletedCount
     });
@@ -2117,7 +2617,7 @@ app.get('/api/admin/activity-logs', adminAuth, async (req, res) => {
 app.post('/api/admin/activity-logs', adminAuth, express.json(), async (req, res) => {
   try {
     const { type, title, message, user } = req.body;
-    
+   
     const newLog = await ActivityLog.create({
       id: Date.now().toString(),
       type: type || 'info',
@@ -2126,7 +2626,7 @@ app.post('/api/admin/activity-logs', adminAuth, express.json(), async (req, res)
       user: user || 'System',
       time: new Date()
     });
-    
+   
     res.json({ ok: true, log: newLog });
   } catch (err) {
     console.error('Error creating activity log:', err);
@@ -2142,3 +2642,4 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 module.exports = app;
+

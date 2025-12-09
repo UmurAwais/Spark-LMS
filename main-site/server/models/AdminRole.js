@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const adminRoleSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
+  name: { type: String, default: 'Sajid Ali' },
   role: { 
     type: String, 
     required: true,
@@ -17,6 +18,8 @@ const adminRoleSchema = new mongoose.Schema({
   inviteToken: { type: String },
   tokenExpiry: { type: Date },
   password: { type: String }, // Hashed password after accepting invite
+  recoveryEmail: { type: String }, // Email for password recovery
+  profilePicture: { type: String }, // URL to profile picture
   lastLogin: { type: Date }
 });
 

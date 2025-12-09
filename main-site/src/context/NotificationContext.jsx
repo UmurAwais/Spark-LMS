@@ -79,6 +79,32 @@ export function NotificationProvider({ children }) {
     };
     setNotifications(prev => [newNotif, ...prev]);
 
+    // Play sound based on notification type (only in admin dashboard)
+    const isAdminDashboard = window.location.pathname.startsWith('/admin');
+    const soundEnabled = localStorage.getItem('notification_sound_enabled');
+    const shouldPlaySound = soundEnabled === null || soundEnabled === 'true';
+    
+    if (isAdminDashboard && shouldPlaySound) {
+      try {
+        let soundFile;
+        if (type === 'error') {
+          soundFile = '/src/assets/sounds/error sound.mp3';
+        } else {
+          // For success, info, order, etc.
+          soundFile = '/src/assets/sounds/notification sound.mp3';
+        }
+        
+        const audio = new Audio(soundFile);
+        audio.volume = 0.5; // Set volume to 50%
+        audio.play().catch(err => {
+          console.log('Sound playback failed:', err);
+          // Silently fail if sound can't play (e.g., browser autoplay policy)
+        });
+      } catch (err) {
+        console.log('Sound initialization failed:', err);
+      }
+    }
+
     // Persist to backend activity log
     try {
       const token = localStorage.getItem('admin_token');

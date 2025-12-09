@@ -39,6 +39,7 @@ import AdminActivityLog from "./pages/AdminActivityLog.jsx";
 import StudentProtectedRoute from "./components/StudentProtectedRoute.jsx";
 import AdminRoles from "./pages/AdminRoles.jsx";
 import AcceptInvite from "./pages/AcceptInvite.jsx";
+import AdminProfile from "./pages/AdminProfile.jsx";
 
 const router = createBrowserRouter([
   {
@@ -59,6 +60,7 @@ const router = createBrowserRouter([
           { path: "badges", element: <AdminBadges /> },
           { path: "activity", element: <AdminActivityLog /> },
           { path: "roles", element: <AdminRoles /> },
+          { path: "profile", element: <AdminProfile /> },
         ]
       }
     ]

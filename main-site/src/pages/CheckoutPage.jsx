@@ -177,7 +177,7 @@ function CheckoutPage({ selectedCourse }) {
         <form onSubmit={handleSubmit} className="lg:col-span-2">
           
           {serverMsg && (
-            <div className="text-sm rounded-md px-3 py-2 bg-[#fff7e6] border border-[#f8d488] text-[#7a4b00] mb-4">
+            <div className="text-sm rounded-md px-3 py-2 bg-green-50 border border-green-200 text-green-800 mb-4">
               {serverMsg}
             </div>
           )}

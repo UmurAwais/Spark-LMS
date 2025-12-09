@@ -1,5 +1,5 @@
 import skinImg from "../assets/skin care course.png";
-import shopifyOnlineImg from "../assets/shopify masterclass course.png";
+import ppscOnlineImg from "../assets/ppsc course.png";
 import englishOnlineImg from "../assets/english speaking course.png";
 
 export const onlineCourses = [
@@ -77,7 +77,7 @@ export const onlineCourses = [
   },  
   {
     id: "ppsc",
-    image: shopifyOnlineImg,
+    image: ppscOnlineImg,
     title: "PPSC Preparation: The Complete Competitive Exam Preparation Course",
     excerpt:
       "Master the art of competitive exam preparation with our comprehensive online course designed for Pakistani students and professionals.",

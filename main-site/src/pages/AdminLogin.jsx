@@ -63,6 +63,8 @@ export default function AdminLogin() {
         localStorage.setItem("admin_token", data.token);
         localStorage.setItem("admin_role", data.role || "super_admin");
         localStorage.setItem("admin_email", data.email || "admin");
+        localStorage.setItem("admin_name", data.name || "Sajid Ali");
+        localStorage.setItem("admin_profile_picture", data.profilePicture || "");
         
         addNotification({
           type: 'success',
@@ -96,6 +98,8 @@ export default function AdminLogin() {
         localStorage.setItem("admin_token", data.token);
         localStorage.setItem("admin_role", data.role);
         localStorage.setItem("admin_email", data.email);
+        localStorage.setItem("admin_name", data.name || "Sajid Ali");
+        localStorage.setItem("admin_profile_picture", data.profilePicture || "");
         localStorage.setItem("admin_permissions", JSON.stringify(data.permissions || []));
         
         addNotification({

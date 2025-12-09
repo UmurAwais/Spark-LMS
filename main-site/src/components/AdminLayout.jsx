@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield, Volume2, VolumeX } from 'lucide-react';
 import Logo from '../assets/Spark.png';
 import { apiFetch } from '../config';
 import { useNotifications } from '../context/NotificationContext';
@@ -27,20 +27,30 @@ export default function AdminLayout({ children }) {
   const navigate = useNavigate();
   const { notifications, unreadCount, markAllAsRead, clearAll, addNotification } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    const saved = localStorage.getItem('admin_sound_enabled');
+    return saved === null ? true : saved === 'true';
+  });
   const notifRef = useRef(null);
   
   // Get user role and permissions
   const [userRole, setUserRole] = useState('super_admin');
   const [userEmail, setUserEmail] = useState('admin');
+  const [userName, setUserName] = useState('Sajid Ali');
+  const [userProfilePicture, setUserProfilePicture] = useState(null);
   const [userPermissions, setUserPermissions] = useState([]);
 
   useEffect(() => {
     const role = localStorage.getItem('admin_role') || 'super_admin';
     const email = localStorage.getItem('admin_email') || 'admin';
+    const name = localStorage.getItem('admin_name') || 'Sajid Ali';
+    const profilePicture = localStorage.getItem('admin_profile_picture') || null;
     const permissions = JSON.parse(localStorage.getItem('admin_permissions') || '[]');
     
     setUserRole(role);
     setUserEmail(email);
+    setUserName(name);
+    setUserProfilePicture(profilePicture);
     setUserPermissions(permissions);
   }, []);
 
@@ -309,15 +319,38 @@ export default function AdminLayout({ children }) {
               )}
             </div>
             
-            <div className="flex items-center gap-3">
+            {/* Sound Toggle Button */}
+            <button
+              onClick={() => {
+                const newValue = !soundEnabled;
+                setSoundEnabled(newValue);
+                localStorage.setItem('admin_sound_enabled', newValue.toString());
+                localStorage.setItem('notification_sound_enabled', newValue.toString());
+              }}
+              className="text-gray-600 hover:text-[#0d9c06] hover:bg-[#daffd8] py-2 px-2 rounded-md transition-all ease-in-out duration-300 cursor-pointer"
+              title={soundEnabled ? "Mute notifications" : "Unmute notifications"}
+            >
+              {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+            </button>
+            
+            <button 
+              onClick={() => navigate('/admin/profile')}
+              className="flex items-center gap-3 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors cursor-pointer"
+            >
               <div className="text-right hidden md:block">
-                <p className="text-sm font-semibold text-gray-800">{userEmail}</p>
+                <p className="text-sm font-semibold text-gray-800">{userName}</p>
                 <p className="text-xs text-gray-500">{getRoleDisplayName(userRole)}</p>
               </div>
-              <div className="h-9 w-9 bg-linear-to-br from-[#0d9c06] to-[#0b7e05] rounded-full flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
-                {userEmail.charAt(0).toUpperCase()}
+              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center shadow-md ring-2 ring-white">
+                {userProfilePicture ? (
+                  <img src={userProfilePicture} alt={userName} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full bg-gradient-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white font-bold">
+                    {userName.charAt(0).toUpperCase()}
+                  </div>
+                )}
               </div>
-            </div>
+            </button>
           </div>
         </header>
 

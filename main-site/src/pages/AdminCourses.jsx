@@ -365,13 +365,11 @@ export default function AdminCourses() {
   async function handleSubmit(e) {
     e.preventDefault();
     
-    // Check if we have either a file or imported URL for image
-    if (!imageFile && !importedImageUrl) {
+    // Check if we have either a file or imported URL or existing image for image
+    if (!imageFile && !importedImageUrl && !imagePreview) {
       alert("Please select a course image or import one from resources");
       return;
     }
-
-
 
     setUploading(true);
     setUploadProgress(0);
@@ -394,19 +392,24 @@ export default function AdminCourses() {
       formDataToSend.append('includes', JSON.stringify(formData.includes.filter(item => item.trim())));
       formDataToSend.append('fullDescription', JSON.stringify(formData.fullDescription.filter(item => item.trim())));
       
-      // Add image (file or URL)
+      // Add image (file or URL) - only if changed
       if (imageFile) {
         formDataToSend.append('image', imageFile);
       } else if (importedImageUrl) {
         formDataToSend.append('imageUrl', importedImageUrl);
+      } else if (isEditing && imagePreview) {
+        // Keep existing image when editing
+        formDataToSend.append('existingImageUrl', imagePreview);
       }
       
-
-
       setUploadProgress(30);
 
-      const response = await apiFetch('/api/courses/upload', {
-        method: 'POST',
+      // Use different endpoint and method for editing vs creating
+      const endpoint = isEditing ? `/api/courses/update/${courseType}/${formData.id}` : '/api/courses/upload';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const response = await apiFetch(endpoint, {
+        method: method,
         headers: { "x-admin-token": localStorage.getItem("admin_token") },
         body: formDataToSend
       });
@@ -416,27 +419,29 @@ export default function AdminCourses() {
       const result = await response.json();
       
       if (!result.ok) {
-        throw new Error(result.message || 'Upload failed');
+        throw new Error(result.message || (isEditing ? 'Update failed' : 'Upload failed'));
       }
 
       setUploadProgress(100);
       addNotification({
         type: 'success',
-        title: 'Course Added',
-        message: `Successfully added "${formData.title}"`
+        title: isEditing ? 'Course Updated' : 'Course Added',
+        message: isEditing ? `Successfully updated "${formData.title}"` : `Successfully added "${formData.title}"`
       });
       
       // Show success modal
-      setSuccessMessage(`Course "${formData.title}" has been added successfully!`);
+      setSuccessMessage(isEditing ? `Course "${formData.title}" has been updated successfully!` : `Course "${formData.title}" has been added successfully!`);
       setShowSuccessModal(true);
       resetForm();
       setShowModal(false);
+      setIsEditing(false);
+      setSelectedCourses([]);
       
       // Refetch courses instead of reloading
       await fetchDynamicCourses();
     } catch (error) {
-      console.error("Error adding course:", error);
-      alert("Error adding course: " + error.message);
+      console.error(isEditing ? "Error updating course:" : "Error adding course:", error);
+      alert((isEditing ? "Error updating course: " : "Error adding course: ") + error.message);
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -465,6 +470,7 @@ export default function AdminCourses() {
     setImportedVideoUrl(null);
     setImportedImageUrl(null);
     setCourseType(null);
+    setIsEditing(false);
   }
 
   function toggleCourseSelection(courseId, type) {
@@ -595,9 +601,11 @@ export default function AdminCourses() {
             <span className="text-[12px] text-slate-500 ring-1 ring-slate-200 px-2 py-0.5 rounded-md">
               {course.ratingCount || "0 ratings"}
             </span>
-            <span className="text-[12px] text-slate-500 ring-1 ring-slate-200 px-2 py-0.5 rounded-md">
-              {course.duration || "Self-paced"}
-            </span>
+            {type === 'onsite' && (
+              <span className="text-[12px] text-slate-500 ring-1 ring-slate-200 px-2 py-0.5 rounded-md">
+                {course.duration || "Self-paced"}
+              </span>
+            )}
           </div>
 
           {type === 'online' && (
@@ -655,7 +663,7 @@ export default function AdminCourses() {
                           ratingCount: courseToEdit.ratingCount || '0 ratings',
                           duration: courseToEdit.duration || '2 Months',
                           language: courseToEdit.language || 'Urdu / Hindi',
-                          badge: courseToEdit.badge?.label || '',
+                          badge: typeof courseToEdit.badge === 'object' ? (courseToEdit.badge?.label || '') : (courseToEdit.badge || ''),
                           whatYouWillLearn: courseToEdit.whatYouWillLearn || [''],
                           includes: courseToEdit.includes || [''],
                           fullDescription: courseToEdit.fullDescription || ['']
@@ -822,8 +830,12 @@ export default function AdminCourses() {
                           onChange={(e) => setFormData({ ...formData, id: e.target.value })}
                           className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                           placeholder="e.g., web-development-2026"
+                          disabled={isEditing}
                           required
                         />
+                        {isEditing && (
+                          <p className="text-xs text-gray-500 mt-1">Course ID cannot be changed when editing</p>
+                        )}
                       </div>
 
                       <div>
@@ -865,7 +877,7 @@ export default function AdminCourses() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className={`grid grid-cols-1 gap-4 ${courseType === 'onsite' ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">Rating</label>
                         <input
@@ -888,16 +900,18 @@ export default function AdminCourses() {
                           placeholder="e.g., 1,234 ratings"
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">Duration</label>
-                        <input
-                          type="text"
-                          value={formData.duration}
-                          onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                          className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
-                          placeholder="e.g., 2 Months"
-                        />
-                      </div>
+                      {courseType === 'onsite' && (
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-900 mb-2">Duration</label>
+                          <input
+                            type="text"
+                            value={formData.duration}
+                            onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                            className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                            placeholder="e.g., 2 Months"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1099,7 +1113,7 @@ export default function AdminCourses() {
                         disabled={uploading}
                         className="flex-1 bg-[#0d9c06] hover:bg-[#0b8005] text-white py-2 px-6 rounded-lg font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                       >
-                        {uploading ? "Uploading..." : "Add Course"}
+                        {uploading ? (isEditing ? "Saving..." : "Uploading...") : (isEditing ? "Save Changes" : "Add Course")}
                       </button>
                     </div>
                   </form>
