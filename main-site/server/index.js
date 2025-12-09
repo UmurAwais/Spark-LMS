@@ -82,6 +82,8 @@ if (fs.existsSync(serviceAccountPath)) {
 
 const app = express();
 const PORT = process.env.PORT || 4001;
+console.log('🚀 Starting Server...');
+console.log(`📌 Configured PORT: ${PORT}`);
 
 // Enable CORS with explicit options to ensure browser preflight succeeds
 // Enable CORS with explicit options to ensure browser preflight succeeds
@@ -2652,8 +2654,10 @@ app.post('/api/admin/activity-logs', adminAuth, express.json(), async (req, res)
 });
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+console.log('🏁 Attempting to start server...');
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server listening on port ${PORT}`);
+  console.log(`🌐 Accessible at http://localhost:${PORT}`);
 });
 
 module.exports = app;
