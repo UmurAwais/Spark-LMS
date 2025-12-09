@@ -27,30 +27,7 @@ const crypto = require('crypto');
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/spark-lms';
 let isMongoDBConnected = false;
 
-mongoose.connect(MONGODB_URI, {
-  serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
-  socketTimeoutMS: 45000,
-})
-  .then(() => {
-    console.log('✅ Connected to MongoDB');
-    console.log(`📊 Database: ${MONGODB_URI}`);
-    isMongoDBConnected = true;
-  })
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err.message);
-    console.error('');
-    console.error('🔧 TROUBLESHOOTING:');
-    console.error('   MongoDB is not running or not installed.');
-    console.error('   Please check MONGODB_SETUP.md in the project root for setup instructions.');
-    console.error('');
-    console.error('   Quick fixes:');
-    console.error('   1. Install MongoDB: https://www.mongodb.com/try/download/community');
-    console.error('   2. Start MongoDB service: net start MongoDB');
-    console.error('   3. Or use MongoDB Atlas (cloud): https://www.mongodb.com/cloud/atlas');
-    console.error('');
-    console.error('⚠️  Server will continue running but database operations will fail.');
-    console.error('');
-  });
+// Connection logic moved to app.listen
 
 // Export connection status checker
 function checkMongoConnection(req, res, next) {
@@ -112,6 +89,11 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 app.use(express.json());
+
+// Root Route for Health Checks
+app.get('/', (req, res) => {
+  res.send('✅ Spark LMS Backend is Running!');
+});
 
 // Basic request logger to help debug network issues
 app.use((req, res, next) => {
@@ -2632,32 +2614,27 @@ app.get('/api/admin/activity-logs', adminAuth, async (req, res) => {
   }
 });
 
-// Create activity log
-app.post('/api/admin/activity-logs', adminAuth, express.json(), async (req, res) => {
-  try {
-    const { type, title, message, user } = req.body;
-   
-    const newLog = await ActivityLog.create({
-      id: Date.now().toString(),
-      type: type || 'info',
-      title: title || 'System Activity',
-      message: message || '',
-      user: user || 'System',
-      time: new Date()
-    });
-   
-    res.json({ ok: true, log: newLog });
-  } catch (err) {
-    console.error('Error creating activity log:', err);
-    res.status(500).json({ ok: false, message: err.message });
-  }
-});
-
 // Start the server
 console.log('🏁 Attempting to start server...');
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server listening on port ${PORT}`);
-  console.log(`🌐 Accessible at http://localhost:${PORT}`);
+// Force binding to 0.0.0.0 (Required for Railway/Docker)
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server started successfully!`);
+  console.log(`📡 Listening on port ${PORT} (0.0.0.0)`);
+  
+  // Connect to MongoDB AFTER server starts
+  console.log('🔌 Connecting to MongoDB...');
+  mongoose.connect(MONGODB_URI, {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+  })
+    .then(() => {
+      console.log('✅ Connected to MongoDB');
+      console.log(`📊 Database: ${MONGODB_URI.split('@')[1] || 'Local/Protected'}`); 
+      isMongoDBConnected = true;
+    })
+    .catch(err => {
+      console.error('❌ MongoDB connection error:', err.message);
+    });
 });
 
 module.exports = app;
