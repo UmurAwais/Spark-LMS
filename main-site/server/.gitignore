@@ -25,7 +25,7 @@ Thumbs.db
 *.swo
 
 # Uploads (optional - comment out if you want to include uploads)
-uploads/
+# uploads/
 
 # Build files
 dist/
