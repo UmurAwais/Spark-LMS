@@ -84,8 +84,25 @@ const app = express();
 const PORT = process.env.PORT || 4001;
 
 // Enable CORS with explicit options to ensure browser preflight succeeds
+// Enable CORS with explicit options to ensure browser preflight succeeds
 const corsOptions = {
-  origin: true, // reflect request origin
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://sparktrainings.vercel.app',
+      'https://spark-lms-backend-production.up.railway.app'
+    ];
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "x-admin-token"],
   credentials: true,
