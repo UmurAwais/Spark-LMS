@@ -141,7 +141,16 @@ export default function OnlineCoursesGrid() {
   }
 
   useEffect(() => {
-    fetchDynamicCourses();
+    // Only fetch if cache is expired or empty
+    const cached = localStorage.getItem('online_courses_cache');
+    if (!cached || courses.length === 0) {
+      fetchDynamicCourses();
+    } else {
+      const { timestamp } = JSON.parse(cached);
+      if (Date.now() - timestamp >= 5 * 60 * 1000) {
+        fetchDynamicCourses();
+      }
+    }
   }, []);
 
   return (
