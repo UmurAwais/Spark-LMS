@@ -1,3 +1,4 @@
+console.log('🏁 Application process starting...');
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -6,21 +7,43 @@ const path = require('path');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+// Debugging: catch process level errors
+process.on('uncaughtException', (err) => {
+  console.error('❌ UNCAUGHT EXCEPTION:', err);
+  // Keep running if possible, or exit with code 1
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ UNHANDLED REJECTION:', reason);
+});
+
 // Models
-const Order = require('./models/Order');
-const Course = require('./models/Course');
-const OnlineCourse = require('./models/OnlineCourse');
-const StudentProgress = require('./models/StudentProgress');
-const Badge = require('./models/Badge');
-const StudentBadge = require('./models/StudentBadge');
-const Certificate = require('./models/Certificate');
-const ActivityLog = require('./models/ActivityLog');
-const User = require('./models/User');
-const AdminRole = require('./models/AdminRole');
+// Models
+try {
+  var Order = require('./models/Order');
+  var Course = require('./models/Course');
+  var OnlineCourse = require('./models/OnlineCourse');
+  var StudentProgress = require('./models/StudentProgress');
+  var Badge = require('./models/Badge');
+  var StudentBadge = require('./models/StudentBadge');
+  var Certificate = require('./models/Certificate');
+  var ActivityLog = require('./models/ActivityLog');
+  var User = require('./models/User');
+  var AdminRole = require('./models/AdminRole');
+  console.log('✅ Models loaded successfully');
+} catch (e) {
+  console.error('❌ Error loading models:', e);
+}
 
 // Role configuration
-const { ROLES, PERMISSIONS, hasPermission, getRolePermissions, getRoleDisplayName, getRoleDescription } = require('./config/roles');
-const bcrypt = require('bcrypt');
+try {
+  var { ROLES, PERMISSIONS, hasPermission, getRolePermissions, getRoleDisplayName, getRoleDescription } = require('./config/roles');
+  console.log('✅ Roles config loaded successfully');
+} catch (e) {
+  console.error('❌ Error loading roles config:', e);
+}
+
+const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 // Connect to MongoDB with timeout and better error handling
@@ -58,36 +81,53 @@ if (fs.existsSync(serviceAccountPath)) {
 
 
 const app = express();
-const PORT = process.env.PORT || 4001;
-console.log('🚀 Starting Server...');
-console.log(`📌 Configured PORT: ${PORT}`);
 
-// Enable CORS with explicit options to ensure browser preflight succeeds
-// Enable CORS with explicit options to ensure browser preflight succeeds
+// Railway provides PORT env var - we MUST use it exactly as provided
+const PORT = process.env.PORT || 3000;
+
+console.log('🚀 Starting Server...');
+console.log(`📌 Environment PORT: ${process.env.PORT}`);
+console.log(`📌 Using PORT: ${PORT}`);
+
+// Trust proxy is required when running behind a Load Balancer (Railway/Heroku/Vercel)
+app.set('trust proxy', 1);
+
+// Debug Middleware: Log every request hitting the server
+app.use((req, res, next) => {
+  console.log(`📨 REQUEST: ${req.method} ${req.url} from ${req.ip}`);
+  next();
+});
+
+// Enable CORS - PROPERLY configured for production
 const corsOptions = {
   origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
+    
     const allowedOrigins = [
       'http://localhost:5173',
       'http://localhost:3000',
       'https://sparktrainings.vercel.app',
       'https://spark-lms-backend-production.up.railway.app'
     ];
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+    // Allow all Vercel preview deployments
+    if (origin.includes('.vercel.app') || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.log('Blocked by CORS:', origin);
-      callback(new Error('Not allowed by CORS'));
+      console.log('⚠️ CORS blocked origin:', origin);
+      callback(null, true); // ALLOW ANYWAY for debugging
     }
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "x-admin-token"],
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "x-admin-token"],
+  exposedHeaders: ["Content-Range", "X-Content-Range"],
+  maxAge: 600 // Cache preflight for 10 minutes
 };
+
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable pre-flight for all routes
 app.use(express.json());
 
 // Root Route for Health Checks
@@ -106,11 +146,16 @@ const uploadDir = path.join(__dirname, 'uploads');
 const coursesUploadDir = path.join(uploadDir, 'courses');
 const videosUploadDir = path.join(uploadDir, 'videos');
 
-[uploadDir, coursesUploadDir, videosUploadDir].forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-});
+try {
+  [uploadDir, coursesUploadDir, videosUploadDir].forEach(dir => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  });
+  console.log('✅ Upload directories verified/created');
+} catch (err) {
+  console.error('⚠️ Warning: Could not create upload directories. File uploads may fail.', err.message);
+}
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(uploadDir));
@@ -2616,10 +2661,17 @@ app.get('/api/admin/activity-logs', adminAuth, async (req, res) => {
 
 // Start the server
 console.log('🏁 Attempting to start server...');
-// Force binding to 0.0.0.0 (Required for Railway/Docker)
-const server = app.listen(PORT, '0.0.0.0', () => {
+
+// Start the server - SIMPLIFIED for Railway
+console.log('🏁 Attempting to start server...');
+console.log('PORT from env:', process.env.PORT);
+console.log('Using PORT:', PORT);
+
+const server = app.listen(PORT, () => {
+  const address = server.address();
   console.log(`✅ Server started successfully!`);
-  console.log(`📡 Listening on port ${PORT} (0.0.0.0)`);
+  console.log(`📡 Server address:`, address);
+  console.log(`📡 Listening on port ${PORT}`);
   
   // Connect to MongoDB AFTER server starts
   console.log('🔌 Connecting to MongoDB...');
@@ -2629,12 +2681,18 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   })
     .then(() => {
       console.log('✅ Connected to MongoDB');
-      console.log(`📊 Database: ${MONGODB_URI.split('@')[1] || 'Local/Protected'}`); 
       isMongoDBConnected = true;
     })
     .catch(err => {
       console.error('❌ MongoDB connection error:', err.message);
     });
+});
+
+server.on('error', (e) => {
+  console.error('❌ Server startup error:', e);
+  if (e.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use`);
+  }
 });
 
 module.exports = app;

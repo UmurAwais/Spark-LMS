@@ -88,10 +88,10 @@ export function NotificationProvider({ children }) {
       try {
         let soundFile;
         if (type === 'error') {
-          soundFile = '/src/assets/sounds/error sound.mp3';
+          soundFile = '/sounds/error-sound.mp3';
         } else {
           // For success, info, order, etc.
-          soundFile = '/src/assets/sounds/notification sound.mp3';
+          soundFile = '/sounds/notification-sound.mp3';
         }
         
         const audio = new Audio(soundFile);
