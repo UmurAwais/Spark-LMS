@@ -1,6 +1,6 @@
-import skinImg from "../assets/skin care course.png";
-import ppscOnlineImg from "../assets/ppsc course.png";
-import englishOnlineImg from "../assets/english speaking course.png";
+import skinImg from "../assets/skin care course.jpg";
+import ppscOnlineImg from "../assets/ppsc course.jpg";
+import englishOnlineImg from "../assets/english speaking course.jpg";
 
 export const onlineCourses = [
   {
