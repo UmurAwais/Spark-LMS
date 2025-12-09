@@ -6,13 +6,21 @@ import { CourseCardSkeleton } from "./SkeletonLoaders";
 import { apiFetch } from "../config";
 
 export default function UdemyCoursesCarousel({ hideHeading = false }) {
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState(() => {
+    // Try to load from cache first
+    const cached = localStorage.getItem('onsite_courses_cache');
+    if (cached) {
+      const { data, timestamp } = JSON.parse(cached);
+      // Cache valid for 5 minutes
+      if (Date.now() - timestamp < 5 * 60 * 1000) {
+        return data;
+      }
+    }
+    return initialCourses;
+  });
+  const [loading, setLoading] = useState(false);
   
   useEffect(() => {
-    // Show skeletons for 1.3 seconds
-    const timer = setTimeout(() => setLoading(false), 1300);
-    
     // Fetch dynamic courses from API
     async function fetchDynamicCourses() {
       try {
@@ -20,19 +28,23 @@ export default function UdemyCoursesCarousel({ hideHeading = false }) {
         const response = await apiFetch(`/api/courses/onsite?t=${timestamp}`);
         const data = await response.json();
         
-        if (data.ok) {
-          // Use API data if available (even if empty array)
-          setCourses(data.courses || []);
+        if (data.ok && data.courses) {
+          setCourses(data.courses);
+          // Cache the results
+          localStorage.setItem('onsite_courses_cache', JSON.stringify({
+            data: data.courses,
+            timestamp: Date.now()
+          }));
         }
       } catch (e) {
         console.error("CoursesTab: Error fetching dynamic courses:", e);
-        // Keep static courses if API fails
+        // Keep cached/static courses if API fails
+      } finally {
+        setLoading(false);
       }
     }
     
     fetchDynamicCourses();
-    
-    return () => clearTimeout(timer);
   }, []);
 
   return (

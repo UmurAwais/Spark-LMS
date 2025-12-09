@@ -157,8 +157,12 @@ try {
   console.error('⚠️ Warning: Could not create upload directories. File uploads may fail.', err.message);
 }
 
-// Serve uploaded files statically
-app.use('/uploads', express.static(uploadDir));
+// Serve uploaded files statically with cache headers
+app.use('/uploads', express.static(uploadDir, {
+  maxAge: '7d', // Cache for 7 days
+  etag: true,
+  lastModified: true
+}));
 
 // Configure multer storage
 const storage = multer.diskStorage({

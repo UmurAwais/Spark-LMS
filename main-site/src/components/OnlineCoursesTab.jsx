@@ -99,33 +99,49 @@ function OnlineCourseCard({ c }) {
 }
 
 export default function OnlineCoursesGrid() {
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState(() => {
+    // Try to load from cache first
+    const cached = localStorage.getItem('online_courses_cache');
+    if (cached) {
+      const { data, timestamp } = JSON.parse(cached);
+      // Cache valid for 5 minutes
+      if (Date.now() - timestamp < 5 * 60 * 1000) {
+        return data;
+      }
+    }
+    return initialOnlineCourses;
+  });
+  const [loading, setLoading] = useState(false);
 
   // Fetch dynamic courses from API
   async function fetchDynamicCourses() {
     try {
+      // Only set loading to true if we don't have courses already (e.g., from cache or initial data)
+      if (courses.length === 0) {
+        setLoading(true);
+      }
       const timestamp = new Date().getTime();
       const response = await apiFetch(`/api/courses/online?t=${timestamp}`);
       const data = await response.json();
       
-      if (data.ok) {
-        // Use API data if available (even if empty array)
-        setCourses(data.courses || []);
+      if (data.ok && data.courses) {
+        setCourses(data.courses);
+        // Cache the results
+        localStorage.setItem('online_courses_cache', JSON.stringify({
+          data: data.courses,
+          timestamp: Date.now()
+        }));
       }
     } catch (e) {
       console.error("Error fetching dynamic online courses:", e);
-      // Keep static courses if API fails
+      // Keep cached/static courses if API fails
+    } finally {
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    // Show skeletons for 1.3 seconds
-    const timer = setTimeout(() => setLoading(false), 1300);
-    
     fetchDynamicCourses();
-    
-    return () => clearTimeout(timer);
   }, []);
 
   return (
