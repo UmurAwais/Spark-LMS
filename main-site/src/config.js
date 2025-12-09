@@ -75,7 +75,9 @@ export const API_URL_PROMISE = isDevelopment ? detectApiUrl() : Promise.resolve(
 
 // Export synchronous API_URL for immediate use (will be updated after detection)
 // Export synchronous API_URL for immediate use (will be updated after detection)
-export let API_URL = isDevelopment ? 'http://localhost:4001' : ''; // Relative path for production (same domain)
+export let API_URL = isDevelopment 
+  ? 'http://localhost:4001' 
+  : (import.meta.env.VITE_API_URL || 'https://spark-lms-backend-production.up.railway.app');
 
 // Update API_URL after detection
 if (isDevelopment) {
