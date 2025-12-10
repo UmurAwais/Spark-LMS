@@ -569,7 +569,13 @@ export default function AdminCourses() {
         <div className="p-3 pb-0">
           <div className="overflow-hidden rounded-xl h-48 bg-gray-100">
             <img
-              src={course.image?.startsWith('http') ? course.image : `${import.meta.env.VITE_API_URL || 'https://spark-lms-backend-production.up.railway.app'}${course.image}`}
+              src={
+                course.image?.startsWith('http') 
+                  ? course.image 
+                  : course.image?.startsWith('/uploads')
+                    ? `${import.meta.env.VITE_API_URL || 'https://spark-lms-backend-production.up.railway.app'}${course.image}`
+                    : course.image
+              }
               alt={course.title}
               className="h-full w-full object-cover"
               onError={(e) => {e.target.src = "https://via.placeholder.com/300x200?text=No+Image"}}

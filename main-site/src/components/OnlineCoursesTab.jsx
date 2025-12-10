@@ -35,7 +35,13 @@ function OnlineCourseCard({ c }) {
       <div className="p-3 pb-0">
         <div className="overflow-hidden rounded-xl">
           <img
-            src={c.image?.startsWith('http') ? c.image : `${import.meta.env.VITE_API_URL || 'https://spark-lms-backend-production.up.railway.app'}${c.image}`}
+            src={
+              c.image?.startsWith('http') 
+                ? c.image 
+                : c.image?.startsWith('/uploads')
+                  ? `${import.meta.env.VITE_API_URL || 'https://spark-lms-backend-production.up.railway.app'}${c.image}`
+                  : c.image
+            }
             alt={c.title}
             className="h-full w-full object-cover"
             onError={(e) => {e.target.src = "https://via.placeholder.com/300x200?text=No+Image"}}
