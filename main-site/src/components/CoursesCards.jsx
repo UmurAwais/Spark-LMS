@@ -2,8 +2,8 @@ import React from "react";
 import { ArrowRight, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import courses1 from "../assets/course2.png";
-import courses4 from "../assets/Courses4.png";
+import courses1 from "../assets/course2.jpg";
+import courses4 from "../assets/Courses4.jpg";
 
 const SLIDES = [
   { id: 1, title: "Onsite Courses", learners: "1.7M+", img: courses1, href: "/courses" },

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import desktopImg from "../assets/Contact Image.webp";   // add your desktop image
+import desktopImg from "../assets/Contact Image.png";   // add your desktop image
 import mobileImg from "../assets/Contact Image Mobile.png"; // add your mobile image
 import BannerButton from "../components/BannerButton.jsx";
 import ContactForm from "../components/ContactForm.jsx";
