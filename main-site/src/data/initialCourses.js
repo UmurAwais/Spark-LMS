@@ -1,18 +1,10 @@
-// images
-import webImg from "../assets/web development course.jpg";
-import graphicImg from "../assets/graphic design course.jpg";
-import videoImg from "../assets/video editing course.jpg";
-import tiktokImg from "../assets/tiktok course.jpg";
-import ytImg from "../assets/youtube automation course.jpg";
-import shopifyImg from "../assets/shopify course.jpg";
-import shopify2Img from "../assets/shopify masterclass course.jpg";
-import socialMediaImg from "../assets/social media marketing.jpg";
-import englishImg from "../assets/english speaking course.jpg";
+// Images are now served from the public folder for better production compatibility
+// No imports needed - Vite serves public folder assets at the root URL
 
 export const initialCourses = [
   {
     id: "web-development",
-    image: webImg,
+    image: "/courses/web development course.jpg",
     title: "Web Development with AI: Build 10 Projects Using GPT-4",
     excerpt: "Master WordPress, HTML, and CSS with hands-on, on-site training in Pakistan.",
     price: "Rs. 30,000",  
@@ -24,7 +16,7 @@ export const initialCourses = [
   },
   {
     id: "graphic-design",
-    image: graphicImg,
+    image: "/courses/graphic design course.jpg",
     title: "Graphic Design Masterclass: Learn Graphic Design in 2026",
     excerpt: "Master graphic design with Adobe Photoshop and Illustrator in this on-site masterclass.",
     price: "Rs. 23,000",
@@ -36,7 +28,7 @@ export const initialCourses = [
   },
   {
     id: "video-editing",
-    image: videoImg,
+    image: "/courses/video editing course.jpg",
     title: "Video Editing Masterclass: Video Editing with AI Tools 2026",
     excerpt: "Learn advanced video editing using Adobe Premiere Pro, After Effects, and powerful AI tools.",
     price: "Rs. 30,000",
@@ -48,7 +40,7 @@ export const initialCourses = [
   },
   {
     id: "tiktok-shop",
-    image: tiktokImg,
+    image: "/courses/tiktok course.jpg",
     title: "Tiktok Shop Mastery 2026: From Beginner to Pro Seller",
     excerpt: "Learn how to start, grow, and scale a profitable TikTok Shop in Pakistan.",
     price: "Rs. 25,000",
@@ -60,7 +52,7 @@ export const initialCourses = [
   },
   {
     id: "youtube-automation",
-    image: ytImg,
+    image: "/courses/youtube automation course.jpg",
     title: "YouTube Automation with AI: Build a 6-Figure Channel 2026",
     excerpt: "Learn how to build and scale a faceless YouTube channel using AI tools and automation.",
     price: "Rs. 15,000",
@@ -72,7 +64,7 @@ export const initialCourses = [
   },
   {
     id: "shopify-masterclass",
-    image: shopify2Img,
+    image: "/courses/shopify masterclass course.jpg",
     title: "Shopify Masterclass 2026: Build & Scale Your Online Store",
     excerpt: "Learn Shopify store creation and eCommerce fundamentals in this 40-day masterclass.",
     price: "Rs. 25,000",
@@ -84,7 +76,7 @@ export const initialCourses = [
   },
   {
     id: "shopify-meta-ads",
-    image: shopifyImg,
+    image: "/courses/shopify course.jpg",
     title: "Shopify + Meta Ads Mastery 2026: From Zero to Hero",
     excerpt: "Master Shopify store creation and Meta Ads strategy in this hands-on course.",
     price: "Rs. 35,000", 
@@ -96,7 +88,7 @@ export const initialCourses = [
   },
   {
     id: "social-media-marketing",
-    image: socialMediaImg,
+    image: "/courses/social media marketing.jpg",
     title: "Social Media Marketing Mastery 2026: From Zero to Hero",
     excerpt: "Master social media marketing across Facebook, Instagram, and TikTok.",
     price: "Rs. 20,000",  
@@ -108,7 +100,7 @@ export const initialCourses = [
   },
   {
     id: "english-speaking-mastery",
-    image: englishImg,
+    image: "/courses/english speaking course.jpg",
     title: "English Speaking Mastery 2026: From Beginner to Fluent",
     excerpt: "Become a confident English speaker with this practical, on-site program.",
     price: "Rs. 15,000",

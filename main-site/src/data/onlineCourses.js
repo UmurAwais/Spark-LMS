@@ -1,11 +1,10 @@
-import skinImg from "../assets/skin care course.jpg";
-import ppscOnlineImg from "../assets/ppsc course.jpg";
-import englishOnlineImg from "../assets/english speaking course.jpg";
+// Images are now served from the public folder for better production compatibility
+// No imports needed - Vite serves public folder assets at the root URL
 
 export const onlineCourses = [
   {
     id: "skin-care",
-    image: skinImg,
+    image: "/courses/skin-care-course.jpg",
     title: "Skin Care Formulation: Complete Guide to Creating Skincare Products",
     excerpt:
       "Master the science of Skincare Formulation! This comprehensive online course teaches you the complete process of creating your own safe, stable, and effective cosmetics, from beginner basics to advanced anti-aging serums.",
@@ -39,7 +38,7 @@ export const onlineCourses = [
   },
   {
     id: "english-online",
-    image: englishOnlineImg,
+    image: "/courses/english-speaking-course.jpg",
     title: "English Speaking (Online): From Shy to Confident in few days",
     excerpt:
       "Join online English speaking classes focused on real conversations, confidence-building and practical communication for Pakistani students and professionals.",
@@ -77,7 +76,7 @@ export const onlineCourses = [
   },  
   {
     id: "ppsc",
-    image: ppscOnlineImg,
+    image: "/courses/ppsc-course.jpg",
     title: "PPSC Preparation: The Complete Competitive Exam Preparation Course",
     excerpt:
       "Master the art of competitive exam preparation with our comprehensive online course designed for Pakistani students and professionals.",
