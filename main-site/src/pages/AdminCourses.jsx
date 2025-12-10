@@ -822,7 +822,25 @@ export default function AdminCourses() {
                         </button>
                       </div>
                       {imagePreview && (
-                        <img src={imagePreview} alt="Preview" className="mt-3 w-full h-full object-cover rounded-lg border-2 border-gray-200" />
+                        <img 
+                          src={
+                            imagePreview.startsWith('blob:') 
+                              ? imagePreview  // Local file preview
+                              : imagePreview.startsWith('/courses/') 
+                                ? imagePreview  // Public folder path
+                                : imagePreview.startsWith('http') 
+                                  ? imagePreview  // Full URL (imported from resources)
+                                  : imagePreview.startsWith('/uploads')
+                                    ? `${import.meta.env.VITE_API_URL || 'https://spark-lms-backend-production.up.railway.app'}${imagePreview}`  // Backend upload
+                                    : imagePreview  // Fallback
+                          }
+                          alt="Preview" 
+                          className="mt-3 w-full h-auto max-h-96 object-contain rounded-lg border-2 border-gray-200" 
+                          onError={(e) => {
+                            console.error('Image preview failed to load:', imagePreview);
+                            e.target.src = "https://via.placeholder.com/400x300?text=Image+Preview+Failed";
+                          }}
+                        />
                       )}
                     </div>
 
