@@ -5,6 +5,11 @@ import { Link } from "react-router-dom";
 
 const testimonialData = [
   {
+    name: "Yasir Azad",
+    position: "SMM Expert",
+    review: "Spark Trainings ne mujhe ek expert digital marketer banaya. Inke course ki badolat aaj main apni agency manage kar raha hoon. Best place to learn marketing skills!",
+  },  
+  {
     name: "Ayesha Khan",
     position: "BSCS Student",
     review: "Spark Trainings ne meri life literally change kar di. Web development ka course itna practical tha ke main ab freelance projects le rahi hoon.",
@@ -18,11 +23,6 @@ const testimonialData = [
     name: "Mudassir Saleem",
     position: "Web Developer",
     review: "Spark Trainings ke Web Development course ne meri skills ko next level par le jaaya. Ab main ek reputed IT company mein kaam kar raha hoon.",
-  },
-  {
-    name: "Muhammad Bilal",
-    position: "YouTube Creator",
-    review: "YouTube Automation course ke through mujhe algorithm or content system samajh aaya. Ab main multiple faceless channels manage kar raha hoon.",
   },
 ];
 

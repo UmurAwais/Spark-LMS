@@ -15,7 +15,7 @@ const reviews = [
   {
     name: "Yasir Azad",
     role: "SMM Expert",
-    text: "Social Media Marketing course ne mujhe digital marketing ki duniya se introduce karwaya. Ab main apni agency chala raha hoon aur clients ko results de raha hoon.",
+    text: "Spark Trainings ke Social Media Marketing course ne mujhe digital marketing ki duniya se introduce karwaya. Ab main apni agency chala raha hoon aur clients ko results de raha hoon.",
   },
   {
     name: "Ali Raza",
