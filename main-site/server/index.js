@@ -30,6 +30,7 @@ try {
   var ActivityLog = require('./models/ActivityLog');
   var User = require('./models/User');
   var AdminRole = require('./models/AdminRole');
+  var Gallery = require('./models/Gallery');
   console.log('✅ Models loaded successfully');
 } catch (e) {
   console.error('❌ Error loading models:', e);
@@ -2670,6 +2671,80 @@ app.get('/api/admin/activity-logs', adminAuth, async (req, res) => {
     res.json({ ok: true, logs });
   } catch (err) {
     console.error('Error fetching activity logs:', err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// --- Gallery Management Endpoints ---
+app.get('/api/gallery', async (req, res) => {
+  try {
+    const items = await Gallery.find().sort({ createdAt: -1 });
+    res.json({ ok: true, items });
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+app.post('/api/admin/gallery/add', adminAuth, requirePermission(PERMISSIONS.MANAGE_GALLERY), upload.fields([
+  { name: 'file', maxCount: 1 },
+  { name: 'video', maxCount: 1 },
+  { name: 'thumbnail', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const { title, type, category, externalUrl, thumbnail: externalThumbnail } = req.body;
+    const files = req.files;
+
+    let url = '';
+    let thumbnail = externalThumbnail || '';
+    
+    // Check for uploaded gallery item (image or video)
+    if (files && files['file'] && files['file'][0]) {
+      url = `/uploads/courses/${files['file'][0].filename}`;
+    } else if (files && files['video'] && files['video'][0]) {
+      url = `/uploads/videos/${files['video'][0].filename}`;
+    } else {
+      url = externalUrl;
+    }
+
+    // Check for uploaded thumbnail file
+    if (files && files['thumbnail'] && files['thumbnail'][0]) {
+      thumbnail = `/uploads/courses/${files['thumbnail'][0].filename}`;
+    }
+
+    if (!url) {
+      return res.status(400).json({ ok: false, message: 'URL or File is required' });
+    }
+
+    const newItem = await Gallery.create({
+      title,
+      url,
+      type: type || 'image',
+      category: category || 'General',
+      thumbnail: thumbnail
+    });
+
+    res.json({ ok: true, item: newItem });
+  } catch (err) {
+    console.error('Gallery upload error:', err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+app.delete('/api/admin/gallery/:id', adminAuth, requirePermission(PERMISSIONS.MANAGE_GALLERY), async (req, res) => {
+  try {
+    const item = await Gallery.findById(req.params.id);
+    if (!item) return res.status(404).json({ ok: false, message: 'Item not found' });
+
+    if (item.url && item.url.startsWith('/uploads/')) {
+      const filePath = path.join(__dirname, item.url.replace('/uploads/', 'uploads/'));
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    await Gallery.findByIdAndDelete(req.params.id);
+    res.json({ ok: true, message: 'Item deleted successfully' });
+  } catch (err) {
     res.status(500).json({ ok: false, message: err.message });
   }
 });

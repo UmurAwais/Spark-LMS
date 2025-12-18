@@ -42,6 +42,7 @@ import AcceptInvite from "./pages/AcceptInvite.jsx";
 import AdminProfile from "./pages/AdminProfile.jsx";
 import OnlineCourses from "./pages/OnlineCourses.jsx";
 import OnsiteCourses from "./pages/OnsiteCourses.jsx";
+import AdminGallery from "./pages/AdminGallery.jsx";
 
 const router = createBrowserRouter([
   {
@@ -63,6 +64,7 @@ const router = createBrowserRouter([
           { path: "activity", element: <AdminActivityLog /> },
           { path: "roles", element: <AdminRoles /> },
           { path: "profile", element: <AdminProfile /> },
+          { path: "gallery", element: <AdminGallery /> },
         ]
       }
     ]

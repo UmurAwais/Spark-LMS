@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield, Volume2, VolumeX } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield, Volume2, VolumeX, Image as ImageIcon } from 'lucide-react';
 import Logo from '../assets/Spark.png';
 import { apiFetch } from '../config';
 import { useNotifications } from '../context/NotificationContext';
@@ -19,6 +19,7 @@ const MENU_ITEMS = {
   drive: { to: "/admin/drive", icon: <HardDrive size={20} />, label: "Resources", permission: "view_drive" },
   contacts: { to: "/admin/contacts", icon: <MessageSquare size={20} />, label: "Contacts", permission: "view_contacts" },
   activity: { to: "/admin/activity", icon: <Activity size={20} />, label: "Activity Log", permission: "view_activity" },
+  gallery: { to: "/admin/gallery", icon: <ImageIcon size={20} />, label: "Gallery", permission: "view_gallery" },
   roles: { to: "/admin/roles", icon: <Shield size={20} />, label: "Roles", permission: "view_roles" },
 };
 
@@ -169,6 +170,7 @@ export default function AdminLayout({ children }) {
     if (path === '/admin/activity') return 'Activity Log';
     if (path === '/admin/badges') return 'Badge Management';
     if (path === '/admin/roles') return 'Roles & Permissions';
+    if (path === '/admin/gallery') return 'Gallery Management';
     return 'Admin Panel';
   }
 
@@ -345,7 +347,7 @@ export default function AdminLayout({ children }) {
                 {userProfilePicture ? (
                   <img src={userProfilePicture} alt={userName} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="h-full w-full bg-gradient-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white font-bold">
+                  <div className="h-full w-full bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white font-bold">
                     {userName.charAt(0).toUpperCase()}
                   </div>
                 )}
