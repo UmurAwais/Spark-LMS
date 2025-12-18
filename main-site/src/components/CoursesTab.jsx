@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Star } from "lucide-react";
+import { Star, BadgeCheck, Flame, Trophy, Sprout } from "lucide-react";
 import { Link } from "react-router-dom";
 import { initialCourses } from "../data/initialCourses";
 import { CourseCardSkeleton } from "./SkeletonLoaders";
@@ -111,7 +111,19 @@ function CourseCard({ c }) {
 
       <div className="px-4 pt-3 pb-4">
         {c.badge && (
-           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold mb-2 ${typeof c.badge === 'string' ? 'bg-gray-100 text-gray-800' : c.badge.color}`}>
+           <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold mb-2 ${typeof c.badge === 'string' ? 'bg-gray-100 text-gray-800' : c.badge.color}`}>
+             {(typeof c.badge === 'object' ? c.badge.label : c.badge).includes('Premium') && (
+               <BadgeCheck size={15} className="stroke-[3px]" />
+             )}
+             {(typeof c.badge === 'object' ? c.badge.label : c.badge).includes('Hot') && (
+               <Flame size={15} className="fill-current" />
+             )}
+             {(typeof c.badge === 'object' ? c.badge.label : c.badge).includes('Best') && (
+               <Trophy size={14} className="fill-current" />
+             )}
+             {(typeof c.badge === 'object' ? c.badge.label : c.badge).includes('Beginner') && (
+               <Sprout size={14} className="stroke-[3px]" />
+             )}
              {typeof c.badge === 'object' ? c.badge.label : c.badge}
            </span>
         )}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Star } from "lucide-react";
+import { Star, BadgeCheck, Flame, Trophy, Sprout } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { onlineCourses as initialOnlineCourses } from "../data/onlineCourses";
 import { CourseCardSkeleton } from "./SkeletonLoaders";
@@ -54,8 +54,20 @@ function OnlineCourseCard({ c }) {
         {/* Badge */}
         {c.badge && (
           <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold mb-2 ${c.badge.color}`}
+            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold mb-2 ${c.badge.color}`}
           >
+            {c.badge.label.includes('Premium') && (
+              <BadgeCheck size={15} className="stroke-[3px]" />
+            )}
+            {c.badge.label.includes('Hot') && (
+              <Flame size={15} className="fill-current" />
+            )}
+            {c.badge.label.includes('Best') && (
+              <Trophy size={14} className="fill-current" />
+            )}
+            {c.badge.label.includes('Beginner') && (
+              <Sprout size={14} className="stroke-[3px]" />
+            )}
             {c.badge.label}
           </span>
         )}
