@@ -177,7 +177,7 @@ const ContactForm = () => {
           type="submit"
           disabled={state.submitting}
           className={`
-            w-full mt-6 sm:mt-8 py-3 rounded-xl text-white cursor-pointer font-semibold text-sm transition-all
+            w-full mt-6 sm:mt-8 py-3 rounded-md text-white cursor-pointer font-semibold text-sm transition-all
             ${
               state.submitting
                 ? "bg-[#11c50a] cursor-not-allowed"

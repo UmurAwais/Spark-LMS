@@ -161,7 +161,7 @@ const GalleryPage = () => {
 
               <button
                 onClick={() => setSelected(null)}
-                className="mt-5 w-full py-3 bg-white rounded-lg font-semibold text-black hover:bg-gray-200 transition"
+                className="mt-5 w-full py-3 bg-white rounded-md font-semibold text-black hover:bg-gray-200 transition"
               >
                 Close
               </button>

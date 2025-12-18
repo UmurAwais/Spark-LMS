@@ -68,7 +68,7 @@ const SearchBar = ({ autoFocus = false }) => {
         onSubmit={handleSubmit}
         className="
           group bg-white flex px-1 py-1 
-          rounded-xl border border-slate-300
+          rounded-md border border-slate-300
           transition-all duration-300 overflow-hidden w-full 
           focus-within:border-[#0d9c06] focus-within:ring-2 focus-within:ring-[#0d9c06]/10
         "
@@ -102,7 +102,7 @@ const SearchBar = ({ autoFocus = false }) => {
           className="
             bg-[#0d9c06] hover:bg-[#0b7e05]
             cursor-pointer transition-all 
-            text-white text-sm font-semibold rounded-lg
+            text-white text-sm font-semibold rounded-md
             px-5 flex items-center justify-center
           "
         >
@@ -112,7 +112,7 @@ const SearchBar = ({ autoFocus = false }) => {
 
       {/* SEARCH RESULTS DROPDOWN */}
       {isOpen && results.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-slate-100 overflow-hidden z-100 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-md shadow-2xl border border-slate-100 overflow-hidden z-100 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="p-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Top Results</span>
             <span className="text-[11px] text-[#0d9c06] font-medium">{results.length} found</span>
@@ -167,7 +167,7 @@ const SearchBar = ({ autoFocus = false }) => {
       )}
 
       {isOpen && results.length === 0 && term.trim().length > 1 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-slate-100 p-8 text-center z-100">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-md shadow-2xl border border-slate-100 p-8 text-center z-100">
           <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Search className="text-slate-300" />
           </div>

@@ -114,7 +114,7 @@ function LoginForm() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition cursor-pointer"
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-md font-medium flex items-center justify-center gap-2 transition cursor-pointer"
           >
             Log In
           </button>
