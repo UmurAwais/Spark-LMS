@@ -12,7 +12,8 @@ const SLIDES = [
 
 function UdemyCard({ card }) {
   return (
-    <div className="relative group h-80 sm:h-[360px] md:h-[420px] rounded-[18px] overflow-hidden ring-1 ring-slate-900/10 bg-slate-100">
+    <div>
+    <Link to={card.href} className="block relative group h-80 sm:h-[360px] md:h-[420px] rounded-[18px] overflow-hidden ring-1 ring-slate-900/10 bg-slate-100">
       {/* Image */}
       <img
         src={card.img}
@@ -25,8 +26,7 @@ function UdemyCard({ card }) {
 
       {/* White Bottom Box */}
       <div className="absolute inset-x-4 bottom-4 sm:bottom-6">
-        <Link
-          to={card.href}
+        <div
           className="block rounded-2xl bg-white/95 p-4 sm:p-5 shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition"
         >
           {/* Learners */}
@@ -41,8 +41,9 @@ function UdemyCard({ card }) {
             </h3>
             <ArrowRight className="h-5 w-5 text-slate-700 group-hover:translate-x-1 transition-transform" />
           </div>
-        </Link>
+        </div>
       </div>
+    </Link>
     </div>
   );
 }

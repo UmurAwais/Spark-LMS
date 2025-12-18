@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import desktopImage from "../assets/CoursesImage.webp";
+import desktopImage from "../assets/CoursesImage.jpg";
 import mobileImage from "../assets/CoursesImageMobile.jpg";
 import BannerButton from "../components/BannerButton.jsx";
 import CoursesTab from "../components/CoursesTab.jsx";

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import desktopImage from "../assets/CoursesImage.webp";
-import mobileImage from "../assets/CoursesImageMobile.jpg";
+import desktopImage from "../assets/OnsiteCoursesImage.jpg";
+import mobileImage from "../assets/OnsiteCoursesImageMobile.jpg";
 import BannerButton from "../components/BannerButton.jsx";
 import CoursesTab from "../components/CoursesTab.jsx";
 
@@ -32,7 +32,7 @@ const OnsiteCourses = () => {
       {/* Optional: Content area with spacing below the banner */}
       <div className="block sm:hidden w-full pt-10 pb-10 px-4">
         <h1 className="text-3xl leading-8 font-bold font-sora text-[#1c1d1f] text-center">
-            Learn Skills That Power Success
+            Level Up With Hands-On Training
         </h1>
       </div>
 
