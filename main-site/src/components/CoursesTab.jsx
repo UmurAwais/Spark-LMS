@@ -62,10 +62,10 @@ export default function UdemyCoursesCarousel({ hideHeading = false }) {
         {!hideHeading && (
           <div className="max-w-3xl">
             <h2 className="font-semibold text-2xl sm:text-3xl lg:text-[32px] leading-tight lg:leading-10">
-              Skills to transform your career and life
+              Transform Your Future in Our Classrooms
             </h2>
             <p className="mt-2 text-[15px] sm:text-base text-slate-600">
-              From critical skills to technical topics, Spark Skills supports your professional development.
+              From critical skills to technical topics, Spark Trainings supports your professional development.
             </p>
           </div>
         )}

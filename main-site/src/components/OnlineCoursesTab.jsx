@@ -177,7 +177,7 @@ export default function OnlineCoursesGrid() {
         {/* Heading */}
         <div className="max-w-3xl mb-6">
           <h2 className="font-semibold text-2xl sm:text-3xl lg:text-[32px] leading-tight lg:leading-10">
-            Ready to reimagine your career?
+            Build Your Future Career Online
           </h2>
           <p className="mt-2 text-[15px] sm:text-base text-slate-600">
             Flexible online courses with live classes, recordings and practical projects —
