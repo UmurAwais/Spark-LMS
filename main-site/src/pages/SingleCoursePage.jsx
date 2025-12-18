@@ -7,6 +7,8 @@ import { db } from "../firebaseConfig";
 import { doc, getDoc, collection, query, where, getDocs as firestoreGetDocs } from "firebase/firestore";
 import { apiFetch } from "../config"; // This import is not used but kept for completeness
 
+import { CourseDetailSkeleton } from "../components/SkeletonLoaders";
+
 const defaultWhatYouLearn = [
   "Comprehensive understanding of the subject",
   "Real-world project experience",
@@ -24,43 +26,60 @@ const SingleCoursePage = () => {
 
   useEffect(() => {
     async function load() {
-      setLoading(true);
+      // Avoid flash of loading if data is in initialCourses and we can find it instantly
+      const localCourse = aiCourses.find((c) => c.id === id || c.slug === id);
+      if (localCourse) {
+        setCourse(localCourse);
+        // We still fetch from API to get the latest dynamic data (lectures, etc.)
+      } else {
+        setLoading(true);
+      }
+
       try {
         let foundCourse = null;
 
-        // 1. Try to get by document ID (if it's a valid auto-ID)
+        // 1. Try to get from API (Most up-to-date)
         try {
+          const response = await apiFetch(`/api/course/${id}`);
+          const data = await response.json();
+          if (data.ok && data.course) {
+            foundCourse = data.course;
+          }
+        } catch (apiErr) {
+          console.warn("API fetch failed, falling back to Firestore/local", apiErr);
+        }
+
+        // 2. Fallback to Firestore (Legacy/Backup)
+        if (!foundCourse) {
+          try {
             const docRef = doc(db, "courses", id);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
-                foundCourse = { id: docSnap.id, ...docSnap.data() };
-            }
-        } catch {
-            // ignore invalid doc ID format or other initial fetch errors
-        }
-
-        // 2. If not found, try to query by 'slug' field
-        if (!foundCourse) {
-            const q = query(collection(db, "courses"), where("slug", "==", id));
-            const querySnapshot = await firestoreGetDocs(q);
-            
-            if (!querySnapshot.empty) {
+              foundCourse = { id: docSnap.id, ...docSnap.data() };
+            } else {
+              const q = query(collection(db, "courses"), where("slug", "==", id));
+              const querySnapshot = await firestoreGetDocs(q);
+              if (!querySnapshot.empty) {
                 const d = querySnapshot.docs[0];
-                foundCourse = { id: d.id, ...d.data() }; 
+                foundCourse = { id: d.id, ...d.data() };
+              }
             }
+          } catch (firestoreErr) {
+            console.warn("Firestore fetch error:", firestoreErr);
+          }
         }
 
-        // 3. Final Fallback: Check local data if not found in Firestore
+        // 3. Final Fallback: Check local data
         if (!foundCourse) {
-            foundCourse = aiCourses.find((c) => c.id === id || c.slug === id);
+          foundCourse = localCourse;
         }
 
-        setCourse(foundCourse || null);
+        if (foundCourse) {
+           setCourse(foundCourse);
+        }
 
       } catch (e) {
         console.error("Error loading course:", e);
-        const local = aiCourses.find((c) => c.id === id || c.slug === id);
-        setCourse(local || null);
       } finally {
         setLoading(false);
       }
@@ -68,11 +87,15 @@ const SingleCoursePage = () => {
     load();
   }, [id]);
 
-  if (loading) return <div className="max-w-3xl mx-auto py-20 text-center">Loading…</div>;
+  if (loading && !course) return <CourseDetailSkeleton />;
   if (!course) {
     return (
-      <div className="max-w-3xl mx-auto py-20 text-center text-2xl font-semibold">
-        Course not found 😢
+      <div className="max-w-3xl mx-auto py-40 text-center">
+        <h2 className="text-3xl font-bold mb-4">Course not found 😢</h2>
+        <p className="text-slate-600 mb-8">The course you are looking for might have been moved or deleted.</p>
+        <Link to="/courses" className="bg-[#0b7e05] text-white px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-transform inline-block">
+          Browse All Courses
+        </Link>
       </div>
     );
   }

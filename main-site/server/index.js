@@ -2016,36 +2016,22 @@ app.get('/api/courses/online', async (req, res) => {
   }
 });
 
-// Get single course with lectures (Generic handler must come AFTER specific routes)
-app.get('/api/courses/:id', (req, res) => {
-  const id = req.params.id;
-  const all = readJSON(coursesFile);
-  const course = all.find((c) => String(c.id) === String(id));
-  if (!course) return res.status(404).json({ error: 'Not found' });
-  res.json(course);
-});
-
-// Get single course by ID
-app.get('/api/course/:id', (req, res) => {
+// Get single course (onsite or online) by ID or slug
+app.get('/api/course/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`🔍 Fetching single course: ${id}`);
    
-    // Check both files
-    const onlineCoursesPath = path.join(__dirname, 'onlineCourses.json');
-    const onsiteCoursesPath = path.join(__dirname, 'courses.json');
+    // Try to find in OnlineCourse first
+    let course = await OnlineCourse.findOne({ 
+      $or: [{ id: id }, { slug: id }] 
+    });
    
-    let course = null;
-   
-    // Check online courses
-    if (fs.existsSync(onlineCoursesPath)) {
-      const onlineCourses = JSON.parse(fs.readFileSync(onlineCoursesPath, 'utf8'));
-      course = onlineCourses.find(c => c.id === id);
-    }
-   
-    // Check onsite courses if not found
-    if (!course && fs.existsSync(onsiteCoursesPath)) {
-      const onsiteCourses = JSON.parse(fs.readFileSync(onsiteCoursesPath, 'utf8'));
-      course = onsiteCourses.find(c => c.id === id);
+    if (!course) {
+      // If not found in OnlineCourse, try Course (onsite)
+      course = await Course.findOne({ 
+        $or: [{ id: id }, { slug: id }] 
+      });
     }
    
     if (course) {
@@ -2054,8 +2040,33 @@ app.get('/api/course/:id', (req, res) => {
       res.status(404).json({ ok: false, message: 'Course not found' });
     }
   } catch (error) {
-    console.error('Error fetching course:', error);
+    console.error('Error fetching single course:', error);
     res.status(500).json({ ok: false, message: error.message });
+  }
+});
+
+// Alias for /api/course/:id
+app.get('/api/courses/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    let course = await OnlineCourse.findOne({ 
+      $or: [{ id: id }, { slug: id }] 
+    });
+   
+    if (!course) {
+      course = await Course.findOne({ 
+        $or: [{ id: id }, { slug: id }] 
+      });
+    }
+   
+    if (course) {
+      res.json(course); 
+    } else {
+      res.status(404).json({ error: 'Not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

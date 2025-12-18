@@ -5,6 +5,9 @@ import { Star, Globe, CheckCircle, PlayCircle, Lock, Video } from "lucide-react"
 import { apiFetch } from "../config";
 import VideoPlayer from "../components/VideoPlayer";
 
+import { CourseDetailSkeleton } from "../components/SkeletonLoaders";
+import { onlineCourses as initialOnlineCourses } from "../data/onlineCourses";
+
 export default function OnlineCoursePage() {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
@@ -14,35 +17,47 @@ export default function OnlineCoursePage() {
 
   useEffect(() => {
     async function fetchCourse() {
+      // 1. Instant Local Fallback
+      const localCourse = initialOnlineCourses.find(c => c.id === id || c.slug === id);
+      if (localCourse) {
+        setCourse(localCourse);
+        // Map lectures if they exist in static data (usually not, but good to have)
+        if (localCourse.lectures) {
+           let all = [];
+           localCourse.lectures.forEach(s => s.lectures ? all = [...all, ...s.lectures] : all.push(s));
+           setLectures(all);
+           if (all.length > 0) setSelectedLecture({ ...all[0], isPreview: true });
+        }
+      } else {
+        setLoading(true);
+      }
+
       try {
-        const response = await apiFetch('/api/courses/online');
+        const response = await apiFetch(`/api/course/${id}`);
         const data = await response.json();
         
-        if (data.ok) {
-          const foundCourse = data.courses.find(c => c.id === id);
-          if (foundCourse) {
-            setCourse(foundCourse);
-            
-            // Flatten lectures
-            let allLectures = [];
-            if (foundCourse.lectures) {
-              foundCourse.lectures.forEach(section => {
-                if (section.lectures) {
-                  allLectures = [...allLectures, ...section.lectures];
-                } else {
-                  allLectures.push(section);
-                }
-              });
-            }
-            
-            setLectures(allLectures);
-            
-            // Set first lecture as preview automatically if available
-            if (allLectures.length > 0) {
-              // Mark first lecture as preview for this page context
-              const firstLec = { ...allLectures[0], isPreview: true };
-              setSelectedLecture(firstLec);
-            }
+        if (data.ok && data.course) {
+          const foundCourse = data.course;
+          setCourse(foundCourse);
+          
+          // Flatten lectures
+          let allLectures = [];
+          if (foundCourse.lectures) {
+            foundCourse.lectures.forEach(section => {
+              if (section.lectures) {
+                allLectures = [...allLectures, ...section.lectures];
+              } else {
+                allLectures.push(section);
+              }
+            });
+          }
+          
+          setLectures(allLectures);
+          
+          // Set first lecture as preview automatically if available
+          if (allLectures.length > 0) {
+            const firstLec = { ...allLectures[0], isPreview: true };
+            setSelectedLecture(firstLec);
           }
         }
       } catch (error) {
@@ -55,13 +70,7 @@ export default function OnlineCoursePage() {
     fetchCourse();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0d9c06]"></div>
-      </div>
-    );
-  }
+  if (loading && !course) return <CourseDetailSkeleton />;
 
   if (!course) {
     return (
