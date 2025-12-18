@@ -1,5 +1,6 @@
 import { Sparkles, Trophy, Lightbulb, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
+import aboutImg from "../assets/About Us Img.png"
 
 export default function AICareerBanner() {
   return (
@@ -18,7 +19,7 @@ export default function AICareerBanner() {
           {/* Right Side (image) - on mobile show first, on desktop keep right */}
           <div className="order-1 lg:order-2 w-full flex justify-center lg:justify-end">
             <img
-              src="https://frontends.udemycdn.com/staticx/udemy/images/ai-career-banner/ai-career@2x.webp"
+              src={aboutImg}
               alt="AI career hero"
               className="
                 w-full max-w-[520px] sm:max-w-[620px] lg:max-w-[700px]
@@ -31,7 +32,7 @@ export default function AICareerBanner() {
           {/* Left Side (copy) */}
           <div className="order-2 lg:order-1 w-full text-left flex flex-col gap-4">
             <h1 className="font-semibold text-white
-              text-2xl sm:text-3xl lg:text-[36px]
+              text-2xl sm:text-3xl lg:text-[46px]
               leading-tight lg:leading-10
             ">
               Reimagine your career in the AI era

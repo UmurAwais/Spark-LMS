@@ -40,6 +40,8 @@ import StudentProtectedRoute from "./components/StudentProtectedRoute.jsx";
 import AdminRoles from "./pages/AdminRoles.jsx";
 import AcceptInvite from "./pages/AcceptInvite.jsx";
 import AdminProfile from "./pages/AdminProfile.jsx";
+import OnlineCourses from "./pages/OnlineCourses.jsx";
+import OnsiteCourses from "./pages/OnsiteCourses.jsx";
 
 const router = createBrowserRouter([
   {
@@ -90,7 +92,8 @@ const router = createBrowserRouter([
       { path: "termsandconditions", element: <TermsAndConditions /> },
       { path: "login", element: <LoginPage /> },
       { path: "register", element: <RegisterationPage /> },
-      { path: "online-courses", element: <OnlineCoursesSection /> },
+      { path: "online-courses", element: <OnlineCourses /> },
+      { path: "onsite-courses", element: <OnsiteCourses /> },
       { path: "online-course/:id", element: <OnlineCoursePage /> },
       { path: "cart", element: <CartPage /> },
       { path: "checkout", element: <CheckoutPage /> },
