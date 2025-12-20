@@ -76,7 +76,7 @@ export default function AICareerBanner() {
             </div>
 
             <div className="mt-5 sm:mt-6">
-              <Link to="/about" className="bg-white text-green-950 px-6 sm:px-8 lg:px-10 py-2.5 lg:py-3 rounded-md hover:bg-gray-200">
+              <Link to="/about" className="bg-white text-green-950 px-6 sm:px-8 lg:px-10 py-2.5 lg:py-3 rounded-md hover:bg-gray-200 cursor-pointer">
                 Learn More
               </Link>
             </div>

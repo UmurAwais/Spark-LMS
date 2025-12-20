@@ -375,14 +375,14 @@ Spark Trainings Team`;
         </h1>
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-[#0d9c06] text-white px-4 py-2 rounded-lg hover:bg-[#0b8a05] transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
+          className="bg-[#0d9c06] text-white px-4 py-2 rounded-md hover:bg-[#0b8a05] transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
         >
           <UserPlus size={20} /> Add User
         </button>
       </div>
 
       {message.text && (
-    <div className={`p-3 rounded-lg text-sm mb-4 ${
+    <div className={`p-3 rounded-md text-sm mb-4 ${
       message.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
     }`}>
       {message.text}
@@ -398,12 +398,12 @@ Spark Trainings Team`;
             placeholder="Search by email or name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
           />
         </div>
         <button
           onClick={fetchUsers}
-          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2 cursor-pointer"
+          className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2 cursor-pointer"
         >
           <RefreshCw size={18} /> Refresh
         </button>
@@ -412,7 +412,7 @@ Spark Trainings Team`;
         <div className="relative export-dropdown">
           <button
             onClick={() => setShowExportMenu(!showExportMenu)}
-            className="px-4 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] flex items-center gap-2 cursor-pointer transition-colors"
+            className="px-4 py-2 bg-[#0d9c06] text-white rounded-md hover:bg-[#0b7e05] flex items-center gap-2 cursor-pointer transition-colors"
           >
             <Download size={18} />
             Export
@@ -421,7 +421,7 @@ Spark Trainings Team`;
           
           {/* Dropdown Menu */}
           {showExportMenu && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 overflow-hidden">
               <button
                 onClick={exportToCSV}
                 className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer transition-colors border-b border-gray-100"
@@ -448,7 +448,7 @@ Spark Trainings Team`;
       </div>
 
       {/* Users Table */}
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -514,7 +514,7 @@ Spark Trainings Team`;
                     <td className="p-4 flex items-center gap-2">
                       <button
                         onClick={() => openEmailModal(user)}
-                        className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition-colors cursor-pointer"
                         title="Send password reset email"
                       >
                         <Mail size={18} />
@@ -522,7 +522,7 @@ Spark Trainings Team`;
 
                       <button
                         onClick={() => openToggleStatusModal(user)}
-                        className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                        className={`p-1.5 rounded-md transition-colors cursor-pointer ${
                           user.disabled
                             ? 'text-[#0d9c06] hover:bg-[#daffd8]'
                             : 'text-[#9c0606] hover:bg-[#ffd8d8]'
@@ -534,7 +534,7 @@ Spark Trainings Team`;
 
                       <button
                         onClick={() => openDeleteModal(user)}
-                        className="p-1.5 text-red-600 hover:bg-[#ffd8d8] rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-red-600 hover:bg-[#ffd8d8] rounded-md transition-colors cursor-pointer"
                         title="Delete user"
                       >
                         <Trash2 size={18} />
@@ -551,7 +551,7 @@ Spark Trainings Team`;
       {/* Add User Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-md shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
               <h2 className="text-xl font-bold text-gray-800">Add New User</h2>
               <button onClick={() => setShowAddModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
@@ -565,7 +565,7 @@ Spark Trainings Team`;
                   type="text"
                   value={newUser.displayName}
                   onChange={(e) => setNewUser({...newUser, displayName: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
                   placeholder="John Doe"
                 />
               </div>
@@ -576,7 +576,7 @@ Spark Trainings Team`;
                   value={newUser.email}
                   onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
                   placeholder="user@example.com"
                 />
               </div>
@@ -588,7 +588,7 @@ Spark Trainings Team`;
                   onChange={(e) => setNewUser({...newUser, password: e.target.value})}
                   required
                   minLength={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
                   placeholder="Min. 6 characters"
                 />
               </div>
@@ -599,13 +599,13 @@ Spark Trainings Team`;
                     setShowAddModal(false);
                     setNewUser({ email: "", password: "", displayName: "" });
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors cursor-pointer"
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-[#0d9c06] text-white px-4 py-2 rounded-lg hover:bg-[#0b8a05] font-medium shadow-sm transition-colors cursor-pointer"
+                  className="flex-1 bg-[#0d9c06] text-white px-4 py-2 rounded-md hover:bg-[#0b8a05] font-medium shadow-sm transition-colors cursor-pointer"
                 >
                   Create User
                 </button>
@@ -618,7 +618,7 @@ Spark Trainings Team`;
       {/* Email Modal */}
       {emailModal.isOpen && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-md shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
               <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                 <Mail className="text-[#0d9c06]" size={20} /> Send Reset Email
@@ -644,7 +644,7 @@ Spark Trainings Team`;
                       type="email"
                       value={emailModal.recipient}
                       disabled
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
                     />
                   </div>
                   <div>
@@ -654,7 +654,7 @@ Spark Trainings Team`;
                       value={emailModal.subject}
                       onChange={(e) => setEmailModal(prev => ({ ...prev, subject: e.target.value }))}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
                     />
                   </div>
                   <div>
@@ -664,21 +664,21 @@ Spark Trainings Team`;
                       onChange={(e) => setEmailModal(prev => ({ ...prev, body: e.target.value }))}
                       required
                       rows={8}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06] font-mono text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] font-mono text-sm"
                     />
                   </div>
                   <div className="flex gap-3 pt-2">
                     <button
                       type="button"
                       onClick={() => setEmailModal(prev => ({ ...prev, isOpen: false }))}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors cursor-pointer"
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={emailModal.loading}
-                      className="flex-1 bg-[#0d9c06] text-white px-4 py-2 rounded-lg hover:bg-[#0b8a05] font-medium shadow-sm transition-colors flex justify-center items-center gap-2 cursor-pointer"
+                      className="flex-1 bg-[#0d9c06] text-white px-4 py-2 rounded-md hover:bg-[#0b8a05] font-medium shadow-sm transition-colors flex justify-center items-center gap-2 cursor-pointer"
                     >
                       {emailModal.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail size={18} />}
                       Send Email
@@ -694,7 +694,7 @@ Spark Trainings Team`;
       {/* Confirmation Modal */}
       {confirmationModal.isOpen && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100">
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100">
             <div className="p-6 text-center">
               <div className={`mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 ${
                 confirmationModal.confirmColor === 'red' ? 'bg-red-100' : 'bg-green-100'
@@ -713,14 +713,14 @@ Spark Trainings Team`;
                 <button
                   type="button"
                   onClick={() => setConfirmationModal(prev => ({ ...prev, isOpen: false }))}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors cursor-pointer"
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmAction}
-                  className={`flex-1 px-4 py-2 text-white rounded-lg font-medium shadow-sm transition-colors cursor-pointer ${
+                  className={`flex-1 px-4 py-2 text-white rounded-md font-medium shadow-sm transition-colors cursor-pointer ${
                     confirmationModal.confirmColor === 'red'
                       ? 'bg-red-600 hover:bg-red-700'
                       : 'bg-green-600 hover:bg-green-700'

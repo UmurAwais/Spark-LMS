@@ -31,6 +31,7 @@ try {
   var User = require('./models/User');
   var AdminRole = require('./models/AdminRole');
   var Gallery = require('./models/Gallery');
+  var Coupon = require('./models/Coupon');
   console.log('✅ Models loaded successfully');
 } catch (e) {
   console.error('❌ Error loading models:', e);
@@ -2098,6 +2099,90 @@ app.delete('/api/courses/:type/:id', adminAuth, (req, res) => {
   } catch (error) {
     console.error('Course delete error:', error);
     res.status(500).json({ ok: false, message: error.message });
+  }
+});
+
+// --- Coupon Management ---
+app.get('/api/admin/coupons', adminAuth, requirePermission(PERMISSIONS.VIEW_COUPONS), async (req, res) => {
+  try {
+    console.log('GET /api/admin/coupons - Request received');
+    const coupons = await Coupon.find().sort({ createdAt: -1 });
+    console.log(`GET /api/admin/coupons - Found ${coupons.length} coupons`);
+    res.json({ ok: true, coupons });
+  } catch (err) {
+    console.error('GET /api/admin/coupons - Error:', err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+app.post('/api/admin/coupons', adminAuth, requirePermission(PERMISSIONS.MANAGE_COUPONS), express.json(), async (req, res) => {
+  try {
+    console.log('POST /api/admin/coupons - Body:', req.body);
+    const couponData = { ...req.body };
+    
+    // Sanitize numeric and date fields
+    if (couponData.value === '') delete couponData.value;
+    else couponData.value = Number(couponData.value);
+    
+    if (couponData.expiryDate === '' || !couponData.expiryDate) {
+      delete couponData.expiryDate;
+    }
+
+    const coupon = await Coupon.create(couponData);
+    console.log('POST /api/admin/coupons - Created:', coupon.code);
+    res.json({ ok: true, coupon });
+  } catch (err) {
+    console.error('POST /api/admin/coupons - Error:', err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+app.put('/api/admin/coupons/:id', adminAuth, requirePermission(PERMISSIONS.MANAGE_COUPONS), express.json(), async (req, res) => {
+  try {
+    console.log('PUT /api/admin/coupons - ID:', req.params.id, 'Body:', req.body);
+    const couponData = { ...req.body };
+    
+    // Sanitize
+    if (couponData.value !== undefined) couponData.value = Number(couponData.value);
+    if (couponData.expiryDate === '' || !couponData.expiryDate) {
+      couponData.expiryDate = null;
+    }
+
+    const coupon = await Coupon.findByIdAndUpdate(req.params.id, couponData, { new: true });
+    res.json({ ok: true, coupon });
+  } catch (err) {
+    console.error('PUT /api/admin/coupons - Error:', err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+app.delete('/api/admin/coupons/:id', adminAuth, requirePermission(PERMISSIONS.MANAGE_COUPONS), async (req, res) => {
+  try {
+    await Coupon.findByIdAndDelete(req.params.id);
+    res.json({ ok: true, message: 'Coupon deleted' });
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// Public validation endpoint for Cart
+app.get('/api/coupons/validate/:code', async (req, res) => {
+  try {
+    const code = req.params.code.trim().toUpperCase();
+    const coupon = await Coupon.findOne({ code, isActive: true });
+    
+    if (!coupon) {
+      return res.status(404).json({ ok: false, message: 'Invalid or inactive coupon' });
+    }
+    
+    // Check expiry
+    if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+      return res.status(400).json({ ok: false, message: 'Coupon has expired' });
+    }
+    
+    res.json({ ok: true, coupon });
+  } catch (err) {
+    res.status(500).json({ ok: false, message: err.message });
   }
 });
 

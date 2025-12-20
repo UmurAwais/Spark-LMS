@@ -1,16 +1,11 @@
 import React, { createContext, useContext, useState } from "react";
+import { apiFetch } from "../config";
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
-
-  // Built-in coupons (change here)
-  const COUPONS = {
-    SPARK10: { type: 'percent', value: 10, label: '10% off' },
-    FLAT500: { type: 'fixed', value: 500, label: 'Rs. 500 off' },
-  };
 
   const addToCart = (course) => {
     setItems((prev) => {
@@ -26,16 +21,25 @@ export function CartProvider({ children }) {
 
   const clearCart = () => setItems([]);
 
-  const applyCoupon = (code) => {
+  const applyCoupon = async (code) => {
     if (!code) return { ok: false, message: 'Enter coupon code' };
-    const key = String(code).trim().toUpperCase();
-    const found = COUPONS[key];
-    if (!found) {
-      setAppliedCoupon(null);
-      return { ok: false, message: 'Invalid coupon' };
+    
+    try {
+      const trimmedCode = String(code).trim().toUpperCase();
+      const res = await apiFetch(`/api/coupons/validate/${trimmedCode}`);
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        setAppliedCoupon(null);
+        return { ok: false, message: data.message || 'Invalid coupon' };
+      }
+
+      setAppliedCoupon(data.coupon);
+      return { ok: true, message: `Applied: ${data.coupon.label}`, coupon: data.coupon };
+    } catch (err) {
+      console.error('Coupon validation error:', err);
+      return { ok: false, message: 'Error validating coupon' };
     }
-    setAppliedCoupon(found);
-    return { ok: true, message: `Applied: ${found.label}`, coupon: found };
   };
 
   const clearCoupon = () => setAppliedCoupon(null);

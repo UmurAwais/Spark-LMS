@@ -126,29 +126,29 @@ const Header = () => {
           <div className="w-full px-4 pb-4 pt-3">
             {/* Mobile nav links */}
             <div className='flex flex-col gap-3'>
-              <Link to='/' className="block text-gray-700 py-2" onClick={() => setOpen(false)}>Home</Link>
-              <Link to='/courses' className="block text-gray-700 py-2" onClick={() => setOpen(false)}>Courses</Link>
-              <Link to='/about' className="block text-gray-700 py-2" onClick={() => setOpen(false)}>About Us</Link>
-              <Link to="/gallery" className="block text-gray-700 py-2" onClick={() => setOpen(false)}>Gallery</Link>
-              <Link to='/contact' className="block text-gray-700 py-2" onClick={() => setOpen(false)}>Contact Us</Link>
+              <Link to='/' className="block text-gray-700 py-2 cursor-pointer" onClick={() => setOpen(false)}>Home</Link>
+              <Link to='/courses' className="block text-gray-700 py-2 cursor-pointer" onClick={() => setOpen(false)}>Courses</Link>
+              <Link to='/about' className="block text-gray-700 py-2 cursor-pointer" onClick={() => setOpen(false)}>About Us</Link>
+              <Link to="/gallery" className="block text-gray-700 py-2 cursor-pointer" onClick={() => setOpen(false)}>Gallery</Link>
+              <Link to='/contact' className="block text-gray-700 py-2 cursor-pointer" onClick={() => setOpen(false)}>Contact Us</Link>
               
               {/* Show My Learning if user is logged in */}
               {user && (
                 <>
                   <div className="border-t border-gray-200 my-2"></div>
-                  <Link to='/student/dashboard' className="flex items-center gap-2 text-[#0d9c06] font-semibold py-2" onClick={() => setOpen(false)}>
+                  <Link to='/student/dashboard' className="flex items-center gap-2 text-[#0d9c06] font-semibold py-2 cursor-pointer" onClick={() => setOpen(false)}>
                     <BookOpen size={18} />
                     My Learning
                   </Link>
-                  <Link to='/student/profile' className="block text-gray-700 py-2" onClick={() => setOpen(false)}>Profile</Link>
+                  <Link to='/student/profile' className="block text-gray-700 py-2 cursor-pointer" onClick={() => setOpen(false)}>Profile</Link>
                 </>
               )}
               
               {!user && (
                 <>
                   <div className="border-t border-gray-200 my-2"></div>
-                  <Link to='/login' className="block bg-[#0d9c06] text-white text-center py-2 rounded-md" onClick={() => setOpen(false)}>Login</Link>
-                  <Link to='/register' className="block bg-white border-2 border-[#0d9c06] text-[#0d9c06] text-center py-2 rounded-md" onClick={() => setOpen(false)}>Sign Up</Link>
+                  <Link to='/login' className="block bg-[#0d9c06] text-white text-center py-2 rounded-md cursor-pointer" onClick={() => setOpen(false)}>Login</Link>
+                  <Link to='/register' className="block bg-white border-2 border-[#0d9c06] text-[#0d9c06] text-center py-2 rounded-md cursor-pointer" onClick={() => setOpen(false)}>Sign Up</Link>
                 </>
               )}
             </div>

@@ -159,7 +159,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
   };
 
   return (
-    <div className="border-2 border-gray-300 rounded-lg overflow-hidden focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-200 transition-all">
+    <div className="border-2 border-gray-300 rounded-md overflow-hidden focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-200 transition-all">
       {/* Toolbar */}
       <div className="bg-gray-50 border-b border-gray-300 p-2 flex items-center gap-1 flex-wrap">
         <button
@@ -247,7 +247,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
                 className="fixed inset-0 z-10" 
                 onMouseDown={() => setShowSizeMenu(false)}
               ></div>
-              <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-20 min-w-[150px]">
+              <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-20 min-w-[150px]">
                 {fontSizes.map((size) => (
                   <button
                     key={size.value}

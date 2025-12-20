@@ -28,7 +28,7 @@ const testimonialData = [
 
 function Card({ t }) {
   return (
-    <div className="border border-slate-300/70 rounded-2xl bg-white p-5 sm:p-6 min-h-[230px] lg:min-h-60 flex flex-col shadow-[0_2px_0_rgba(0,0,0,0.02)]">
+    <div className="border border-slate-300/70 rounded-md bg-white p-5 sm:p-6 min-h-[230px] lg:min-h-60 flex flex-col shadow-[0_2px_0_rgba(0,0,0,0.02)]">
       <Quote className="h-5 w-5 rotate-180 fill-slate-900 text-slate-900" />
       <p className="mt-3 text-[15px] leading-6 text-slate-900">{t.review}</p>
       <div className="mt-5">
@@ -110,7 +110,7 @@ function MobileCarousel({ items }) {
         <button
           aria-label="Previous"
           onClick={prev}
-          className="grid h-8 w-8 place-items-center rounded-full bg-white shadow ring-1 ring-slate-900/10"
+          className="grid h-8 w-8 place-items-center rounded-full bg-white shadow ring-1 ring-slate-900/10 cursor-pointer"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -133,7 +133,7 @@ function MobileCarousel({ items }) {
         <button
           aria-label="Next"
           onClick={next}
-          className="grid h-8 w-8 place-items-center rounded-full bg-white shadow ring-1 ring-slate-900/10"
+          className="grid h-8 w-8 place-items-center rounded-full bg-white shadow ring-1 ring-slate-900/10 cursor-pointer"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -167,7 +167,7 @@ export default function Testimonial() {
         <div className="mt-6 flex flex-row justify-start items-center gap-2 text-sm font-medium sm:flex">
             <Link
               to="/reviews"
-              className="text-[#0d9c06] hover:underline underline-offset-4 text-[15px] font-semibold flex flex-row items-center gap-1"
+              className="text-[#0d9c06] hover:underline underline-offset-4 text-[15px] font-semibold flex flex-row items-center gap-1 cursor-pointer"
             >
               View all stories <ArrowRight size={16} />
             </Link>

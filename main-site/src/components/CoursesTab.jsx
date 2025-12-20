@@ -90,10 +90,10 @@ function CourseCard({ c }) {
   return (
     <Link
       to={`/course/${c.slug || c.id}`}
-      className="block rounded-2xl ring-1 ring-slate-200 bg-white hover:shadow-[0_10px_30px_rgba(2,6,23,0.08)] transition-shadow overflow-hidden group h-full"
+      className="block rounded-[15px] ring-1 ring-slate-200 bg-white hover:shadow-[0_10px_30px_rgba(2,6,23,0.08)] transition-shadow overflow-hidden group h-full cursor-pointer"
     >
       <div className="p-3 pb-0">
-        <div className="overflow-hidden rounded-xl h-full bg-gray-100">
+        <div className="overflow-hidden rounded-[15px] h-full bg-gray-100">
           <img
             src={
               c.image?.startsWith('http') 

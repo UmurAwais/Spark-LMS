@@ -144,7 +144,7 @@ export default function OnlineCoursePage() {
         {/* LEFT */}
         <div className="flex-1">
           {/* Video Player Section */}
-          <section className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <section className="bg-white rounded-md shadow-sm p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Course Preview</h2>
               <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -154,7 +154,7 @@ export default function OnlineCoursePage() {
             </div>
             
             {selectedLecture ? (
-              <div className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
+              <div className="w-full aspect-video bg-black rounded-md overflow-hidden shadow-lg">
                 {selectedLecture.videoUrl && (selectedLecture.videoUrl.includes('drive.google.com') || selectedLecture.videoUrl.includes('youtube') || selectedLecture.videoUrl.includes('vimeo')) ? (
                    <iframe 
                     src={getEmbedUrl(selectedLecture.videoUrl)} 
@@ -173,7 +173,7 @@ export default function OnlineCoursePage() {
                 )}
               </div>
             ) : (
-              <div className="w-full aspect-video bg-linear-to-br from-[#1c1d1f] to-[#2d2e30] rounded-lg flex items-center justify-center">
+              <div className="w-full aspect-video bg-linear-to-br from-[#1c1d1f] to-[#2d2e30] rounded-md flex items-center justify-center">
                 <div className="text-center text-white">
                   <PlayCircle size={64} className="mx-auto mb-4 opacity-50" />
                   <p className="text-lg font-semibold mb-2">No lectures available</p>
@@ -183,7 +183,7 @@ export default function OnlineCoursePage() {
           </section>
 
           {/* Course Curriculum */}
-          <section className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <section className="bg-white rounded-md shadow-sm p-6 mb-6">
             <h2 className="text-xl font-bold mb-4">Course Curriculum</h2>
             <div className="space-y-2">
               {lectures.map((lecture, index) => {
@@ -192,7 +192,7 @@ export default function OnlineCoursePage() {
                   <div
                     key={lecture.id}
                     onClick={() => handleLectureClick(lecture, index)}
-                    className={`flex items-center justify-between p-4 rounded-lg border transition-all ${
+                    className={`flex items-center justify-between p-4 rounded-md border transition-all ${
                       isPreview
                         ? 'border-[#0d9c06]/30 bg-[#0d9c06]/5 hover:bg-[#0d9c06]/10 cursor-pointer hover:border-[#0d9c06]'
                         : 'border-gray-200 bg-gray-50 cursor-not-allowed'
@@ -225,7 +225,7 @@ export default function OnlineCoursePage() {
                 <p className="text-gray-500 text-center py-4">No lectures added yet.</p>
               )}
             </div>
-            <div className="mt-4 p-4 bg-[#5022C3]/10 border border-[#5022C3]/30 rounded-lg">
+            <div className="mt-4 p-4 bg-[#5022C3]/10 border border-[#5022C3]/30 rounded-md">
               <p className="text-sm text-gray-700">
                 <strong className="text-[#5022C3]">Note:</strong> Enroll in the course to unlock all {lectures.length} lectures and get lifetime access to the content.
               </p>
@@ -234,7 +234,7 @@ export default function OnlineCoursePage() {
 
           {/* What you'll learn */}
           {course.whatYouWillLearn && (
-            <section className="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <section className="bg-white rounded-md shadow-sm p-6 mb-6">
               <h2 className="text-xl font-bold mb-4">What you'll learn</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {course.whatYouWillLearn.map((item, i) => (
@@ -252,7 +252,7 @@ export default function OnlineCoursePage() {
 
           {/* Description */}
           {course.fullDescription && course.fullDescription.length > 0 && (
-            <section className="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <section className="bg-white rounded-md shadow-sm p-6 mb-6">
               <h2 className="text-xl font-bold mb-3">Course description</h2>
               <div className="space-y-3 text-sm sm:text-[15px] leading-7 text-[#1c1d1f]">
                 {course.fullDescription.map((paragraph, index) => (
@@ -297,8 +297,8 @@ export default function OnlineCoursePage() {
         </div>
 
         {/* RIGHT SIDEBAR */}
-        <aside className="w-full lg:w-80">
-          <div className="bg-white rounded-xl shadow-xl overflow-hidden sticky top-4">
+        <aside className="w-full lg:w-80 cursor-pointer">
+          <div className="bg-white rounded-md shadow-xl overflow-hidden sticky top-4">
             {/* Image */}
             <div className="w-full aspect-video overflow-hidden">
               <img
@@ -330,7 +330,7 @@ export default function OnlineCoursePage() {
                   w-full bg-[#0d9c06] hover:bg-[#0b7e05]
                   text-white font-semibold text-sm py-3 rounded-md
                   flex items-center justify-center gap-2 transition
-                "
+                 cursor-pointer"
               >
                 <PlayCircle size={18} />
                 Enroll now
@@ -363,7 +363,7 @@ export default function OnlineCoursePage() {
               <div className="mt-4 text-center">
                 <Link
                   to="/contact"
-                  className="text-[12px] text-[#0d9c06] font-semibold hover:underline"
+                  className="text-[12px] text-[#0d9c06] font-semibold hover:underline cursor-pointer"
                 >
                   Have questions? Contact support
                 </Link>

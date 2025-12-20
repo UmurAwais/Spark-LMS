@@ -89,7 +89,7 @@ function RegisterForm() {
 
   return (
     <main className="min-h-screen bg-[#f7f9fa] flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-xl bg-white shadow-lg rounded-2xl border border-[#e4e5e7] p-8 sm:p-10">
+      <div className="w-full max-w-xl bg-white shadow-lg rounded-md border border-[#e4e5e7] p-8 sm:p-10">
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-semibold text-[#1c1d1f]">
@@ -113,84 +113,84 @@ function RegisterForm() {
         {/* FORM */}
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Full Name */}
-          <div className="floating-group">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="spark-input-group">
             <input
               type="text"
               placeholder=" "
-              className="floating-input"
+              className="input-field"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
             />
+            <User className="spark-input-icon" />
             <label className="floating-label">Full Name</label>
           </div>
 
           {/* Phone */}
-          <div className="floating-group">
-            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="spark-input-group">
             <input
               type="tel"
               placeholder=" "
-              className="floating-input"
+              className="input-field"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
             />
+            <Phone className="spark-input-icon" />
             <label className="floating-label">Phone Number</label>
           </div>
 
           {/* Email */}
-          <div className="floating-group">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="spark-input-group">
             <input
               type="email"
               placeholder=" "
-              className="floating-input"
+              className="input-field"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            <Mail className="spark-input-icon" />
             <label className="floating-label">Email Address</label>
           </div>
 
           {/* Password */}
-          <div className="floating-group">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="spark-input-group">
             <input
               type={showPassword ? "text" : "password"}
               placeholder=" "
-              className="floating-input"
+              className="input-field"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <Lock className="spark-input-icon" />
             <label className="floating-label">Password</label>
             <button
               type="button"
               onClick={() => setShowPassword((p) => !p)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-20"
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
           {/* Confirm Password */}
-          <div className="floating-group">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="spark-input-group">
             <input
               type={showConfirmPassword ? "text" : "password"}
               placeholder=" "
-              className="floating-input"
+              className="input-field"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
+            <Lock className="spark-input-icon" />
             <label className="floating-label">Confirm Password</label>
             <button
               type="button"
               onClick={() => setShowConfirmPassword((p) => !p)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-20"
             >
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -200,7 +200,7 @@ function RegisterForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#0d9c06] hover:bg-[#0b7e05] disabled:opacity-70 disabled:cursor-not-allowed text-white py-3 rounded-md font-medium flex items-center justify-center gap-2 transition cursor-pointer"
+            className="spark-submit-btn cursor-pointer"
           >
             {loading ? "Creating account..." : "Create Account"}
           </button>
@@ -208,7 +208,7 @@ function RegisterForm() {
 
         {/* Login link */}
         <p className="mt-6 text-center text-sm text-[#6a6f73]">
-          By clicking Sign Up, you agree to our <Link to="/termsandconditions" className="font-semibold text-[#0d9c06] hover:underline">Terms</Link>, <Link to="/privacypolicy" className="font-semibold text-[#0d9c06] hover:underline">Privacy Policy</Link> and <Link to="/cookiespolicy" className="font-semibold text-[#0d9c06] hover:underline">Cookies Policy</Link>.
+          By clicking Sign Up, you agree to our <Link to="/termsandconditions" className="font-semibold text-[#0d9c06] hover:underline cursor-pointer">Terms</Link>, <Link to="/privacypolicy" className="font-semibold text-[#0d9c06] hover:underline cursor-pointer">Privacy Policy</Link> and <Link to="/cookiespolicy" className="font-semibold text-[#0d9c06] hover:underline cursor-pointer">Cookies Policy</Link>.
         </p>
       </div>
     </main>

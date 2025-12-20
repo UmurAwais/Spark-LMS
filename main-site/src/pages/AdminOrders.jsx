@@ -144,9 +144,9 @@ export default function AdminOrders(){
       {/* Analytics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total Orders */}
-        <div className="bg-linear-to-br from-[#0d9c06] to-[#0b7e05] text-white rounded-xl shadow-lg p-6 transform hover:scale-102 transition-transform">
+        <div className="bg-linear-to-br from-[#0d9c06] to-[#0b7e05] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
               <ShoppingCart size={24} />
             </div>
             <TrendingUp size={20} className="opacity-80" />
@@ -157,9 +157,9 @@ export default function AdminOrders(){
         </div>
 
         {/* Total Revenue */}
-        <div className="bg-linear-to-br from-[#5022C3] to-[#3d1a99] text-white rounded-xl shadow-lg p-6 transform hover:scale-102 transition-transform">
+        <div className="bg-linear-to-br from-[#5022C3] to-[#3d1a99] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
               <DollarSign size={24} />
             </div>
             <TrendingUp size={20} className="opacity-80" />
@@ -170,9 +170,9 @@ export default function AdminOrders(){
         </div>
 
         {/* Pending Orders */}
-        <div className="bg-linear-to-br from-[#f4c150] to-[#d4a840] text-white rounded-xl shadow-lg p-6 transform hover:scale-102 transition-transform">
+        <div className="bg-linear-to-br from-[#f4c150] to-[#d4a840] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
               <Calendar size={24} />
             </div>
           </div>
@@ -182,9 +182,9 @@ export default function AdminOrders(){
         </div>
 
         {/* This Month */}
-        <div className="bg-linear-to-br from-[#1c1d1f] to-[#2d2e30] text-white rounded-xl shadow-lg p-6 transform hover:scale-102 transition-transform">
+        <div className="bg-linear-to-br from-[#1c1d1f] to-[#2d2e30] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
               <Users size={24} />
             </div>
             {growthRate >= 0 ? (
@@ -202,7 +202,7 @@ export default function AdminOrders(){
       </div>
 
       {/* Course Breakdown */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div className="bg-white rounded-md shadow-sm border border-gray-200 p-6 mb-8">
         <h2 className="text-xl font-bold text-gray-800 mb-4">Orders by Course</h2>
         <div className="space-y-4">
           {Object.entries(analytics.courseBreakdown).map(([course, count]) => {
@@ -229,7 +229,7 @@ export default function AdminOrders(){
       </div>
 
       {/* Recent Orders Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-800">Recent Orders</h2>
         </div>
@@ -275,7 +275,7 @@ export default function AdminOrders(){
                               : `${config.apiUrl}${o.paymentScreenshot}`;
                             setSelectedScreenshot(url);
                           }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md text-xs font-medium transition-colors cursor-pointer"
                         >
                           <Image size={14} />
                           View
@@ -330,7 +330,7 @@ export default function AdminOrders(){
           onClick={() => setSelectedScreenshot(null)}
         >
           <div 
-            className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+            className="relative bg-white rounded-md shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -341,7 +341,7 @@ export default function AdminOrders(){
               </h3>
               <button
                 onClick={() => setSelectedScreenshot(null)}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer"
+                className="p-2 hover:bg-gray-200 rounded-md transition-colors cursor-pointer"
               >
                 <X size={20} className="text-gray-600" />
               </button>
@@ -349,11 +349,11 @@ export default function AdminOrders(){
 
             {/* Modal Body */}
             <div className="p-6 overflow-auto max-h-[calc(90vh-80px)]">
-              <div className="flex items-center justify-center bg-gray-100 rounded-xl p-4">
+              <div className="flex items-center justify-center bg-gray-100 rounded-md p-4">
                 <img
                   src={selectedScreenshot}
                   alt="Payment Screenshot"
-                  className="max-w-full h-auto rounded-lg shadow-lg"
+                  className="max-w-full h-auto rounded-md shadow-lg"
                   onError={(e) => {
                     e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
                   }}
@@ -366,7 +366,7 @@ export default function AdminOrders(){
                   href={selectedScreenshot}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white rounded-lg font-medium transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white rounded-md font-medium transition-colors cursor-pointer"
                 >
                   <ArrowUpRight size={16} />
                   Open in New Tab
@@ -380,14 +380,14 @@ export default function AdminOrders(){
       {/* Status Confirmation Modal */}
       {statusModal.show && statusModal.order && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className={`p-6 border-b border-gray-100 flex justify-between items-center ${statusModal.newStatus === 'Approved' ? 'bg-linear-to-r from-[#0d9c06] to-[#0b7e05]' : 'bg-linear-to-r from-red-600 to-red-700'} text-white`}>
               <h2 className="text-xl font-bold flex items-center gap-2">
                 {statusModal.newStatus === 'Approved' ? 'Confirm Access' : 'Revoke Access'}
               </h2>
               <button
                 onClick={() => setStatusModal({ show: false, order: null, newStatus: '' })}
-                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors cursor-pointer"
+                className="text-white hover:bg-white/20 p-2 rounded-md transition-colors cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -398,7 +398,7 @@ export default function AdminOrders(){
                 Are you sure you want to <span className="font-bold">{statusModal.newStatus === 'Approved' ? 'give access' : 'revoke access'}</span> for:
               </p>
               
-              <div className="bg-gray-50 p-4 rounded-lg space-y-2 border border-gray-200">
+              <div className="bg-gray-50 p-4 rounded-md space-y-2 border border-gray-200">
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Student:</span>
                   <span className="font-medium text-gray-900">{statusModal.order.firstName} {statusModal.order.lastName}</span>
@@ -414,14 +414,14 @@ export default function AdminOrders(){
               </div>
 
               {statusModal.newStatus === 'Approved' && (
-                <div className="flex items-start gap-3 p-3 bg-green-50 text-green-800 rounded-lg text-sm">
+                <div className="flex items-start gap-3 p-3 bg-green-50 text-green-800 rounded-md text-sm">
                   <CheckCircle size={18} className="mt-0.5 shrink-0" />
                   <p>This will immediately allow the student to access the course content from their dashboard.</p>
                 </div>
               )}
               
               {statusModal.newStatus === 'Pending' && (
-                <div className="flex items-start gap-3 p-3 bg-red-50 text-red-800 rounded-lg text-sm">
+                <div className="flex items-start gap-3 p-3 bg-red-50 text-red-800 rounded-md text-sm">
                   <X size={18} className="mt-0.5 shrink-0" />
                   <p>The student will lose access to the course content immediately.</p>
                 </div>
@@ -431,13 +431,13 @@ export default function AdminOrders(){
             <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
               <button
                 onClick={() => setStatusModal({ show: false, order: null, newStatus: '' })}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 font-medium transition-colors cursor-pointer"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 font-medium transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmStatusChange}
-                className={`px-6 py-2 text-white rounded-lg font-medium transition-colors shadow-sm cursor-pointer ${
+                className={`px-6 py-2 text-white rounded-md font-medium transition-colors shadow-sm cursor-pointer ${
                   statusModal.newStatus === 'Approved' 
                     ? 'bg-[#0d9c06] hover:bg-[#0b7e05]' 
                     : 'bg-red-600 hover:bg-red-700'

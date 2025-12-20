@@ -179,7 +179,7 @@ export default function AdminContacts() {
                 </p>
               </div>
             </div>
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden h-96" />
+            <div className="bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden h-96" />
           </div>
         </div>
       </AdminLayout>
@@ -214,12 +214,12 @@ export default function AdminContacts() {
             placeholder="Search by name, phone, course, or message..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
           />
         </div>
         <button
           onClick={fetchContacts}
-          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2 cursor-pointer transition-colors"
+          className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2 cursor-pointer transition-colors"
         >
           <RefreshCw size={18} /> Refresh
         </button>
@@ -228,7 +228,7 @@ export default function AdminContacts() {
         <div className="relative export-dropdown">
           <button
             onClick={() => setShowExportMenu(!showExportMenu)}
-            className="px-4 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] flex items-center gap-2 cursor-pointer transition-colors"
+            className="px-4 py-2 bg-[#0d9c06] text-white rounded-md hover:bg-[#0b7e05] flex items-center gap-2 cursor-pointer transition-colors"
           >
             <Download size={18} />
             Export
@@ -237,7 +237,7 @@ export default function AdminContacts() {
           
           {/* Dropdown Menu */}
           {showExportMenu && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 overflow-hidden">
               <button
                 onClick={exportToCSV}
                 className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer transition-colors border-b border-gray-100"
@@ -264,7 +264,7 @@ export default function AdminContacts() {
       </div>
 
       {/* Contacts Table */}
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -313,14 +313,14 @@ export default function AdminContacts() {
                     <td className="p-4 flex items-center gap-2">
                       <button
                         onClick={() => openDetailModal(contact)}
-                        className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition-colors cursor-pointer"
                         title="View details"
                       >
                         <Eye size={18} />
                       </button>
                       <button
                         onClick={() => openDeleteModal(contact)}
-                        className="p-1.5 text-red-600 hover:bg-[#ffd8d8] rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-red-600 hover:bg-[#ffd8d8] rounded-md transition-colors cursor-pointer"
                         title="Delete"
                       >
                         <Trash2 size={18} />
@@ -337,7 +337,7 @@ export default function AdminContacts() {
       {/* Detail Modal */}
       {showDetailModal && selectedContact && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <MessageSquare size={24} />
@@ -345,7 +345,7 @@ export default function AdminContacts() {
               </h2>
               <button
                 onClick={() => setShowDetailModal(false)}
-                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors cursor-pointer"
+                className="text-white hover:bg-white/20 p-2 rounded-md transition-colors cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -353,7 +353,7 @@ export default function AdminContacts() {
             
             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               {/* Name */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-50 p-4 rounded-md">
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
                   Full Name
                 </label>
@@ -361,7 +361,7 @@ export default function AdminContacts() {
               </div>
 
               {/* Phone */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-50 p-4 rounded-md">
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
                   Phone Number
                 </label>
@@ -372,7 +372,7 @@ export default function AdminContacts() {
               </div>
 
               {/* Course */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-50 p-4 rounded-md">
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
                   Course Interest
                 </label>
@@ -383,7 +383,7 @@ export default function AdminContacts() {
               </div>
 
               {/* Message */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-50 p-4 rounded-md">
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
                   Message
                 </label>
@@ -393,7 +393,7 @@ export default function AdminContacts() {
               </div>
 
               {/* Date */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-50 p-4 rounded-md">
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
                   Submitted On
                 </label>
@@ -408,7 +408,7 @@ export default function AdminContacts() {
             <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
               <button
                 onClick={() => setShowDetailModal(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 font-medium transition-colors cursor-pointer"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 font-medium transition-colors cursor-pointer"
               >
                 Close
               </button>
@@ -417,7 +417,7 @@ export default function AdminContacts() {
                   openDeleteModal(selectedContact);
                   setShowDetailModal(false);
                 }}
-                className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg font-medium transition-colors flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-md font-medium transition-colors flex items-center gap-2 cursor-pointer"
               >
                 <Trash2 size={16} />
                 Delete
@@ -430,7 +430,7 @@ export default function AdminContacts() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && contactToDelete && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-gray-100 bg-linear-to-r from-red-50 to-orange-50">
               <div className="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full mb-4">
                 <Trash2 className="text-red-600" size={32} />
@@ -442,7 +442,7 @@ export default function AdminContacts() {
             </div>
             
             <div className="p-6 bg-gray-50">
-              <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+              <div className="bg-white border border-gray-200 rounded-md p-4 mb-4">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-500">Name:</span>
@@ -466,13 +466,13 @@ export default function AdminContacts() {
                   setShowDeleteModal(false);
                   setContactToDelete(null);
                 }}
-                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 font-medium transition-colors cursor-pointer"
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 font-medium transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 px-4 py-2.5 bg-red-600 text-white hover:bg-red-700 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 px-4 py-2.5 bg-red-600 text-white hover:bg-red-700 rounded-md font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Trash2 size={18} />
                 Delete

@@ -177,7 +177,7 @@ export default function AdminRoles() {
         </div>
         <button
           onClick={() => setShowInviteModal(true)}
-          className="bg-[#0d9c06] text-white px-4 py-2 rounded-lg hover:bg-[#0b7e05] flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+          className="bg-[#0d9c06] text-white px-4 py-2 rounded-md hover:bg-[#0b7e05] flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
         >
           <UserPlus size={20} />
           Invite Team Member
@@ -186,17 +186,17 @@ export default function AdminRoles() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-md border border-gray-200">
           <div className="text-sm text-gray-500">Total Team Members</div>
           <div className="text-2xl font-bold text-gray-800">{roles.length}</div>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-md border border-gray-200">
           <div className="text-sm text-gray-500">Active</div>
           <div className="text-2xl font-bold text-green-600">
             {roles.filter(r => r.status === 'active').length}
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-md border border-gray-200">
           <div className="text-sm text-gray-500">Pending</div>
           <div className="text-2xl font-bold text-yellow-600">
             {roles.filter(r => r.status === 'pending').length}
@@ -205,7 +205,7 @@ export default function AdminRoles() {
       </div>
 
       {/* Roles Table */}
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -259,7 +259,7 @@ export default function AdminRoles() {
                       {role.status !== 'revoked' && (
                         <button
                           onClick={() => handleRevoke(role._id, role.email)}
-                          className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-red-600 hover:bg-red-100 rounded-md transition-colors cursor-pointer"
                           title="Revoke access"
                         >
                           <Trash2 size={18} />
@@ -277,7 +277,7 @@ export default function AdminRoles() {
       {/* Invite Modal */}
       {showInviteModal && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-md overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <UserPlus size={24} />
@@ -285,7 +285,7 @@ export default function AdminRoles() {
               </h2>
               <button
                 onClick={() => setShowInviteModal(false)}
-                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors cursor-pointer"
+                className="text-white hover:bg-white/20 p-2 rounded-md transition-colors cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -301,7 +301,7 @@ export default function AdminRoles() {
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
                   placeholder="colleague@example.com"
                 />
               </div>
@@ -313,7 +313,7 @@ export default function AdminRoles() {
                 <select
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
                 >
                   {availableRoles.map((role) => (
                     <option key={role.value} value={role.value}>
@@ -332,13 +332,13 @@ export default function AdminRoles() {
                 <button
                   type="button"
                   onClick={() => setShowInviteModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors cursor-pointer"
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-[#0d9c06] text-white px-4 py-2 rounded-lg hover:bg-[#0b7e05] font-medium shadow-sm transition-colors cursor-pointer"
+                  className="flex-1 bg-[#0d9c06] text-white px-4 py-2 rounded-md hover:bg-[#0b7e05] font-medium shadow-sm transition-colors cursor-pointer"
                 >
                   Create Invitation
                 </button>
@@ -351,7 +351,7 @@ export default function AdminRoles() {
       {/* Invitation Link Modal */}
       {showLinkModal && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-lg overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-green-50">
               <h2 className="text-xl font-bold flex items-center gap-2 text-green-800">
                 <CheckCircle size={24} />
@@ -370,14 +370,14 @@ export default function AdminRoles() {
                 Copy this invitation link and send it to the team member:
               </p>
 
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
                 <div className="flex items-center gap-2 mb-2">
                   <code className="flex-1 text-sm break-all text-gray-800">
                     {inviteLink}
                   </code>
                   <button
                     onClick={copyToClipboard}
-                    className="p-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] transition-colors cursor-pointer"
+                    className="p-2 bg-[#0d9c06] text-white rounded-md hover:bg-[#0b7e05] transition-colors cursor-pointer"
                     title="Copy to clipboard"
                   >
                     <Copy size={18} />
@@ -385,7 +385,7 @@ export default function AdminRoles() {
                 </div>
               </div>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
                 <p className="text-sm text-yellow-800">
                   ⚠️ This link expires in 7 days. The recipient will need to set their password to activate their account.
                 </p>
@@ -393,7 +393,7 @@ export default function AdminRoles() {
 
               <button
                 onClick={() => setShowLinkModal(false)}
-                className="w-full bg-[#0d9c06] text-white px-4 py-2 rounded-lg hover:bg-[#0b7e05] font-medium transition-colors cursor-pointer"
+                className="w-full bg-[#0d9c06] text-white px-4 py-2 rounded-md hover:bg-[#0b7e05] font-medium transition-colors cursor-pointer"
               >
                 Done
               </button>

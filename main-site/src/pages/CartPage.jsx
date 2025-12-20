@@ -66,7 +66,7 @@ export default function CartPage() {
             </h1> */}
 
             {items.length === 0 ? (
-              <div className="rounded-xl bg-white border border-[#e4e5e7] p-8 text-center text-sm text-[#6a6f73]">
+              <div className="rounded-md bg-white border border-[#e4e5e7] p-8 text-center text-sm text-[#6a6f73]">
                 Your cart is empty.{" "}
                 <Link
                   to="/online-courses"
@@ -77,7 +77,7 @@ export default function CartPage() {
               </div>
             ) : (
               <>
-                <div className="rounded-xl bg-white border border-[#e4e5e7] overflow-hidden">
+                <div className="rounded-md bg-white border border-[#e4e5e7] overflow-hidden">
                   <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto] gap-4 px-6 py-4 text-xs font-semibold uppercase text-[#6a6f73] border-b border-[#e4e5e7]">
                     <span>Course</span>
                     <span className="text-right">Price</span>
@@ -165,22 +165,24 @@ export default function CartPage() {
                 </div>
 
                 {/* Coupon row (functional) */}
-                <div className="rounded-xl bg-white border border-[#e4e5e7] p-4 sm:p-5 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
-                  <input
-                    type="text"
-                    placeholder="Coupon code"
-                    value={couponInput}
-                    onChange={(e) => setCouponInput(e.target.value)}
-                    className="flex-1 rounded-md border border-[#d1d7dc] px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0d9c06] focus:border-[#0d9c06]"
-                  />
+                <div className="rounded-md bg-white border border-[#e4e5e7] p-5 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center shadow-sm">
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      placeholder="Coupon code"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
                   <button
                     type="button"
-                    onClick={() => {
-                      const resp = applyCoupon(couponInput);
+                    onClick={async () => {
+                      const resp = await applyCoupon(couponInput);
                       setCouponMsg(resp.message);
                       if (resp.ok) setCouponInput('');
                     }}
-                    className="rounded-md bg-[#0d9c06] px-4 py-2 text-sm font-semibold text-white hover:bg-[#11c50a] transition cursor-pointer"
+                    className="spark-submit-btn sm:w-auto px-8"
                   >
                     Apply coupon
                   </button>
@@ -192,7 +194,7 @@ export default function CartPage() {
 
           {/* RIGHT: totals */}
           <div className="space-y-4">
-            <div className="rounded-xl bg-white border border-[#e4e5e7] p-5 shadow-sm">
+            <div className="rounded-md bg-white border border-[#e4e5e7] p-5 shadow-sm">
               <h2 className="text-lg font-semibold text-[#1c1d1f] mb-4">
                 Cart totals
               </h2>
@@ -217,7 +219,7 @@ export default function CartPage() {
               <div className="flex mt-5">
                 <button
                   onClick={() => navigate("/checkout", { state: { items } })}
-                  className="w-full rounded-md bg-[#0d9c06] text-white py-3 font-semibold cursor-pointer hover:bg-[#11c50a] transition flex items-center justify-center gap-2"
+                  className="spark-submit-btn"
                 >
                   Proceed to Checkout
                 </button>

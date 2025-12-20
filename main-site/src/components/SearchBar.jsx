@@ -81,7 +81,7 @@ const SearchBar = ({ autoFocus = false }) => {
           autoFocus={autoFocus}
           type="text"
           placeholder="What do you want to learn?"
-          className="w-full outline-none bg-white px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400"
+          className="no-default-styles w-full outline-none bg-white px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 border-0! hover:border-0! focus:border-0! active:border-0!"
           value={term}
           onChange={(e) => setTerm(e.target.value)}
           onFocus={() => term.length > 1 && setIsOpen(true)}
@@ -125,7 +125,7 @@ const SearchBar = ({ autoFocus = false }) => {
                 onClick={() => handleSelect(course)}
                 className="w-full flex items-start gap-4 p-4 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left group"
               >
-                <div className="w-16 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+                <div className="w-16 h-12 rounded-md bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
                   <img 
                     src={course.image} 
                     alt="" 

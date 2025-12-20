@@ -116,7 +116,7 @@ const GalleryPage = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0d9c06]"></div>
           </div>
         ) : visibleItems.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
+          <div className="text-center py-20 bg-white rounded-md border border-dashed border-gray-200">
             <p className="text-slate-500 font-medium">No items found for this category.</p>
           </div>
         ) : (
@@ -124,7 +124,7 @@ const GalleryPage = () => {
             {visibleItems.map((item, i) => (
               <div
                 key={item._id || i}
-                className="rounded-xl overflow-hidden break-inside-avoid cursor-pointer group ring-1 ring-slate-200 bg-white relative"
+                className="rounded-md overflow-hidden break-inside-avoid cursor-pointer group ring-1 ring-slate-200 bg-white relative"
                 onClick={() => setSelectedItem(item)}
               >
                 {item.type === "video" ? (
@@ -133,7 +133,7 @@ const GalleryPage = () => {
                       src={getFullUrl(item.thumbnail || "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=400")}
                       alt={item.title}
                       loading="lazy"
-                      className="w-full rounded-xl transition-transform duration-300 group-hover:scale-[1.03]"
+                      className="w-full rounded-md transition-transform duration-300 group-hover:scale-[1.03]"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
                       <div className="bg-white/90 p-3 rounded-full text-[#0d9c06] shadow-xl">
@@ -146,7 +146,7 @@ const GalleryPage = () => {
                     src={getFullUrl(item.url)}
                     alt={item.title || item.category}
                     loading="lazy"
-                    className="w-full rounded-xl transition-transform duration-300 group-hover:scale-[1.03]"
+                    className="w-full rounded-md transition-transform duration-300 group-hover:scale-[1.03]"
                   />
                 )}
                 <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -175,7 +175,7 @@ const GalleryPage = () => {
         {/* LIGHTBOX MODAL */}
         {selectedItem && (
           <div
-            className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[100] px-4"
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-100 px-4"
             onClick={() => setSelectedItem(null)}
           >
             <div
@@ -190,7 +190,7 @@ const GalleryPage = () => {
               </button>
 
               {selectedItem.type === "video" ? (
-                <div className="aspect-video w-full bg-black rounded-xl overflow-hidden shadow-2xl">
+                <div className="aspect-video w-full bg-black rounded-md overflow-hidden shadow-2xl">
                   {selectedItem.url.includes("youtube.com") || selectedItem.url.includes("youtu.be") ? (
                     <iframe
                       src={selectedItem.url.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")}
@@ -211,7 +211,7 @@ const GalleryPage = () => {
                 <img
                   src={getFullUrl(selectedItem.url)}
                   alt={selectedItem.title}
-                  className="w-full rounded-xl shadow-2xl max-h-[80vh] object-contain"
+                  className="w-full rounded-md shadow-2xl max-h-[80vh] object-contain"
                 />
               )}
               

@@ -21,7 +21,7 @@ const TermsAndConditions = () => {
         </header>
 
         {/* Content Card */}
-        <section className="bg-white rounded-2xl shadow-sm border border-[#e4e5e7] px-6 sm:px-8 py-8 sm:py-10 text-sm sm:text-[15px] text-[#1c1d1f] leading-7">
+        <section className="bg-white rounded-md shadow-sm border border-[#e4e5e7] px-6 sm:px-8 py-8 sm:py-10 text-sm sm:text-[15px] text-[#1c1d1f] leading-7">
 
           {/* 1. Acceptance */}
           <section className="mb-8">

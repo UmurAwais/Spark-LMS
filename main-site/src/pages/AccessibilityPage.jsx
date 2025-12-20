@@ -3,7 +3,7 @@ import React from "react";
 const AccessibilityPage = () => {
   return (
     <main className="bg-[#f7f9fa] min-h-screen py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto bg-white shadow-sm rounded-lg px-4 sm:px-8 py-8 sm:py-10">
+      <div className="max-w-5xl mx-auto bg-white shadow-sm rounded-md px-4 sm:px-8 py-8 sm:py-10">
         {/* Page Title */}
         <header className="mb-8 sm:mb-10 border-b border-gray-200 pb-4">
           <h1 className="text-3xl sm:text-4xl font-sora font-bold text-[#1c1d1f]">
@@ -115,7 +115,7 @@ const AccessibilityPage = () => {
               <span className="font-semibold">Email:</span>{" "}
               <a
                 href="mailto:support@sparktrainings.pk"
-                className="text-[#0d9c06] hover:underline"
+                className="text-[#0d9c06] hover:underline cursor-pointer"
               >
                 support@sparktrainings.pk
               </a>

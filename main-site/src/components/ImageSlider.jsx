@@ -106,7 +106,7 @@ const ImageSlider = ({ autoplay = true, interval = 5000 }) => {
         <button
           onClick={prev}
           aria-label="Previous slide"
-          className="hidden md:flex items-center justify-center absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md text-gray-700 hover:bg-gray-100 z-30"
+          className="hidden md:flex items-center justify-center absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md text-gray-700 hover:bg-gray-100 z-30 cursor-pointer"
         >
           <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 16L6 10L12 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -116,7 +116,7 @@ const ImageSlider = ({ autoplay = true, interval = 5000 }) => {
         <button
           onClick={next}
           aria-label="Next slide"
-          className="hidden md:flex items-center justify-center absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md text-gray-700 hover:bg-gray-100 z-30"
+          className="hidden md:flex items-center justify-center absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md text-gray-700 hover:bg-gray-100 z-30 cursor-pointer"
         >
           <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M8 4L14 10L8 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

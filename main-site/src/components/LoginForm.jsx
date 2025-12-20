@@ -44,7 +44,7 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-10 border border-gray-200">
+      <div className="w-full max-w-md bg-white shadow-xl rounded-md p-10 border border-gray-200">
 
         <h2 className="text-3xl font-bold text-center text-gray-900">Welcome Back</h2>
         <p className="text-center text-gray-500 mt-2">
@@ -56,9 +56,7 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
 
           {/* Email Input */}
-          <div className="relative mb-4">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-
+          <div className="spark-input-group">
             <input
               type="email"
               placeholder=" "
@@ -67,14 +65,12 @@ function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-
+            <Mail className="spark-input-icon" />
             <label className="floating-label">Email Address</label>
           </div>
 
           {/* Password Input */}
-          <div className="relative mb-4">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-
+          <div className="spark-input-group">
             <input
               type={showPassword ? "text" : "password"}
               placeholder=" "
@@ -83,16 +79,16 @@ function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-
+            <Lock className="spark-input-icon" />
             <label className="floating-label">Password</label>
 
             {/* Show / Hide Password */}
             <button
               type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-20 cursor-pointer"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
@@ -105,7 +101,7 @@ function LoginForm() {
 
             <button
               type="button"
-              className="text-green-600 hover:underline"
+              className="text-green-600 hover:underline cursor-pointer"
             >
               Forgot password?
             </button>
@@ -114,14 +110,14 @@ function LoginForm() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-md font-medium flex items-center justify-center gap-2 transition cursor-pointer"
+            className="spark-submit-btn cursor-pointer"
           >
             Log In
           </button>
 
           <p className="text-center text-gray-600">
             Don’t have an account?{" "}
-            <Link to="/register" className="text-green-600 font-semibold hover:underline">
+            <Link to="/register" className="text-green-600 font-semibold hover:underline cursor-pointer">
               Register here
             </Link>
           </p>

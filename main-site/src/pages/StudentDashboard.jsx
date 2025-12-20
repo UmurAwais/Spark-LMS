@@ -134,7 +134,7 @@ export default function StudentDashboard() {
           </div>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+            className="p-2 hover:bg-green-50 rounded-md transition-colors"
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -169,7 +169,7 @@ export default function StudentDashboard() {
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors w-full text-left text-red-600 font-medium"
+              className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors w-full text-left text-red-600 font-medium cursor-pointer"
             >
               <LogOut size={20} />
               <span>Logout</span>
@@ -183,7 +183,7 @@ export default function StudentDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-linear-to-br from-[#0d9c06] to-[#0b7e05] rounded-xl shadow-lg">
+              <div className="p-2 bg-linear-to-br from-[#0d9c06] to-[#0b7e05] rounded-md shadow-lg">
                 <Sparkles className="text-white" size={28} />
               </div>
               <div>
@@ -199,20 +199,20 @@ export default function StudentDashboard() {
             <div className="flex items-center gap-4">
               <Link
                 to="/"
-                className="px-5 py-2.5 text-gray-700 hover:bg-green-50 rounded-xl transition-all font-medium border-2 border-transparent hover:border-green-200 hover:shadow-md flex items-center gap-2"
+                className="px-5 py-2.5 text-gray-700 hover:bg-green-50 rounded-md transition-all font-medium border-2 border-transparent hover:border-green-200 hover:shadow-md flex items-center gap-2 cursor-pointer"
               >
                 <HomeIcon size={18} />
                 Home
               </Link>
               <Link
                 to="/courses"
-                className="px-5 py-2.5 text-gray-700 hover:bg-green-50 rounded-xl transition-all font-medium border-2 border-transparent hover:border-green-200 hover:shadow-md"
+                className="px-5 py-2.5 text-gray-700 hover:bg-green-50 rounded-md transition-all font-medium border-2 border-transparent hover:border-green-200 hover:shadow-md cursor-pointer"
               >
                 Browse Courses
               </Link>
               <Link
                 to="/student/profile"
-                className="flex items-center gap-3 px-4 py-2.5 bg-linear-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 rounded-xl transition-all border-2 border-green-200 hover:shadow-lg"
+                className="flex items-center gap-3 px-4 py-2.5 bg-linear-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 rounded-md transition-all border-2 border-green-200 hover:shadow-lg cursor-pointer"
               >
                 <div className="w-10 h-10 bg-linear-to-br from-[#0d9c06] to-[#0b7e05] rounded-full flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-white">
                   {user?.photoURL ? (
@@ -228,7 +228,7 @@ export default function StudentDashboard() {
               </Link>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all font-medium border-2 border-red-200 hover:shadow-lg hover:scale-105"
+                className="flex items-center gap-2 px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md transition-all font-medium border-2 border-red-200 hover:shadow-lg hover:scale-105 cursor-pointer"
               >
                 <LogOut size={18} />
                 Logout
@@ -240,7 +240,7 @@ export default function StudentDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 relative z-10">
         {/* Welcome Banner */}
-        <div className="mb-8 bg-linear-to-r from-[#0d9c06] to-[#0b7e05] rounded-2xl p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden">
+        <div className="mb-8 bg-linear-to-r from-[#0d9c06] to-[#0b7e05] rounded-md p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
           <div className="relative z-10">
@@ -260,9 +260,9 @@ export default function StudentDashboard() {
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
           {/* Total Courses */}
-          <div className="group bg-white rounded-2xl p-5 sm:p-6 border-2 border-green-100 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer">
+          <div className="group bg-white rounded-md p-5 sm:p-6 border-2 border-green-100 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-linear-to-br from-[#0d9c06] to-[#0b7e05] rounded-xl shadow-lg group-hover:scale-110 transition-transform">
+              <div className="p-3 bg-linear-to-br from-[#0d9c06] to-[#0b7e05] rounded-md shadow-lg group-hover:scale-110 transition-transform">
                 <BookOpen className="text-white" size={24} />
               </div>
               <Sparkles className="text-green-300 group-hover:text-[#0d9c06] transition-colors" size={20} />
@@ -272,9 +272,9 @@ export default function StudentDashboard() {
           </div>
 
           {/* In Progress */}
-          <div className="group bg-white rounded-2xl p-5 sm:p-6 border-2 border-purple-100 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer">
+          <div className="group bg-white rounded-md p-5 sm:p-6 border-2 border-purple-100 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-linear-to-br from-[#5022C3] to-[#3d1a99] rounded-xl shadow-lg group-hover:scale-110 transition-transform">
+              <div className="p-3 bg-linear-to-br from-[#5022C3] to-[#3d1a99] rounded-md shadow-lg group-hover:scale-110 transition-transform">
                 <TrendingUp className="text-white" size={24} />
               </div>
               <Zap className="text-purple-300 group-hover:text-[#5022C3] transition-colors" size={20} />
@@ -284,9 +284,9 @@ export default function StudentDashboard() {
           </div>
 
           {/* Completed */}
-          <div className="group bg-white rounded-2xl p-5 sm:p-6 border-2 border-green-100 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer">
+          <div className="group bg-white rounded-md p-5 sm:p-6 border-2 border-green-100 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-linear-to-br from-[#0d9c06] to-[#0b7e05] rounded-xl shadow-lg group-hover:scale-110 transition-transform">
+              <div className="p-3 bg-linear-to-br from-[#0d9c06] to-[#0b7e05] rounded-md shadow-lg group-hover:scale-110 transition-transform">
                 <CheckCircle className="text-white" size={24} />
               </div>
               <Award className="text-green-300 group-hover:text-[#0d9c06] transition-colors" size={20} />
@@ -296,9 +296,9 @@ export default function StudentDashboard() {
           </div>
 
           {/* Hours Learned */}
-          <div className="group bg-white rounded-2xl p-5 sm:p-6 border-2 border-purple-100 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer">
+          <div className="group bg-white rounded-md p-5 sm:p-6 border-2 border-purple-100 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-linear-to-br from-[#5022C3] to-[#3d1a99] rounded-xl shadow-lg group-hover:scale-110 transition-transform">
+              <div className="p-3 bg-linear-to-br from-[#5022C3] to-[#3d1a99] rounded-md shadow-lg group-hover:scale-110 transition-transform">
                 <Clock className="text-white" size={24} />
               </div>
               <Target className="text-purple-300 group-hover:text-[#5022C3] transition-colors" size={20} />
@@ -319,7 +319,7 @@ export default function StudentDashboard() {
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {badges.map((badge, idx) => (
-                <div key={badge.badgeId || idx} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow group cursor-default">
+                <div key={badge.badgeId || idx} className="bg-white p-4 rounded-md shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow group cursor-default">
                   <div className="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center text-3xl mb-3 group-hover:scale-110 transition-transform">
                     {badge.icon}
                   </div>
@@ -332,7 +332,7 @@ export default function StudentDashboard() {
         )}
 
         {/* Courses Section */}
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl border-2 border-gray-200 shadow-2xl overflow-hidden">
+        <div className="bg-white/90 backdrop-blur-md rounded-md border-2 border-gray-200 shadow-2xl overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-200 bg-linear-to-r from-green-50 to-white">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -344,10 +344,10 @@ export default function StudentDashboard() {
               </div>
               
               {/* Tabs */}
-              <div className="flex bg-gray-100 p-1 rounded-xl self-start sm:self-auto">
+              <div className="flex bg-gray-100 p-1 rounded-md self-start sm:self-auto">
                 <button
                   onClick={() => setActiveTab('in_progress')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                  className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${
                     activeTab === 'in_progress'
                       ? 'bg-white text-[#0d9c06] shadow-sm'
                       : 'text-gray-500 hover:text-gray-700'
@@ -357,7 +357,7 @@ export default function StudentDashboard() {
                 </button>
                 <button
                   onClick={() => setActiveTab('completed')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                  className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${
                     activeTab === 'completed'
                       ? 'bg-white text-[#0d9c06] shadow-sm'
                       : 'text-gray-500 hover:text-gray-700'
@@ -388,7 +388,7 @@ export default function StudentDashboard() {
               </p>
               <Link
                 to="/courses"
-                className="inline-flex items-center gap-2 bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white px-8 py-4 rounded-xl font-bold hover:shadow-2xl transition-all hover:scale-105 text-lg"
+                className="inline-flex items-center gap-2 bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white px-8 py-4 rounded-md font-bold hover:shadow-2xl transition-all hover:scale-105 text-lg cursor-pointer"
               >
                 <Sparkles size={20} />
                 Browse Courses
@@ -407,7 +407,7 @@ export default function StudentDashboard() {
                 >
                   <div className="flex flex-col sm:flex-row gap-6">
                     {/* Course Image */}
-                    <div className="relative w-full sm:w-56 lg:w-72 h-40 bg-linear-to-br from-gray-200 to-gray-100 rounded-2xl overflow-hidden shrink-0 shadow-lg group-hover:shadow-2xl transition-all">
+                    <div className="relative w-full sm:w-56 lg:w-72 h-40 bg-linear-to-br from-gray-200 to-gray-100 rounded-md overflow-hidden shrink-0 shadow-lg group-hover:shadow-2xl transition-all">
                       {course.image ? (
                         <img 
                           src={course.image} 
@@ -493,7 +493,7 @@ export default function StudentDashboard() {
                       {isPending ? (
                         <button
                           disabled
-                          className="inline-flex items-center gap-2 bg-gray-100 text-gray-500 border border-gray-200 px-6 py-3 rounded-xl font-bold cursor-not-allowed w-full sm:w-auto justify-center"
+                          className="inline-flex items-center gap-2 bg-gray-100 text-gray-500 border border-gray-200 px-6 py-3 rounded-md font-bold cursor-not-allowed w-full sm:w-auto justify-center"
                         >
                           <Clock size={20} />
                           Waiting for Admin Approval
@@ -501,7 +501,7 @@ export default function StudentDashboard() {
                       ) : (
                         <Link
                           to={`/student/course/${course.id}`}
-                          className="inline-flex items-center gap-2 bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white px-6 py-3 rounded-xl font-bold hover:shadow-2xl transition-all hover:scale-105 w-full sm:w-auto justify-center"
+                          className="inline-flex items-center gap-2 bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white px-6 py-3 rounded-md font-bold hover:shadow-2xl transition-all hover:scale-105 w-full sm:w-auto justify-center cursor-pointer"
                         >
                           <PlayCircle size={20} />
                           {course.progress === 100 ? 'Review Course' : (course.progress > 0 ? 'Continue Learning' : 'Start Course')}

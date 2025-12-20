@@ -47,7 +47,7 @@ const ContactForm = () => {
   if (state.succeeded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f7f9fa] px-4">
-        <div className="bg-white p-10 rounded-2xl shadow-lg max-w-md w-full text-center">
+        <div className="bg-white p-10 rounded-md shadow-lg max-w-md w-full text-center">
           <h2 className="text-2xl font-bold text-green-600 mb-3">🎉 Message Sent!</h2>
           <p className="text-gray-700">Thank you for contacting us! We'll reply soon.</p>
         </div>
@@ -70,7 +70,7 @@ const ContactForm = () => {
     >
       <form
         onSubmit={handleFormSubmit}
-        className="bg-white w-full max-w-3xl p-6 sm:p-12 rounded-2xl shadow-xl border border-[#e4e5e7]"
+        className="bg-white w-full max-w-3xl p-6 sm:p-12 rounded-md shadow-xl border border-[#e4e5e7]"
       >
         {/* Header */}
         <h2 className="text-3xl font-bold text-[#1c1d1f] mb-2">Contact Us</h2>
@@ -81,9 +81,7 @@ const ContactForm = () => {
         {/* Grid: Name + Phone + Course */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           {/* Name */}
-          <div className="relative">
-            <User className="absolute left-4 top-4 text-[#6a6f73] w-5 h-5" />
-
+          <div className="spark-input-group">
             <input
               type="text"
               name="name"
@@ -93,24 +91,24 @@ const ContactForm = () => {
               onChange={handleInputChange}
               className="input-field"
             />
+            <User className="spark-input-icon" />
             <label className="floating-label">Your Name</label>
           </div>
 
           {/* Phone - Pakistani Format (with or without hyphens) */}
-          <div className="relative">
-            <Phone className="absolute left-4 top-4 text-[#6a6f73] w-5 h-5" />
-
+          <div className="spark-input-group">
             <input
               type="tel"
               name="phone"
               required
-              placeholder="03001234567"
+              placeholder=" "
               value={formData.phone}
               onChange={handleInputChange}
               className="input-field"
               pattern="^(03[0-9]{9}|0[0-9]{2,3}[0-9]{7,8})$"
               title="Enter a valid Pakistani phone number (e.g., 03001234567 for mobile or 02112345678 for landline)"
             />
+            <Phone className="spark-input-icon" />
             <label className="floating-label">Phone Number (Pakistan)</label>
 
             <ValidationError
@@ -122,15 +120,13 @@ const ContactForm = () => {
           </div>
 
           {/* Course Category */}
-          <div className="relative md:col-span-2">
-            <BookOpen className="absolute left-4 top-4 text-[#6a6f73] w-5 h-5" />
-
+          <div className="spark-input-group md:col-span-2">
             <select 
               name="course" 
               required 
               value={formData.course}
               onChange={handleInputChange}
-              className="input-field bg-white"
+              className="input-field"
             >
               <option value="" disabled>
                 Select course category
@@ -144,15 +140,17 @@ const ContactForm = () => {
               <option value="Graphic Design">Graphic Design</option>
               <option value="Spoken English">Spoken English</option>
             </select>
-
+            <BookOpen className="spark-input-icon" />
             <label className="floating-label">Select Course Category</label>
+            {/* Custom arrow for select */}
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#6a6f73]">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
           </div>
         </div>
 
         {/* Message */}
-        <div className="relative mt-4 sm:mt-5">
-          <MessageSquare className="absolute left-4 top-4 text-[#6a6f73] w-5 h-5" />
-
+        <div className="spark-input-group mt-4 sm:mt-5">
           <textarea
             name="message"
             rows="5"
@@ -160,8 +158,9 @@ const ContactForm = () => {
             placeholder=" "
             value={formData.message}
             onChange={handleInputChange}
-            className="input-field resize-none"
+            className="input-field"
           />
+          <MessageSquare className="spark-input-icon" />
           <label className="floating-label">Your Message</label>
 
           <ValidationError
@@ -176,14 +175,7 @@ const ContactForm = () => {
         <button
           type="submit"
           disabled={state.submitting}
-          className={`
-            w-full mt-6 sm:mt-8 py-3 rounded-md text-white cursor-pointer font-semibold text-sm transition-all
-            ${
-              state.submitting
-                ? "bg-[#11c50a] cursor-not-allowed"
-                : "bg-[#0d9c06] hover:bg-[#11c50a]"
-            }
-          `}
+          className="spark-submit-btn mt-6 sm:mt-8 cursor-pointer"
         >
           {state.submitting ? "Sending..." : "Send Message"}
         </button>

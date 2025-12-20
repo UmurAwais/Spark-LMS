@@ -128,7 +128,7 @@ export default function AdminBadges() {
         </div>
         <button 
           onClick={() => setShowAddModal(true)}
-          className="bg-[#0d9c06] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#0b7e05] transition-colors cursor-pointer"
+          className="bg-[#0d9c06] text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-[#0b7e05] transition-colors cursor-pointer"
         >
           <Plus size={20} />
           Add New Badge
@@ -137,7 +137,7 @@ export default function AdminBadges() {
 
       {/* Notification */}
       {notification && (
-        <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg flex items-center gap-2 z-50 ${
+        <div className={`fixed top-4 right-4 p-4 rounded-md shadow-lg flex items-center gap-2 z-50 ${
           notification.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
         }`}>
           {notification.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
@@ -151,7 +151,7 @@ export default function AdminBadges() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0d9c06]"></div>
         </div>
       ) : badges.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="text-center py-12 bg-white rounded-md shadow-sm border border-gray-200">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Award className="text-gray-400" size={32} />
           </div>
@@ -161,7 +161,7 @@ export default function AdminBadges() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {badges.map((badge) => (
-            <div key={badge.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
+            <div key={badge.id} className="bg-white rounded-md shadow-sm border border-gray-200 p-6 flex flex-col">
               <div className="flex items-start justify-between mb-4">
                 <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-2xl">
                   {badge.icon}
@@ -197,7 +197,7 @@ export default function AdminBadges() {
       {/* Add Badge Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
+          <div className="bg-white rounded-md shadow-xl max-w-md w-full overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
               <h2 className="text-xl font-bold text-gray-900">Add New Badge</h2>
               <button 
@@ -217,7 +217,7 @@ export default function AdminBadges() {
                     required
                     value={newBadge.name}
                     onChange={(e) => setNewBadge({...newBadge, name: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
                     placeholder="e.g. Course Master"
                   />
                 </div>
@@ -229,7 +229,7 @@ export default function AdminBadges() {
                     required
                     value={newBadge.icon}
                     onChange={(e) => setNewBadge({...newBadge, icon: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
                     placeholder="e.g. 🏆"
                   />
                 </div>
@@ -239,7 +239,7 @@ export default function AdminBadges() {
                   <textarea 
                     value={newBadge.description}
                     onChange={(e) => setNewBadge({...newBadge, description: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
                     rows="2"
                     placeholder="Brief description of the achievement"
                   ></textarea>
@@ -251,7 +251,7 @@ export default function AdminBadges() {
                     <select 
                       value={newBadge.milestoneType}
                       onChange={(e) => setNewBadge({...newBadge, milestoneType: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
                     >
                       <option value="percentage">Percentage</option>
                     </select>
@@ -265,7 +265,7 @@ export default function AdminBadges() {
                       max="100"
                       value={newBadge.milestoneValue}
                       onChange={(e) => setNewBadge({...newBadge, milestoneValue: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
                     />
                   </div>
                 </div>
@@ -275,7 +275,7 @@ export default function AdminBadges() {
                   <select 
                     value={newBadge.courseId}
                     onChange={(e) => setNewBadge({...newBadge, courseId: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
                   >
                     <option value="all">All Courses</option>
                     {courses.map(course => (
@@ -289,13 +289,13 @@ export default function AdminBadges() {
                 <button 
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer font-medium border border-gray-300"
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors cursor-pointer font-medium border border-gray-300"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit"
-                  className="px-6 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] transition-colors cursor-pointer font-medium shadow-sm hover:shadow-md border border-gray-300"
+                  className="px-6 py-2 bg-[#0d9c06] text-white rounded-md hover:bg-[#0b7e05] transition-colors cursor-pointer font-medium shadow-sm hover:shadow-md border border-gray-300"
                 >
                   Create Badge
                 </button>

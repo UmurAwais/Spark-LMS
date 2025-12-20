@@ -79,7 +79,7 @@ export default function AdminActivityLog() {
       </div>
 
       {/* Filters & Search */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
+      <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
           <input
@@ -87,7 +87,7 @@ export default function AdminActivityLog() {
             placeholder="Search activity..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
           />
         </div>
 
@@ -96,7 +96,7 @@ export default function AdminActivityLog() {
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06] bg-white"
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] bg-white"
           >
             <option value="all">All Events</option>
             <option value="success">Success</option>
@@ -108,7 +108,7 @@ export default function AdminActivityLog() {
       </div>
 
       {/* Logs List */}
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden">
         {filteredLogs.length === 0 ? (
           <div className="p-12 text-center text-gray-500">No activity found.</div>
         ) : (

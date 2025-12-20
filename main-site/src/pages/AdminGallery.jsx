@@ -234,7 +234,7 @@ export default function AdminGallery() {
            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0d9c06]"></div>
         </div>
       ) : items.length === 0 ? (
-        <div className="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center">
+        <div className="bg-white rounded-md border border-dashed border-gray-300 p-12 text-center">
             <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                <ImageIcon className="text-gray-400" size={32} />
             </div>
@@ -250,7 +250,7 @@ export default function AdminGallery() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {items.map((item) => (
-            <div key={item._id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+            <div key={item._id} className="bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
               <div className="aspect-video relative overflow-hidden bg-gray-100">
                 {item.type === "video" ? (
                   <div className="w-full h-full flex items-center justify-center">
@@ -272,7 +272,7 @@ export default function AdminGallery() {
                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button 
                     onClick={() => handleDelete(item._id)}
-                    className="p-2 bg-white/90 text-red-600 rounded-lg hover:bg-red-50 shadow-sm transition-colors cursor-pointer"
+                    className="p-2 bg-white/90 text-red-600 rounded-md hover:bg-red-50 shadow-sm transition-colors cursor-pointer"
                     title="Delete"
                   >
                     <Trash2 size={16} />
@@ -296,7 +296,7 @@ export default function AdminGallery() {
                     href={getFullUrl(item.url)} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-[#0d9c06] hover:text-[#0b7e05] transition-colors"
+                    className="text-[#0d9c06] hover:text-[#0b7e05] transition-colors cursor-pointer"
                   >
                     <ExternalLink size={14} />
                   </a>
@@ -309,13 +309,13 @@ export default function AdminGallery() {
 
       {/* Add Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-100 p-4">
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-md max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="px-6 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
               <h3 className="font-bold text-gray-800">Add Gallery Item</h3>
               <button 
                 onClick={() => setShowAddModal(false)}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer"
+                className="p-2 hover:bg-gray-200 rounded-md transition-colors cursor-pointer"
               >
                 <X size={20} className="text-gray-500" />
               </button>
@@ -329,7 +329,7 @@ export default function AdminGallery() {
                   required
                   value={newItem.title}
                   onChange={(e) => setNewItem({...newItem, title: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d9c06] outline-none transition-all"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#0d9c06] outline-none transition-all"
                   placeholder="e.g. Graduation Batch 2024"
                 />
               </div>
@@ -343,7 +343,7 @@ export default function AdminGallery() {
                       setNewItem({...newItem, type: e.target.value});
                       setSelectedFile(null);
                     }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d9c06] outline-none appearance-none bg-white font-medium"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#0d9c06] outline-none appearance-none bg-white font-medium"
                   >
                     <option value="image">Image</option>
                     <option value="video">Video</option>
@@ -354,7 +354,7 @@ export default function AdminGallery() {
                   <select
                     value={newItem.category}
                     onChange={(e) => setNewItem({...newItem, category: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d9c06] outline-none appearance-none bg-white font-medium"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#0d9c06] outline-none appearance-none bg-white font-medium"
                   >
                     {CATEGORIES.map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
@@ -363,13 +363,13 @@ export default function AdminGallery() {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+              <div className="flex justify-between items-center bg-gray-50 p-3 rounded-md border border-gray-200">
                 <p className="text-sm font-medium text-gray-600">Import from</p>
                 <div className="flex items-center gap-3">
                   <a
                     href="/admin/drive"
                     target="_blank"
-                    className="text-xs text-gray-500 hover:text-[#0d9c06] underline"
+                    className="text-xs text-gray-500 hover:text-[#0d9c06] underline cursor-pointer"
                   >
                     Manage Resources Tab
                   </a>
@@ -391,7 +391,7 @@ export default function AdminGallery() {
                   <div className="space-y-3">
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Video Resource</label>
                     <div 
-                      className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-[#0d9c06] transition-colors cursor-pointer group"
+                      className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-[#0d9c06] transition-colors cursor-pointer group"
                       onClick={() => document.getElementById('video-upload').click()}
                     >
                       <div className="space-y-1 text-center">
@@ -419,12 +419,12 @@ export default function AdminGallery() {
                     </div>
 
                     <div className="relative">
-                      <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                      <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer" size={16} />
                       <input
                         type="url"
                         value={newItem.externalUrl}
                         onChange={(e) => setNewItem({...newItem, externalUrl: e.target.value})}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d9c06] outline-none transition-all"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#0d9c06] outline-none transition-all"
                         placeholder="External Video URL (YT/Direct)"
                       />
                     </div>
@@ -433,7 +433,7 @@ export default function AdminGallery() {
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Thumbnail Resource</label>
                     <div 
-                      className="mt-1 flex justify-center px-6 pt-5 pb-4 border-2 border-gray-300 border-dashed rounded-lg hover:border-[#0d9c06] transition-colors cursor-pointer group"
+                      className="mt-1 flex justify-center px-6 pt-5 pb-4 border-2 border-gray-300 border-dashed rounded-md hover:border-[#0d9c06] transition-colors cursor-pointer group"
                       onClick={() => document.getElementById('thumbnail-upload').click()}
                     >
                       <div className="space-y-1 text-center">
@@ -461,12 +461,12 @@ export default function AdminGallery() {
 
                     <div className="flex items-center gap-2">
                       <div className="relative flex-1">
-                        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer" size={14} />
                         <input
                           type="url"
                           value={newItem.thumbnail}
                           onChange={(e) => setNewItem({...newItem, thumbnail: e.target.value})}
-                          className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#0d9c06] outline-none transition-all"
+                          className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#0d9c06] outline-none transition-all"
                           placeholder="Thumbnail URL"
                         />
                       </div>
@@ -477,7 +477,7 @@ export default function AdminGallery() {
                           setShowDrivePicker(true);
                           fetchDriveFiles();
                         }}
-                        className="p-2 border border-gray-300 rounded-lg text-gray-500 hover:text-[#0d9c06] hover:border-[#0d9c06] transition-all"
+                        className="p-2 border border-gray-300 rounded-md text-gray-500 hover:text-[#0d9c06] hover:border-[#0d9c06] transition-all"
                         title="Import thumbnail from Resources"
                       >
                         <HardDrive size={18} />
@@ -488,7 +488,7 @@ export default function AdminGallery() {
               ) : (
                 <div className="space-y-3">
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Image Resource</label>
-                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-[#0d9c06] transition-colors cursor-pointer group"
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-[#0d9c06] transition-colors cursor-pointer group"
                        onClick={() => document.getElementById('file-upload').click()}>
                     <div className="space-y-1 text-center">
                       <Upload className="mx-auto h-12 w-12 text-gray-400 group-hover:text-[#0d9c06] transition-colors" />
@@ -520,14 +520,14 @@ export default function AdminGallery() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="flex-1 px-4 py-2 bg-[#0d9c06] text-white rounded-lg font-semibold hover:bg-[#0b7e05] disabled:opacity-50 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 px-4 py-2 bg-[#0d9c06] text-white rounded-md font-semibold hover:bg-[#0b7e05] disabled:opacity-50 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {uploading ? (
                     <>
@@ -544,8 +544,8 @@ export default function AdminGallery() {
 
       {/* Resource Picker Modal */}
       {showDrivePicker && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-110 p-4">
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
             <div className="px-6 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-gray-800">Import from Resources</h3>
@@ -553,7 +553,7 @@ export default function AdminGallery() {
               </div>
               <button 
                 onClick={() => setShowDrivePicker(false)}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer"
+                className="p-2 hover:bg-gray-200 rounded-md transition-colors cursor-pointer"
               >
                 <X size={20} className="text-gray-500" />
               </button>
@@ -567,7 +567,7 @@ export default function AdminGallery() {
                    value={driveSearchQuery}
                    onChange={(e) => setDriveSearchQuery(e.target.value)}
                    placeholder="Search resources..."
-                   className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-[#0d9c06]"
+                   className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-md outline-none focus:ring-2 focus:ring-[#0d9c06]"
                  />
                </div>
             </div>
@@ -590,9 +590,9 @@ export default function AdminGallery() {
                     <div 
                       key={file.id}
                       onClick={() => handleImportFromDrive(file)}
-                      className="group border border-gray-200 rounded-xl p-3 hover:border-[#0d9c06] hover:bg-[#0d9c06]/5 transition-all cursor-pointer text-center"
+                      className="group border border-gray-200 rounded-md p-3 hover:border-[#0d9c06] hover:bg-[#0d9c06]/5 transition-all cursor-pointer text-center"
                     >
-                      <div className="h-24 bg-gray-50 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                      <div className="h-24 bg-gray-50 rounded-md mb-2 flex items-center justify-center overflow-hidden">
                         {file.thumbnailLink ? (
                           <img src={file.thumbnailLink} className="h-full w-full object-cover" alt="" />
                         ) : file.mimeType.includes('video') ? (

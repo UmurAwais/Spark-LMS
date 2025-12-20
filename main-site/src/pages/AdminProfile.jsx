@@ -153,8 +153,8 @@ export default function AdminProfile() {
 
         setImageFile(null);
         
-        // Reload the page to update header
-        setTimeout(() => window.location.reload(), 1000);
+        // Dispatch custom event to update header without page reload
+        window.dispatchEvent(new Event('profileUpdated'));
       } else {
         throw new Error(data.message || 'Failed to update profile');
       }
@@ -260,7 +260,7 @@ export default function AdminProfile() {
         </div>
 
         {/* Profile Information */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+        <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden mb-6">
           {/* Profile Header */}
           <div className="bg-gradient-to-r from-[#0d9c06] to-[#0b7e05] h-32"></div>
           
@@ -295,7 +295,7 @@ export default function AdminProfile() {
                 {imageFile && (
                   <button
                     onClick={removeImage}
-                    className="absolute -top-2 -right-2 h-8 w-8 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-lg"
+                    className="absolute -top-2 -right-2 h-8 w-8 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-lg cursor-pointer"
                   >
                     <X size={16} />
                   </button>
@@ -323,7 +323,7 @@ export default function AdminProfile() {
                       type="text"
                       value={profileData.name}
                       onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#0d9c06] focus:ring-2 focus:ring-green-200 transition-all"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-md focus:border-[#0d9c06] focus:ring-2 focus:ring-green-200 transition-all"
                       required
                     />
                   </div>
@@ -339,7 +339,7 @@ export default function AdminProfile() {
                     <input
                       type="email"
                       value={profileData.email}
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
                       disabled
                     />
                   </div>
@@ -357,7 +357,7 @@ export default function AdminProfile() {
                       type="email"
                       value={profileData.recoveryEmail}
                       onChange={(e) => setProfileData({ ...profileData, recoveryEmail: e.target.value })}
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#0d9c06] focus:ring-2 focus:ring-green-200 transition-all"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-md focus:border-[#0d9c06] focus:ring-2 focus:ring-green-200 transition-all"
                       placeholder="recovery@example.com"
                     />
                   </div>
@@ -374,7 +374,7 @@ export default function AdminProfile() {
                     <input
                       type="text"
                       value={getRoleDisplayName(profileData.role)}
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
                       disabled
                     />
                   </div>
@@ -387,7 +387,7 @@ export default function AdminProfile() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center gap-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white px-6 py-3 rounded-lg font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  className="flex items-center gap-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white px-6 py-3 rounded-md font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                 >
                   <Save size={20} />
                   {loading ? 'Saving...' : 'Save Changes'}
@@ -398,7 +398,7 @@ export default function AdminProfile() {
         </div>
 
         {/* Password Change Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
           <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
               <KeyRound className="text-[#0d9c06]" size={20} />
@@ -421,7 +421,7 @@ export default function AdminProfile() {
                       type={showPasswords.current ? "text" : "password"}
                       value={passwordData.currentPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                      className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-lg focus:border-[#0d9c06] focus:ring-2 focus:ring-green-200 transition-all"
+                      className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-md focus:border-[#0d9c06] focus:ring-2 focus:ring-green-200 transition-all"
                       placeholder="Enter current password"
                       required
                     />
@@ -446,7 +446,7 @@ export default function AdminProfile() {
                       type={showPasswords.new ? "text" : "password"}
                       value={passwordData.newPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                      className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-lg focus:border-[#0d9c06] focus:ring-2 focus:ring-green-200 transition-all"
+                      className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-md focus:border-[#0d9c06] focus:ring-2 focus:ring-green-200 transition-all"
                       placeholder="Enter new password (min 6 characters)"
                       required
                     />
@@ -471,7 +471,7 @@ export default function AdminProfile() {
                       type={showPasswords.confirm ? "text" : "password"}
                       value={passwordData.confirmPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                      className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-lg focus:border-[#0d9c06] focus:ring-2 focus:ring-green-200 transition-all"
+                      className="w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-md focus:border-[#0d9c06] focus:ring-2 focus:ring-green-200 transition-all"
                       placeholder="Confirm new password"
                       required
                     />
@@ -491,7 +491,7 @@ export default function AdminProfile() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center gap-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white px-6 py-3 rounded-lg font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  className="flex items-center gap-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white px-6 py-3 rounded-md font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                 >
                   <Lock size={20} />
                   {loading ? 'Changing...' : 'Change Password'}
@@ -502,7 +502,7 @@ export default function AdminProfile() {
         </div>
 
         {/* Additional Info */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-md p-4">
           <h3 className="text-sm font-semibold text-blue-900 mb-2">Security Tips</h3>
           <ul className="text-sm text-blue-800 space-y-1">
             <li>• Profile picture should be square and less than 2MB</li>

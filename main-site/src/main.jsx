@@ -43,6 +43,7 @@ import AdminProfile from "./pages/AdminProfile.jsx";
 import OnlineCourses from "./pages/OnlineCourses.jsx";
 import OnsiteCourses from "./pages/OnsiteCourses.jsx";
 import AdminGallery from "./pages/AdminGallery.jsx";
+import AdminCoupons from "./pages/AdminCoupons.jsx";
 
 const router = createBrowserRouter([
   {
@@ -65,6 +66,7 @@ const router = createBrowserRouter([
           { path: "roles", element: <AdminRoles /> },
           { path: "profile", element: <AdminProfile /> },
           { path: "gallery", element: <AdminGallery /> },
+          { path: "coupons", element: <AdminCoupons /> },
         ]
       }
     ]

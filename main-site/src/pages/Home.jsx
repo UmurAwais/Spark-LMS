@@ -24,7 +24,7 @@ export default function Home() {
             <p className="text-[#595C73] text-base sm:text-lg lg:text-xl">
               Join thousands of learners and start your journey towards a brighter future.
             </p>
-            <Link to="/contact" className="w-full bg-linear-to-r from-[#0d9c06] to-[#0b7e05] hover:shadow-xl text-white font-bold py-3 px-4 rounded-md transition-all hover:scale-105 mt-1.5 flex text-center justify-center">
+            <Link to="/contact" className="w-full bg-linear-to-r from-[#0d9c06] to-[#0b7e05] hover:shadow-xl text-white font-bold py-3 px-4 rounded-md transition-all hover:scale-105 mt-1.5 flex text-center justify-center cursor-pointer">
               Get started
             </Link>
             <SearchBar />

@@ -93,7 +93,7 @@ const SingleCoursePage = () => {
       <div className="max-w-3xl mx-auto py-40 text-center">
         <h2 className="text-3xl font-bold mb-4">Course not found 😢</h2>
         <p className="text-slate-600 mb-8">The course you are looking for might have been moved or deleted.</p>
-        <Link to="/courses" className="bg-[#0b7e05] text-white px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-transform inline-block">
+        <Link to="/courses" className="bg-[#0b7e05] text-white px-6 py-3 rounded-md font-semibold hover:scale-105 transition-transform inline-block cursor-pointer">
           Browse All Courses
         </Link>
       </div>
@@ -153,7 +153,7 @@ const SingleCoursePage = () => {
         {/* LEFT CONTENT */}
         <div className="flex-1">
           {/* WHAT YOU'LL LEARN */}
-          <section className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <section className="bg-white rounded-md shadow-sm p-6 mb-6">
             <h2 className="text-xl font-bold mb-4">What you'll learn</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {whatYouLearn.map((item, i) => (
@@ -169,7 +169,7 @@ const SingleCoursePage = () => {
           </section>
 
           {/* CURRICULUM / LECTURES */}
-          <section className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <section className="bg-white rounded-md shadow-sm p-6 mb-6">
             <h2 className="text-xl font-bold mb-3">Curriculum</h2>
             {Array.isArray(course.lectures) && course.lectures.length > 0 ? (
               <div className="space-y-2">
@@ -196,7 +196,7 @@ const SingleCoursePage = () => {
           </section>
 
           {/* DESCRIPTION */}
-          <section className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <section className="bg-white rounded-md shadow-sm p-6 mb-6">
             <h2 className="text-xl font-bold mb-3">Course description</h2>
 
             {Array.isArray(course.fullDescription) ? (
@@ -216,7 +216,7 @@ const SingleCoursePage = () => {
           </section>
 
           {/* REQUIREMENTS */}
-          <section className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <section className="bg-white rounded-md shadow-sm p-6 mb-6">
             <h2 className="text-xl font-bold mb-3">Requirements</h2>
             <ul className="text-sm text-[#1c1d1f] list-disc ml-5 space-y-1">
               {requirements.map((req, i) => (
@@ -227,8 +227,8 @@ const SingleCoursePage = () => {
         </div>
 
         {/* RIGHT SIDEBAR */}
-        <aside className="w-full lg:w-80">
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <aside className="w-full lg:w-80 cursor-pointer">
+          <div className="bg-white rounded-md shadow-sm overflow-hidden">
             {/* Course image */}
             <div className="w-full aspect-video overflow-hidden">
               <img

@@ -2,10 +2,10 @@ import React from 'react';
 
 export function CourseCardSkeleton() {
   return (
-    <div className="block rounded-2xl ring-1 ring-slate-200 bg-white overflow-hidden h-full animate-pulse">
+    <div className="block rounded-md ring-1 ring-slate-200 bg-white overflow-hidden h-full animate-pulse">
       {/* Image skeleton */}
       <div className="p-3 pb-0">
-        <div className="overflow-hidden rounded-xl h-48 bg-gray-200" />
+        <div className="overflow-hidden rounded-md h-48 bg-gray-200" />
       </div>
 
       {/* Content skeleton */}
@@ -60,7 +60,7 @@ export function CourseDetailSkeleton() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-6">
           {/* What you'll learn */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="bg-white rounded-md shadow-sm p-6">
             <div className="h-6 bg-gray-200 rounded w-48 mb-4" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[1, 2, 3, 4].map((i) => (
@@ -73,7 +73,7 @@ export function CourseDetailSkeleton() {
           </div>
 
           {/* Description */}
-          <div className="bg-white rounded-xl shadow-sm p-6 space-y-3">
+          <div className="bg-white rounded-md shadow-sm p-6 space-y-3">
             <div className="h-6 bg-gray-200 rounded w-48 mb-3" />
             <div className="h-4 bg-gray-100 rounded w-full" />
             <div className="h-4 bg-gray-100 rounded w-full" />
@@ -82,8 +82,8 @@ export function CourseDetailSkeleton() {
         </div>
 
         {/* Sidebar skeleton */}
-        <aside className="w-full lg:w-80">
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <aside className="w-full lg:w-80 cursor-pointer">
+          <div className="bg-white rounded-md shadow-sm overflow-hidden">
             <div className="w-full aspect-video bg-gray-200" />
             <div className="p-6 space-y-4">
               <div className="h-8 bg-gray-200 rounded w-24" />
@@ -139,9 +139,9 @@ export function AdminDashboardSkeleton() {
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 opacity-50">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-white rounded-xl shadow-lg p-6 h-32 border border-gray-100">
+          <div key={i} className="bg-white rounded-md shadow-lg p-6 h-32 border border-gray-100">
             <div className="flex justify-between mb-4">
-              <div className="h-10 w-10 bg-gray-200 rounded-lg" />
+              <div className="h-10 w-10 bg-gray-200 rounded-md" />
               <div className="h-5 w-5 bg-gray-200 rounded" />
             </div>
             <div className="h-4 bg-gray-200 rounded w-24 mb-2" />
@@ -153,7 +153,7 @@ export function AdminDashboardSkeleton() {
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 opacity-50">
         {/* Recent Orders Skeleton */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between">
             <div className="h-6 bg-gray-200 rounded w-32" />
             <div className="h-4 bg-gray-200 rounded w-16" />
@@ -174,7 +174,7 @@ export function AdminDashboardSkeleton() {
 
         {/* Right Sidebar Skeleton */}
         <div className="space-y-6">
-          <div className="bg-white border border-gray-200 rounded-xl p-6 h-64">
+          <div className="bg-white border border-gray-200 rounded-md p-6 h-64">
             <div className="h-6 bg-gray-200 rounded w-32 mb-4" />
             <div className="space-y-3">
               <div className="h-12 bg-gray-100 rounded" />
@@ -182,7 +182,7 @@ export function AdminDashboardSkeleton() {
               <div className="h-12 bg-gray-100 rounded" />
             </div>
           </div>
-          <div className="bg-gray-100 rounded-xl p-6 h-40" />
+          <div className="bg-gray-100 rounded-md p-6 h-40" />
         </div>
       </div>
     </div>
@@ -199,10 +199,10 @@ export function AdminTableSkeleton() {
         <div className="h-4 bg-gray-100 rounded w-64" />
       </div>
       {/* Search Bar Skeleton */}
-      <div className="mb-6 h-10 bg-gray-100 rounded-lg opacity-50 w-full max-w-md" />
+      <div className="mb-6 h-10 bg-gray-100 rounded-md opacity-50 w-full max-w-md" />
       
       {/* Table Skeleton */}
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden opacity-50">
+      <div className="bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden opacity-50">
         <div className="h-12 bg-gray-50 border-b border-gray-200" />
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="h-20 border-b border-gray-100 bg-white p-4 flex items-center gap-4">
@@ -235,7 +235,7 @@ export function AdminGridSkeleton() {
       {/* Grid Skeleton */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 opacity-50">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="bg-white rounded-lg border border-gray-200 overflow-hidden h-80">
+          <div key={i} className="bg-white rounded-md border border-gray-200 overflow-hidden h-80">
             <div className="h-40 bg-gray-200" />
             <div className="p-4 space-y-3">
               <div className="h-6 bg-gray-200 rounded w-3/4" />

@@ -29,11 +29,11 @@ function OnlineCourseCard({ c }) {
   return (
     <Link
       to={`/online-course/${c.id}`}
-      className="block rounded-2xl ring-1 ring-slate-200 bg-white hover:shadow-[0_10px_30px_rgba(2,6,23,0.08)] transition-shadow overflow-hidden group h-full"
+      className="block rounded-[15px] ring-1 ring-slate-200 bg-white hover:shadow-[0_10px_30px_rgba(2,6,23,0.08)] transition-shadow overflow-hidden group h-full cursor-pointer"
     >
       {/* IMAGE */}
       <div className="p-3 pb-0">
-        <div className="overflow-hidden rounded-xl">
+        <div className="overflow-hidden rounded-[15px]">
           <img
             src={
               c.image?.startsWith('http') 

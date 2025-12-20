@@ -555,7 +555,7 @@ export default function AdminCourses() {
 
     return (
       <div
-        className="relative block rounded-2xl ring-1 ring-slate-200 bg-white hover:shadow-[0_10px_30px_rgba(2,6,23,0.08)] transition-shadow overflow-hidden h-full cursor-pointer"
+        className="relative block rounded-md ring-1 ring-slate-200 bg-white hover:shadow-[0_10px_30px_rgba(2,6,23,0.08)] transition-shadow overflow-hidden h-full cursor-pointer"
         onMouseEnter={() => setHoveredCourse(`${type}-${course.id}`)}
         onMouseLeave={() => setHoveredCourse(null)}
         onClick={() => toggleCourseSelection(course.id, type)}
@@ -567,7 +567,7 @@ export default function AdminCourses() {
         )}
 
         <div className="p-3 pb-0">
-          <div className="overflow-hidden rounded-xl h-48 bg-gray-100">
+          <div className="overflow-hidden rounded-md h-48 bg-gray-100">
             <img
               src={
                 course.image?.startsWith('http') 
@@ -620,7 +620,7 @@ export default function AdminCourses() {
                 e.stopPropagation();
                 openCurriculumModal(course);
               }}
-              className="mt-4 w-full flex items-center justify-center gap-2 bg-green-50 text-[#0d9c06] hover:bg-green-100 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+              className="mt-4 w-full flex items-center justify-center gap-2 bg-green-50 text-[#0d9c06] hover:bg-green-100 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer"
             >
               <Layers size={16} />
               Manage Curriculum
@@ -687,7 +687,7 @@ export default function AdminCourses() {
                         setShowModal(true);
                       }
                     }}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition cursor-pointer"
                   >
                     <Edit size={20} />
                     Edit Course
@@ -695,7 +695,7 @@ export default function AdminCourses() {
                 )}
                 <button
                   onClick={deleteSelected}
-                  className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
+                  className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition cursor-pointer"
                 >
                   <Trash2 size={20} />
                   Delete ({selectedCourses.length})
@@ -704,7 +704,7 @@ export default function AdminCourses() {
             )}
             <button
               onClick={() => { setIsEditing(false); resetForm(); setShowModal(true); }}
-              className="flex items-center gap-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white px-4 py-2 rounded-lg transition cursor-pointer"
+              className="flex items-center gap-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white px-4 py-2 rounded-md transition cursor-pointer"
             >
               <Plus size={20} />
               Add Course
@@ -714,7 +714,7 @@ export default function AdminCourses() {
 
         <div className="space-y-8">
             {/* Onsite Courses */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-white rounded-md shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold">Onsite Courses ({courses.length})</h2>
                 {courses.length > 0 && (
@@ -734,7 +734,7 @@ export default function AdminCourses() {
             </div>
 
             {/* Online Courses */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-white rounded-md shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold">Online Courses ({onlineCourses.length})</h2>
                 {onlineCourses.length > 0 && (
@@ -757,7 +757,7 @@ export default function AdminCourses() {
         {/* Add Course Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-xl max-w-3xl w-full my-8">
+            <div className="bg-white rounded-md max-w-3xl w-full my-8">
               <div className="sticky top-0 bg-gray-50 border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl z-10">
                 <h2 className="text-xl font-bold text-gray-900">{isEditing ? 'Edit Course' : 'Add New Course'}</h2>
                 <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
@@ -771,14 +771,14 @@ export default function AdminCourses() {
                     <p className="text-gray-700 font-medium mb-6">Select course type to continue:</p>
                     <button
                       onClick={() => setCourseType("online")}
-                      className="w-full p-8 border-2 border-[#0d9c06] rounded-xl hover:bg-green-50 transition group cursor-pointer"
+                      className="w-full p-8 border-2 border-[#0d9c06] rounded-md hover:bg-green-50 transition group cursor-pointer"
                     >
                       <h3 className="text-xl font-bold text-[#0d9c06] mb-2">Online Course</h3>
                       <p className="text-sm text-gray-600">Manage curriculum and lectures online</p>
                     </button>
                     <button
                       onClick={() => setCourseType("onsite")}
-                      className="w-full p-8 border-2 border-[#0d9c06] rounded-xl hover:bg-green-50 transition group cursor-pointer"
+                      className="w-full p-8 border-2 border-[#0d9c06] rounded-md hover:bg-green-50 transition group cursor-pointer"
                     >
                       <h3 className="text-xl font-bold text-[#0d9c06] mb-2">Onsite Course</h3>
                       <p className="text-sm text-gray-600">Physical location course in Pakistan</p>
@@ -786,7 +786,7 @@ export default function AdminCourses() {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
                       <p className="text-sm text-blue-900">
                         Creating: <strong className="text-blue-700">{courseType === "online" ? "Online" : "Onsite"}</strong> Course
                         <button
@@ -810,12 +810,12 @@ export default function AdminCourses() {
                           type="file"
                           accept="image/*"
                           onChange={handleImageSelect}
-                          className="flex-1 border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                          className="flex-1 border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                         />
                         <button
                           type="button"
                           onClick={() => openResourcePicker('image')}
-                          className="px-4 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-2"
+                          className="px-4 py-2 bg-[#0d9c06] text-white rounded-md hover:bg-[#0b7e05] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-2"
                         >
                           <FileImage size={18} />
                           Import from Resources
@@ -835,7 +835,7 @@ export default function AdminCourses() {
                                     : imagePreview  // Fallback
                           }
                           alt="Preview" 
-                          className="mt-3 w-full h-auto max-h-96 object-contain rounded-lg border-2 border-gray-200" 
+                          className="mt-3 w-full h-auto max-h-96 object-contain rounded-md border-2 border-gray-200" 
                           onError={(e) => {
                             console.error('Image preview failed to load:', imagePreview);
                             e.target.src = "https://via.placeholder.com/400x300?text=Image+Preview+Failed";
@@ -852,7 +852,7 @@ export default function AdminCourses() {
                           type="text"
                           value={formData.id}
                           onChange={(e) => setFormData({ ...formData, id: e.target.value })}
-                          className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                          className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                           placeholder="e.g., web-development-2026"
                           disabled={isEditing}
                           required
@@ -868,7 +868,7 @@ export default function AdminCourses() {
                           type="text"
                           value={formData.price}
                           onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                          className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                          className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                           placeholder="e.g., Rs. 25,000"
                           required
                         />
@@ -881,7 +881,7 @@ export default function AdminCourses() {
                         type="text"
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                        className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                         placeholder="e.g., Web Development Masterclass 2026"
                         required
                       />
@@ -894,7 +894,7 @@ export default function AdminCourses() {
                       <textarea
                         value={formData.excerpt}
                         onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                        className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                        className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                         rows="3"
                         placeholder="Brief description of the course..."
                         required
@@ -911,7 +911,7 @@ export default function AdminCourses() {
                           max="5"
                           value={formData.rating}
                           onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
-                          className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                          className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                         />
                       </div>
                       <div>
@@ -920,7 +920,7 @@ export default function AdminCourses() {
                           type="text"
                           value={formData.ratingCount}
                           onChange={(e) => setFormData({ ...formData, ratingCount: e.target.value })}
-                          className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                          className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                           placeholder="e.g., 1,234 ratings"
                         />
                       </div>
@@ -931,7 +931,7 @@ export default function AdminCourses() {
                             type="text"
                             value={formData.duration}
                             onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                            className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                            className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                             placeholder="e.g., 2 Months"
                           />
                         </div>
@@ -945,7 +945,7 @@ export default function AdminCourses() {
                           type="text"
                           value={formData.language}
                           onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-                          className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                          className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                           placeholder="e.g., Urdu / Hindi"
                         />
                       </div>
@@ -955,7 +955,7 @@ export default function AdminCourses() {
                           type="text"
                           value={formData.badge}
                           onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                          className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                          className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                           placeholder="e.g., Premium, Best Seller"
                         />
                       </div>
@@ -977,7 +977,7 @@ export default function AdminCourses() {
                                 newItems[index] = e.target.value;
                                 setFormData({ ...formData, whatYouWillLearn: newItems });
                               }}
-                              className="flex-1 border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                              className="flex-1 border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                               placeholder="e.g., Master the fundamentals of..."
                             />
                             {formData.whatYouWillLearn.length > 1 && (
@@ -987,7 +987,7 @@ export default function AdminCourses() {
                                   const newItems = formData.whatYouWillLearn.filter((_, i) => i !== index);
                                   setFormData({ ...formData, whatYouWillLearn: newItems });
                                 }}
-                                className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors cursor-pointer"
+                                className="px-3 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors cursor-pointer"
                               >
                                 <X size={20} />
                               </button>
@@ -1002,7 +1002,7 @@ export default function AdminCourses() {
                               whatYouWillLearn: [...formData.whatYouWillLearn, ""] 
                             });
                           }}
-                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors cursor-pointer flex items-center justify-center gap-2"
+                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-600 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors cursor-pointer flex items-center justify-center gap-2"
                         >
                           <Plus size={18} />
                           Add Learning Point
@@ -1026,7 +1026,7 @@ export default function AdminCourses() {
                                 newItems[index] = e.target.value;
                                 setFormData({ ...formData, includes: newItems });
                               }}
-                              className="flex-1 border-2 border-gray-300 rounded-lg p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                              className="flex-1 border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                               placeholder="e.g., Certificate of completion"
                             />
                             {formData.includes.length > 1 && (
@@ -1036,7 +1036,7 @@ export default function AdminCourses() {
                                   const newItems = formData.includes.filter((_, i) => i !== index);
                                   setFormData({ ...formData, includes: newItems });
                                 }}
-                                className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors cursor-pointer"
+                                className="px-3 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors cursor-pointer"
                               >
                                 <X size={20} />
                               </button>
@@ -1051,7 +1051,7 @@ export default function AdminCourses() {
                               includes: [...formData.includes, ""] 
                             });
                           }}
-                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors cursor-pointer flex items-center justify-center gap-2"
+                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-600 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors cursor-pointer flex items-center justify-center gap-2"
                         >
                           <Plus size={18} />
                           Add Include Item
@@ -1085,7 +1085,7 @@ export default function AdminCourses() {
                                   const newItems = formData.fullDescription.filter((_, i) => i !== index);
                                   setFormData({ ...formData, fullDescription: newItems });
                                 }}
-                                className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors cursor-pointer h-fit"
+                                className="px-3 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors cursor-pointer h-fit"
                               >
                                 <X size={20} />
                               </button>
@@ -1100,7 +1100,7 @@ export default function AdminCourses() {
                               fullDescription: [...formData.fullDescription, ""] 
                             });
                           }}
-                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors cursor-pointer flex items-center justify-center gap-2"
+                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-600 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors cursor-pointer flex items-center justify-center gap-2"
                         >
                           <Plus size={18} />
                           Add Paragraph
@@ -1109,7 +1109,7 @@ export default function AdminCourses() {
                     </div>
 
                     {uploading && (
-                      <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-5">
+                      <div className="bg-blue-50 border-2 border-blue-300 rounded-md p-5">
                         <div className="flex items-center gap-3 mb-3">
                           <Loader className="animate-spin text-blue-600" size={24} />
                           <span className="text-sm font-semibold text-blue-900">Uploading... {uploadProgress}%</span>
@@ -1128,14 +1128,14 @@ export default function AdminCourses() {
                         type="button"
                         onClick={() => setShowModal(false)}
                         disabled={uploading}
-                        className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer font-medium border border-gray-300"
+                        className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors cursor-pointer font-medium border border-gray-300"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={uploading}
-                        className="flex-1 bg-[#0d9c06] hover:bg-[#0b8005] text-white py-2 px-6 rounded-lg font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                        className="flex-1 bg-[#0d9c06] hover:bg-[#0b8005] text-white py-2 px-6 rounded-md font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                       >
                         {uploading ? (isEditing ? "Saving..." : "Uploading...") : (isEditing ? "Save Changes" : "Add Course")}
                       </button>
@@ -1150,7 +1150,7 @@ export default function AdminCourses() {
         {/* Resource Picker Modal */}
         {showResourcePicker && (
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-60 p-4">
-            <div className="bg-white rounded-xl max-w-4xl w-full max-h-[80vh] flex flex-col">
+            <div className="bg-white rounded-md max-w-4xl w-full max-h-[80vh] flex flex-col">
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <div>
@@ -1163,7 +1163,7 @@ export default function AdminCourses() {
                 </div>
                 <button
                   onClick={() => setShowResourcePicker(false)}
-                  className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                  className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-md transition-colors cursor-pointer"
                 >
                   <X size={24} />
                 </button>
@@ -1178,7 +1178,7 @@ export default function AdminCourses() {
                     placeholder={`Search ${resourcePickerType}s...`}
                     value={resourceSearchQuery}
                     onChange={(e) => setResourceSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent"
                   />
                 </div>
               </div>
@@ -1209,10 +1209,10 @@ export default function AdminCourses() {
                       <div
                         key={resource.id}
                         onClick={() => selectResource(resource)}
-                        className="border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-[#0d9c06] hover:shadow-md transition-all"
+                        className="border-2 border-gray-200 rounded-md p-4 cursor-pointer hover:border-[#0d9c06] hover:shadow-md transition-all"
                       >
                         {/* Thumbnail */}
-                        <div className="flex items-center justify-center h-32 bg-gray-50 rounded-lg mb-3">
+                        <div className="flex items-center justify-center h-32 bg-gray-50 rounded-md mb-3">
                           {resource.thumbnailLink ? (
                             <img src={resource.thumbnailLink} alt={resource.name} className="h-full object-contain rounded" />
                           ) : (
@@ -1237,7 +1237,7 @@ export default function AdminCourses() {
               <div className="p-6 border-t border-gray-200">
                 <button
                   onClick={() => setShowResourcePicker(false)}
-                  className="w-full px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
@@ -1248,7 +1248,7 @@ export default function AdminCourses() {
         {/* Curriculum Modal */}
         {showCurriculumModal && (
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div className="bg-white rounded-md max-w-4xl w-full max-h-[90vh] flex flex-col">
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Manage Curriculum</h2>
@@ -1262,7 +1262,7 @@ export default function AdminCourses() {
               <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
                 <div className="space-y-6">
                   {curriculumSections.map((section, sIdx) => (
-                    <div key={section.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div key={section.id} className="bg-white border border-gray-200 rounded-md overflow-hidden">
                       <div className="bg-gray-100 p-4 border-b border-gray-200">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
@@ -1279,7 +1279,7 @@ export default function AdminCourses() {
                             <span className="text-xs text-gray-500 whitespace-nowrap">{section.lectures.length} lectures</span>
                             <button 
                               onClick={() => deleteSection(section.id)}
-                              className="text-red-500 hover:bg-[#ffd8d8] p-2 rounded-lg transition-colors cursor-pointer"
+                              className="text-red-500 hover:bg-[#ffd8d8] p-2 rounded-md transition-colors cursor-pointer"
                             >
                               <Trash2 size={18} />
                             </button>
@@ -1302,7 +1302,7 @@ export default function AdminCourses() {
                       
                       <div className="p-4 space-y-4">
                         {section.lectures.map((lecture, lIdx) => (
-                          <div key={lecture.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden group hover:border-gray-300 transition-colors">
+                          <div key={lecture.id} className="bg-white border border-gray-200 rounded-md overflow-hidden group hover:border-gray-300 transition-colors">
                             {/* Lecture Header / Summary */}
                             <div className="flex items-center gap-3 p-3 bg-white cursor-pointer hover:bg-gray-50" onClick={() => {
                                 const el = document.getElementById(`lecture-content-${lecture.id}`);
@@ -1452,7 +1452,7 @@ export default function AdminCourses() {
                         
                         <button
                           onClick={() => addLecture(section.id)}
-                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
+                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
                         >
                           <Plus size={16} />
                           Add Lecture
@@ -1463,7 +1463,7 @@ export default function AdminCourses() {
 
                   <button
                     onClick={addSection}
-                    className="w-full py-4 bg-white border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors font-semibold flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                    className="w-full py-4 bg-white border-2 border-dashed border-gray-300 rounded-md text-gray-600 hover:border-[#0d9c06] hover:text-[#0d9c06] transition-colors font-semibold flex items-center justify-center gap-2 shadow-sm cursor-pointer"
                   >
                     <Plus size={20} />
                     Add New Section
@@ -1474,13 +1474,13 @@ export default function AdminCourses() {
               <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
                 <button
                   onClick={() => setShowCurriculumModal(false)}
-                  className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium cursor-pointer"
+                  className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 font-medium cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={saveCurriculum}
-                  className="px-6 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] font-medium flex items-center gap-2 cursor-pointer"
+                  className="px-6 py-2 bg-[#0d9c06] text-white rounded-md hover:bg-[#0b7e05] font-medium flex items-center gap-2 cursor-pointer"
                 >
                   <Save size={18} />
                   Save Changes
@@ -1492,7 +1492,7 @@ export default function AdminCourses() {
         {/* Delete Section Confirmation Modal */}
         {showDeleteSectionModal && (
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-60 p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl transform transition-all scale-100">
+            <div className="bg-white rounded-md max-w-md w-full p-6 shadow-2xl transform transition-all scale-100">
               <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
                 <Trash2 className="text-red-600" size={24} />
               </div>
@@ -1503,13 +1503,13 @@ export default function AdminCourses() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteSectionModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors cursor-pointer"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDeleteSection}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors shadow-sm cursor-pointer"
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium transition-colors shadow-sm cursor-pointer"
                 >
                   Delete Section
                 </button>
@@ -1521,7 +1521,7 @@ export default function AdminCourses() {
         {/* Quiz Editor Modal */}
         {showQuizModal && (
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-70 p-4">
-             <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+             <div className="bg-white rounded-md shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
                <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-purple-50 rounded-t-xl">
                  <div>
                    <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -1540,13 +1540,13 @@ export default function AdminCourses() {
                
                <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
                  {currentQuiz.length === 0 ? (
-                   <div className="text-center py-10 bg-white rounded-lg border-2 border-dashed border-gray-300">
+                   <div className="text-center py-10 bg-white rounded-md border-2 border-dashed border-gray-300">
                      <HelpCircle size={48} className="mx-auto text-gray-300 mb-3" />
                      <p className="text-gray-500 font-medium">No questions added yet</p>
                      <p className="text-gray-400 text-sm mb-4">Create a quiz to test student knowledge</p>
                      <button
                        onClick={addQuestion}
-                       className="px-4 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0d9c06] transition-colors font-medium text-sm cursor-pointer"
+                       className="px-4 py-2 bg-[#0d9c06] text-white rounded-md hover:bg-[#0d9c06] transition-colors font-medium text-sm cursor-pointer"
                      >
                        + Add First Question
                      </button>
@@ -1554,7 +1554,7 @@ export default function AdminCourses() {
                  ) : (
                    <div className="space-y-6">
                      {currentQuiz.map((q, qIdx) => (
-                       <div key={q.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm relative group">
+                       <div key={q.id} className="bg-white p-5 rounded-md border border-gray-200 shadow-sm relative group">
                          <div className="absolute right-4 top-4 opacity-0 group-hover:opacity-100 transition-opacity">
                            <button
                              onClick={() => deleteQuestion(qIdx)}
@@ -1619,7 +1619,7 @@ export default function AdminCourses() {
                      
                      <button
                        onClick={addQuestion}
-                       className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-[#0d9c06] hover:text-[#0d9c06] hover:bg-[#0c8506] transition-all font-medium flex items-center justify-center gap-2 cursor-pointer"
+                       className="w-full py-3 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-[#0d9c06] hover:text-[#0d9c06] hover:bg-[#0c8506] transition-all font-medium flex items-center justify-center gap-2 cursor-pointer"
                      >
                        <Plus size={18} />
                        Add Another Question
@@ -1631,13 +1631,13 @@ export default function AdminCourses() {
                <div className="p-6 border-t border-gray-200 flex justify-end gap-3 bg-white rounded-b-xl">
                  <button
                    onClick={() => setShowQuizModal(false)}
-                   className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition-colors cursor-pointer"
+                   className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md font-medium transition-colors cursor-pointer"
                  >
                    Cancel
                  </button>
                  <button
                    onClick={saveQuiz}
-                   className="px-6 py-2 bg-[#0d9c06] hover:bg-[#0c8506] text-white rounded-lg font-bold shadow-sm transition-colors cursor-pointer flex items-center gap-2"
+                   className="px-6 py-2 bg-[#0d9c06] hover:bg-[#0c8506] text-white rounded-md font-bold shadow-sm transition-colors cursor-pointer flex items-center gap-2"
                  >
                    <Save size={18} />
                    Save Quiz
@@ -1650,7 +1650,7 @@ export default function AdminCourses() {
         {/* Success Modal */}
         {showSuccessModal && (
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+            <div className="bg-white rounded-md shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
               <div className="p-6 border-b border-gray-100 bg-linear-to-r from-green-50 to-emerald-50">
                 <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full mb-4">
                   <CheckCircle className="text-green-600" size={32} />
@@ -1665,7 +1665,7 @@ export default function AdminCourses() {
 
                 <button
                   onClick={() => setShowSuccessModal(false)}
-                  className="w-full bg-[#0d9c06] text-white px-4 py-3 rounded-lg hover:bg-[#0b7e05] font-medium transition-colors cursor-pointer shadow-sm"
+                  className="w-full bg-[#0d9c06] text-white px-4 py-3 rounded-md hover:bg-[#0b7e05] font-medium transition-colors cursor-pointer shadow-sm"
                 >
                   Done
                 </button>
@@ -1677,7 +1677,7 @@ export default function AdminCourses() {
         {/* Delete Courses Confirmation Modal */}
         {showDeleteCoursesModal && (
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+            <div className="bg-white rounded-md shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
               <div className="p-6 border-b border-gray-100 bg-linear-to-r from-red-50 to-orange-50">
                 <div className="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full mb-4">
                   <AlertTriangle className="text-red-600" size={32} />
@@ -1696,13 +1696,13 @@ export default function AdminCourses() {
                 <div className="flex gap-3 pt-2">
                   <button
                     onClick={() => setShowDeleteCoursesModal(false)}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors cursor-pointer"
+                    className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={confirmDeleteCourses}
-                    className="flex-1 bg-red-600 text-white px-4 py-2.5 rounded-lg hover:bg-red-700 font-medium shadow-sm transition-colors cursor-pointer"
+                    className="flex-1 bg-red-600 text-white px-4 py-2.5 rounded-md hover:bg-red-700 font-medium shadow-sm transition-colors cursor-pointer"
                   >
                     Delete Courses
                   </button>

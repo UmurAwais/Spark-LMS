@@ -88,7 +88,7 @@ export default function AcceptInvite() {
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
+        <div className="bg-white rounded-md shadow-2xl p-8 text-center">
           <Loader2 className="w-12 h-12 text-[#0d9c06] animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Verifying invitation...</p>
         </div>
@@ -99,13 +99,13 @@ export default function AcceptInvite() {
   if (error && !inviteData) {
     return (
       <div className="min-h-screen bg-linear-to-br from-red-500 to-red-600 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+        <div className="bg-white rounded-md shadow-2xl p-8 max-w-md w-full text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Invalid Invitation</h1>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => navigate('/admin/login')}
-            className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors cursor-pointer"
+            className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition-colors cursor-pointer"
           >
             Go to Login
           </button>
@@ -117,7 +117,7 @@ export default function AcceptInvite() {
   if (submitting && !error) {
     return (
       <div className="min-h-screen bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+        <div className="bg-white rounded-md shadow-2xl p-8 max-w-md w-full text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Account Activated!</h1>
           <p className="text-gray-600 mb-4">Redirecting to login...</p>
@@ -129,7 +129,7 @@ export default function AcceptInvite() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+      <div className="bg-white rounded-md shadow-2xl w-full max-w-md overflow-hidden">
         {/* Header */}
         <div className="bg-linear-to-r from-[#0d9c06] to-[#0b7e05] p-8 text-white text-center">
           <Shield className="w-16 h-16 mx-auto mb-4" />
@@ -139,7 +139,7 @@ export default function AcceptInvite() {
 
         {/* Form */}
         <div className="p-8">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
             <p className="text-sm text-green-800">
               <strong>Email:</strong> {inviteData?.email}
             </p>
@@ -170,7 +170,7 @@ export default function AcceptInvite() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
+                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
                   placeholder="At least 6 characters"
                 />
                 <button
@@ -195,7 +195,7 @@ export default function AcceptInvite() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
+                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
                   placeholder="Re-enter password"
                 />
                 <button
@@ -211,7 +211,7 @@ export default function AcceptInvite() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-[#0d9c06] text-white py-3 rounded-lg hover:bg-[#0b7e05] font-medium shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full bg-[#0d9c06] text-white py-3 rounded-md hover:bg-[#0b7e05] font-medium shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {submitting ? "Activating..." : "Activate Account"}
             </button>
@@ -219,7 +219,7 @@ export default function AcceptInvite() {
 
           <p className="text-center text-sm text-gray-500 mt-6">
             Already have an account?{" "}
-            <a href="/admin/login" className="text-[#0d9c06] hover:underline font-medium">
+            <a href="/admin/login" className="text-[#0d9c06] hover:underline font-medium cursor-pointer">
               Sign in
             </a>
           </p>

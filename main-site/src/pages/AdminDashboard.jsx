@@ -272,9 +272,9 @@ export default function AdminDashboard() {
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total Revenue */}
-        <div className="bg-linear-to-br from-[#0d9c06] to-[#0b7e05] text-white rounded-xl shadow-lg p-6 transform hover:scale-102 transition-transform">
+        <div className="bg-linear-to-br from-[#0d9c06] to-[#0b7e05] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
               <DollarSign size={24} />
             </div>
             <TrendingUp size={20} className="opacity-80" />
@@ -287,9 +287,9 @@ export default function AdminDashboard() {
         </div>
 
         {/* Total Students */}
-        <div className="bg-linear-to-br from-[#5022C3] to-[#3d1a99] text-white rounded-xl shadow-lg p-6 transform hover:scale-102 transition-transform">
+        <div className="bg-linear-to-br from-[#5022C3] to-[#3d1a99] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
               <Users size={24} />
             </div>
             <TrendingUp size={20} className="opacity-80" />
@@ -302,9 +302,9 @@ export default function AdminDashboard() {
         </div>
 
         {/* Total Courses */}
-        <div className="bg-linear-to-br from-[#f4c150] to-[#d4a840] text-white rounded-xl shadow-lg p-6 transform hover:scale-102 transition-transform">
+        <div className="bg-linear-to-br from-[#f4c150] to-[#d4a840] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
               <BookOpen size={24} />
             </div>
           </div>
@@ -314,9 +314,9 @@ export default function AdminDashboard() {
         </div>
 
         {/* This Month */}
-        <div className="bg-linear-to-br from-[#1c1d1f] to-[#2d2e30] text-white rounded-xl shadow-lg p-6 transform hover:scale-102 transition-transform">
+        <div className="bg-linear-to-br from-[#1c1d1f] to-[#2d2e30] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
               <ShoppingCart size={24} />
             </div>
             {growthRate >= 0 ? (
@@ -335,11 +335,11 @@ export default function AdminDashboard() {
 
       {/* Pro Tip Section - Udemy Style */}
       {showProTip && (
-        <div className="bg-linear-to-br from-[#0d9c06]/10 to-[#0d9c06]/5 border border-[#0d9c06]/30 rounded-xl p-6 mb-8 relative">
+        <div className="bg-linear-to-br from-[#0d9c06]/10 to-[#0d9c06]/5 border border-[#0d9c06]/30 rounded-md p-6 mb-8 relative">
           {/* Close Button */}
           <button
             onClick={() => setShowProTip(false)}
-            className="absolute top-4 right-4 p-1.5 text-gray-500 hover:text-gray-700 hover:bg-white/50 rounded-lg transition-colors cursor-pointer"
+            className="absolute top-4 right-4 p-1.5 text-gray-500 hover:text-gray-700 hover:bg-white/50 rounded-md transition-colors cursor-pointer"
             title="Dismiss tip"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -348,7 +348,7 @@ export default function AdminDashboard() {
           </button>
 
           <div className="flex items-start gap-4 pr-8">
-            <div className="p-3 bg-[#0d9c06] rounded-lg shrink-0">
+            <div className="p-3 bg-[#0d9c06] rounded-md shrink-0">
               <currentTip.icon size={24} className="text-white" />
             </div>
             <div className="flex-1">
@@ -358,7 +358,7 @@ export default function AdminDashboard() {
               </p>
               <Link 
                 to={currentTip.link}
-                className="inline-block bg-[#0d9c06] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#0b7e05] transition-colors text-sm"
+                className="inline-block bg-[#0d9c06] text-white px-4 py-2 rounded-md font-medium hover:bg-[#0b7e05] transition-colors text-sm cursor-pointer"
               >
                 {currentTip.action}
               </Link>
@@ -368,7 +368,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Revenue Graph Section */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-8">
+      <div className="bg-white border border-gray-200 rounded-md shadow-sm p-6 mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
             <h2 className="text-xl font-bold text-gray-800">Revenue Analytics</h2>
@@ -379,14 +379,14 @@ export default function AdminDashboard() {
           <div className="relative">
             <button 
               onClick={() => setShowTimeMenu(!showTimeMenu)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
             >
               {timeRangeLabels[timeRange]}
               <ChevronDown size={16} className={`transition-transform ${showTimeMenu ? 'rotate-180' : ''}`} />
             </button>
             
             {showTimeMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-20 py-1 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-xl z-20 py-1 animate-in fade-in zoom-in-95 duration-100">
                 {Object.entries(timeRangeLabels).map(([key, label]) => (
                   <button
                     key={key}
@@ -454,12 +454,12 @@ export default function AdminDashboard() {
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Orders */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-800">Recent Orders</h2>
             <Link 
               to="/admin/orders" 
-              className="text-sm text-[#0d9c06] hover:underline font-semibold"
+              className="text-sm text-[#0d9c06] hover:underline font-semibold cursor-pointer"
             >
               View All
             </Link>
@@ -502,7 +502,7 @@ export default function AdminDashboard() {
                                 : `${config.apiUrl}${order.paymentScreenshot}`;
                               setSelectedScreenshot(url);
                             }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md text-xs font-medium transition-colors cursor-pointer"
                           >
                             <Image size={14} />
                             View
@@ -525,15 +525,15 @@ export default function AdminDashboard() {
         {/* Quick Actions & Stats */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <div className="bg-white border border-gray-200 rounded-md p-6 shadow-sm">
             <h2 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h2>
             <div className="space-y-3">
               <Link 
                 to="/admin/courses" 
-                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#0d9c06] transition-all group"
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-md hover:bg-gray-50 hover:border-[#0d9c06] transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-[#0d9c06]/10 rounded-lg group-hover:bg-[#0d9c06]/20 transition-colors">
+                  <div className="p-2 bg-[#0d9c06]/10 rounded-md group-hover:bg-[#0d9c06]/20 transition-colors">
                     <BookOpen size={18} className="text-[#0d9c06]" />
                   </div>
                   <span className="font-medium text-gray-700">Add New Course</span>
@@ -543,10 +543,10 @@ export default function AdminDashboard() {
 
               <Link 
                 to="/admin/drive" 
-                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#5022C3] transition-all group"
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-md hover:bg-gray-50 hover:border-[#5022C3] transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-[#5022C3]/10 rounded-lg group-hover:bg-[#5022C3]/20 transition-colors">
+                  <div className="p-2 bg-[#5022C3]/10 rounded-md group-hover:bg-[#5022C3]/20 transition-colors">
                     <Calendar size={18} className="text-[#5022C3]" />
                   </div>
                   <span className="font-medium text-gray-700">Manage Resources</span>
@@ -556,10 +556,10 @@ export default function AdminDashboard() {
 
               <Link 
                 to="/admin/users" 
-                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-[#f4c150] transition-all group"
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-md hover:bg-gray-50 hover:border-[#f4c150] transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-[#f4c150]/10 rounded-lg group-hover:bg-[#f4c150]/20 transition-colors">
+                  <div className="p-2 bg-[#f4c150]/10 rounded-md group-hover:bg-[#f4c150]/20 transition-colors">
                     <Users size={18} className="text-[#f4c150]" />
                   </div>
                   <span className="font-medium text-gray-700">View Users</span>
@@ -578,7 +578,7 @@ export default function AdminDashboard() {
           onClick={() => setSelectedScreenshot(null)}
         >
           <div 
-            className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+            className="relative bg-white rounded-md shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -589,7 +589,7 @@ export default function AdminDashboard() {
               </h3>
               <button
                 onClick={() => setSelectedScreenshot(null)}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer"
+                className="p-2 hover:bg-gray-200 rounded-md transition-colors cursor-pointer"
               >
                 <X size={20} className="text-gray-600" />
               </button>
@@ -597,11 +597,11 @@ export default function AdminDashboard() {
 
             {/* Modal Body */}
             <div className="p-6 overflow-auto max-h-[calc(90vh-80px)]">
-              <div className="flex items-center justify-center bg-gray-100 rounded-xl p-4">
+              <div className="flex items-center justify-center bg-gray-100 rounded-md p-4">
                 <img
                   src={selectedScreenshot}
                   alt="Payment Screenshot"
-                  className="max-w-full h-auto rounded-lg shadow-lg"
+                  className="max-w-full h-auto rounded-md shadow-lg"
                   onError={(e) => {
                     e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
                   }}
@@ -614,7 +614,7 @@ export default function AdminDashboard() {
                   href={selectedScreenshot}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white rounded-lg font-medium transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white rounded-md font-medium transition-colors cursor-pointer"
                 >
                   <ArrowUpRight size={16} />
                   Open in New Tab

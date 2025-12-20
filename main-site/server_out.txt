@@ -1,0 +1,56 @@
+﻿≡ƒÅü Application process starting...
+[dotenv@17.2.3] injecting env (1) from .env -- tip: ≡ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+Γ£à Models loaded successfully
+Γ£à Roles config loaded successfully
+node : Γ¥î UNCAUGHT EXCEPTION: 
+Error: Cannot find module 
+'bcryptjs'
+At line:1 char:1
++ node server/index.js 2>&1 | 
+Out-File -FilePath 
+server_out.txt -Encodi ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : No 
+   tSpecified: (Γ¥î UNCAUGHT EX  
+  ...dule 'bcryptjs':String) [   
+ ], RemoteException
+    + FullyQualifiedErrorId : Na 
+   tiveCommandError
+ 
+Require stack:
+- C:\Users\AbdullahComputer\Deskt
+op\Spark Trainings\main-site\serv
+er\index.js
+    at Function._resolveFilename 
+(node:internal/modules/cjs/loader
+:1383:15)
+    at defaultResolveImpl (node:i
+nternal/modules/cjs/loader:1025:1
+9)
+    at resolveForCJSWithHooks (no
+de:internal/modules/cjs/loader:10
+30:22)
+    at Function._load (node:inter
+nal/modules/cjs/loader:1192:37)
+    at TracingChannel.traceSync 
+(node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:inter
+nal/modules/cjs/loader:237:24)
+    at Module.require (node:inter
+nal/modules/cjs/loader:1463:12)
+    at require (node:internal/mod
+ules/helpers:147:16)
+    at Object.<anonymous> (C:\Use
+rs\AbdullahComputer\Desktop\Spark
+ Trainings\main-site\server\index
+.js:48:16)
+    at Module._compile (node:inte
+rnal/modules/cjs/loader:1706:14) 
+{
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\Users\\AbdullahComputer\
+\Desktop\\Spark Trainings\\main-s
+ite\\server\\index.js'
+  ]
+}

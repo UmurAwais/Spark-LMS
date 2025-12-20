@@ -202,7 +202,7 @@ export default function AdminDrive() {
         </div>
         <button 
           onClick={openDrivePicker}
-          className="bg-[#0d9c06] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#0b7e05] transition-colors flex items-center gap-2 shadow-md"
+          className="bg-[#0d9c06] text-white px-6 py-3 rounded-md font-medium hover:bg-[#0b7e05] transition-colors flex items-center gap-2 shadow-md cursor-pointer"
         >
           <UploadCloud size={20} />
           Import from Google Drive
@@ -211,9 +211,9 @@ export default function AdminDrive() {
 
       {/* Stats Bar */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white border border-gray-200 rounded-md p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-[#5022C3]/10 rounded-lg">
+            <div className="p-2 bg-[#5022C3]/10 rounded-md">
               <FileVideo size={20} className="text-[#5022C3]" />
             </div>
             <div>
@@ -225,9 +225,9 @@ export default function AdminDrive() {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white border border-gray-200 rounded-md p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-[#0d9c06]/10 rounded-lg">
+            <div className="p-2 bg-[#0d9c06]/10 rounded-md">
               <FileImage size={20} className="text-[#0d9c06]" />
             </div>
             <div>
@@ -239,9 +239,9 @@ export default function AdminDrive() {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white border border-gray-200 rounded-md p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-[#f4c150]/10 rounded-lg">
+            <div className="p-2 bg-[#f4c150]/10 rounded-md">
               <FileText size={20} className="text-[#f4c150]" />
             </div>
             <div>
@@ -253,9 +253,9 @@ export default function AdminDrive() {
           </div>
         </div>
 
-        <div className="bg-linear-to-br from-[#0d9c06] to-[#0b7e05] text-white rounded-lg p-4">
+        <div className="bg-linear-to-br from-[#0d9c06] to-[#0b7e05] text-white rounded-md p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/20 rounded-lg">
+            <div className="p-2 bg-white/20 rounded-md">
               <Download size={20} />
             </div>
             <div>
@@ -267,7 +267,7 @@ export default function AdminDrive() {
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+      <div className="bg-white border border-gray-200 rounded-md p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
@@ -277,7 +277,7 @@ export default function AdminDrive() {
               placeholder="Search files..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent"
             />
           </div>
 
@@ -287,7 +287,7 @@ export default function AdminDrive() {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent"
             >
               <option value="all">All Files</option>
               <option value="video">Videos Only</option>
@@ -301,14 +301,14 @@ export default function AdminDrive() {
             <div className="flex gap-2">
               <button
                 onClick={clearSelection}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-2 cursor-pointer"
               >
                 <X size={16} />
                 Clear
               </button>
               <button
                 onClick={handleImportSelected}
-                className="px-4 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-[#0d9c06] text-white rounded-md hover:bg-[#0b7e05] transition-colors flex items-center gap-2 cursor-pointer"
               >
                 <Download size={16} />
                 Export ({selectedFiles.length})
@@ -320,14 +320,14 @@ export default function AdminDrive() {
 
       {/* Files Grid */}
       {filteredFiles.length === 0 ? (
-        <div className="text-center py-12 bg-white border border-gray-200 rounded-lg">
+        <div className="text-center py-12 bg-white border border-gray-200 rounded-md">
           <FileVideo size={48} className="mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500 mb-4">
             {searchQuery || filterType !== 'all' ? 'No files match your search' : 'No resources imported yet'}
           </p>
           <button
             onClick={openDrivePicker}
-            className="inline-flex items-center gap-2 bg-[#0d9c06] text-white px-6 py-3 rounded-lg hover:bg-[#11c50a] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 bg-[#0d9c06] text-white px-6 py-3 rounded-md hover:bg-[#11c50a] transition-colors cursor-pointer"
           >
             <UploadCloud size={20} />
             Import from Google Drive
@@ -340,7 +340,7 @@ export default function AdminDrive() {
             return (
               <div 
                 key={f.id} 
-                className={`bg-white border-2 rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer ${
+                className={`bg-white border-2 rounded-md p-4 hover:shadow-lg transition-all cursor-pointer ${
                   isSelected 
                     ? 'border-[#0d9c06] ring-2 ring-[#0d9c06]/20' 
                     : 'border-gray-200 hover:border-[#0d9c06]/50'
@@ -366,7 +366,7 @@ export default function AdminDrive() {
                 </div>
 
                 {/* Thumbnail */}
-                <div className="flex items-center justify-center h-32 bg-gray-50 rounded-lg mb-3">
+                <div className="flex items-center justify-center h-32 bg-gray-50 rounded-md mb-3">
                   {f.thumbnailLink ? (
                     <img src={f.thumbnailLink} alt={f.name} className="h-full object-contain rounded" />
                   ) : (
@@ -386,7 +386,7 @@ export default function AdminDrive() {
                     target="_blank" 
                     rel="noreferrer" 
                     onClick={(e) => e.stopPropagation()}
-                    className="flex-1 text-sm text-[#0d9c06] hover:bg-[#0d9c06]/10 py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-1 border border-[#0d9c06]/30"
+                    className="flex-1 text-sm text-[#0d9c06] hover:bg-[#0d9c06]/10 py-2 px-3 rounded-md transition-colors flex items-center justify-center gap-1 border border-[#0d9c06]/30"
                   >
                     View <ExternalLink size={14} />
                   </a>
@@ -396,7 +396,7 @@ export default function AdminDrive() {
                       navigator.clipboard.writeText(f.id);
                       alert("File ID copied!");
                     }}
-                    className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded-lg transition-colors"
+                    className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded-md transition-colors"
                   >
                     Copy ID
                   </button>
@@ -410,7 +410,7 @@ export default function AdminDrive() {
       {/* Google Drive Picker Modal */}
       {showDrivePicker && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] flex flex-col">
+          <div className="bg-white rounded-md max-w-6xl w-full max-h-[90vh] flex flex-col">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50 rounded-t-xl">
               <div>
@@ -419,7 +419,7 @@ export default function AdminDrive() {
               </div>
               <button
                 onClick={() => setShowDrivePicker(false)}
-                className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer"
+                className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-200 rounded-md transition-colors cursor-pointer"
               >
                 <X size={24} />
               </button>
@@ -434,7 +434,7 @@ export default function AdminDrive() {
                   placeholder="Search Google Drive files..."
                   value={driveSearchQuery}
                   onChange={(e) => setDriveSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent"
                 />
               </div>
             </div>
@@ -459,7 +459,7 @@ export default function AdminDrive() {
                       <div
                         key={file.id}
                         onClick={() => toggleDriveFileSelection(file.id)}
-                        className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                        className={`border-2 rounded-md p-4 cursor-pointer transition-all ${
                           isSelected
                             ? 'border-[#0d9c06] bg-[#0d9c06]/5 ring-2 ring-[#0d9c06]/20'
                             : 'border-gray-200 hover:border-[#0d9c06]/50 hover:shadow-md'
@@ -484,7 +484,7 @@ export default function AdminDrive() {
                         </div>
 
                         {/* Thumbnail */}
-                        <div className="flex items-center justify-center h-24 bg-gray-50 rounded-lg mb-3">
+                        <div className="flex items-center justify-center h-24 bg-gray-50 rounded-md mb-3">
                           {file.thumbnailLink ? (
                             <img src={file.thumbnailLink} alt={file.name} className="h-full object-contain rounded" />
                           ) : (
@@ -511,14 +511,14 @@ export default function AdminDrive() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDrivePicker(false)}
-                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer font-medium border border-gray-300"
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors cursor-pointer font-medium border border-gray-300"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={importFromDrive}
                   disabled={selectedDriveFiles.length === 0}
-                  className="px-6 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer font-medium shadow-sm hover:shadow-md"
+                  className="px-6 py-2 bg-[#0d9c06] text-white rounded-md hover:bg-[#0b7e05] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer font-medium shadow-sm hover:shadow-md"
                 >
                   <Download size={18} />
                   Import {selectedDriveFiles.length > 0 && `(${selectedDriveFiles.length})`}
@@ -532,7 +532,7 @@ export default function AdminDrive() {
       {/* Import Success Modal */}
       {showImportModal && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+          <div className="bg-white rounded-md p-6 max-w-md w-full">
             <div className="text-center">
               <div className="w-16 h-16 bg-[#0d9c06]/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Check size={32} className="text-[#0d9c06]" />
@@ -547,7 +547,7 @@ export default function AdminDrive() {
                     setShowImportModal(false);
                     clearSelection();
                   }}
-                  className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer font-medium border border-gray-300"
+                  className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors cursor-pointer font-medium border border-gray-300"
                 >
                   Close
                 </button>
@@ -556,7 +556,7 @@ export default function AdminDrive() {
                     setShowImportModal(false);
                     window.location.href = '/admin/courses';
                   }}
-                  className="flex-1 px-4 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] transition-colors cursor-pointer font-medium shadow-sm hover:shadow-md"
+                  className="flex-1 px-4 py-2 bg-[#0d9c06] text-white rounded-md hover:bg-[#0b7e05] transition-colors cursor-pointer font-medium shadow-sm hover:shadow-md"
                 >
                   Add to Course
                 </button>

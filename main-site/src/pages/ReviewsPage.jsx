@@ -76,10 +76,10 @@ export default function ReviewsPage() {
               key={idx}
               className="
                 flex h-full flex-col 
-                rounded-2xl border border-[#e4e5e7] 
+                rounded-md border border-[#e4e5e7] 
                 bg-white px-6 py-7 
                 shadow-sm
-              "
+               cursor-pointer"
             >
               <Quote className="h-5 w-5 rotate-180 fill-slate-900 text-slate-900 mb-4"/>
 

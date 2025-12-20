@@ -13,7 +13,7 @@ const SLIDES = [
 function UdemyCard({ card }) {
   return (
     <div>
-    <Link to={card.href} className="block relative group h-80 sm:h-[360px] md:h-[420px] rounded-[18px] overflow-hidden ring-1 ring-slate-900/10 bg-slate-100">
+    <Link to={card.href} className="block relative group h-80 sm:h-[360px] md:h-[420px] rounded-[15px] overflow-hidden ring-1 ring-slate-900/10 bg-slate-100 cursor-pointer">
       {/* Image */}
       <img
         src={card.img}
@@ -27,7 +27,7 @@ function UdemyCard({ card }) {
       {/* White Bottom Box */}
       <div className="absolute inset-x-4 bottom-4 sm:bottom-6">
         <div
-          className="block rounded-2xl bg-white/95 p-4 sm:p-5 shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition"
+          className="block rounded-md bg-white/95 p-4 sm:p-5 shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition"
         >
           {/* Learners */}
           <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-900/10">
@@ -67,7 +67,7 @@ export default function UdemyTwoCardSection() {
           {/* CTA button */}
           <Link
             to="/courses"
-            className="inline-flex mt-6 items-center justify-center gap-2 rounded-md bg-[#0d9c06] px-6 py-3 text-sm font-semibold text-white hover:bg-[#11c50a]"
+            className="inline-flex mt-6 items-center justify-center gap-2 rounded-md bg-[#0d9c06] px-6 py-3 text-sm font-semibold text-white hover:bg-[#11c50a] cursor-pointer"
           >
             Explore all courses
             <ArrowRight className="h-4 w-4" />

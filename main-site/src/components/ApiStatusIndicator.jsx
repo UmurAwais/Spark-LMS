@@ -43,7 +43,7 @@ export default function ApiStatusIndicator() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <div className="bg-white border-2 border-gray-200 rounded-lg shadow-lg px-4 py-2 flex items-center gap-3">
+      <div className="bg-white border-2 border-gray-200 rounded-md shadow-lg px-4 py-2 flex items-center gap-3">
         <div className={`w-3 h-3 rounded-full ${statusColors[status]} ${status === 'loading' ? 'animate-pulse' : ''}`}></div>
         <div>
           <p className="text-xs font-semibold text-gray-700">{statusText[status]}</p>

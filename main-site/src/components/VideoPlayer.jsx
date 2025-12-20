@@ -98,7 +98,7 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
 
   return (
     <div 
-      className="relative w-full bg-black rounded-lg overflow-hidden group"
+      className="relative w-full bg-black rounded-md overflow-hidden group"
       onMouseMove={handleMouseMove}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
@@ -132,7 +132,7 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
           <button
             onClick={togglePlay}
-            className="w-20 h-20 bg-[#0d9c06] hover:bg-[#0b7e05] rounded-full flex items-center justify-center transition-all transform hover:scale-110 shadow-2xl"
+            className="w-20 h-20 bg-[#0d9c06] hover:bg-[#0b7e05] rounded-full flex items-center justify-center transition-all transform hover:scale-110 shadow-2xl cursor-pointer"
           >
             <Play size={36} className="text-white ml-1" fill="white" />
           </button>
@@ -153,7 +153,7 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
             max="100"
             value={(currentTime / duration) * 100 || 0}
             onChange={handleSeek}
-            className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+            className="w-full h-1 bg-gray-600 rounded-md appearance-none cursor-pointer slider"
             style={{
               background: `linear-gradient(to right, #0d9c06 0%, #0d9c06 ${(currentTime / duration) * 100}%, #4b5563 ${(currentTime / duration) * 100}%, #4b5563 100%)`
             }}
@@ -170,7 +170,7 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
             {/* Play/Pause */}
             <button
               onClick={togglePlay}
-              className="text-white hover:text-[#0d9c06] transition-colors"
+              className="text-white hover:text-[#0d9c06] transition-colors cursor-pointer"
             >
               {isPlaying ? <Pause size={24} /> : <Play size={24} />}
             </button>
@@ -193,7 +193,7 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
             <div className="flex items-center gap-2 group/volume">
               <button
                 onClick={toggleMute}
-                className="text-white hover:text-[#0d9c06] transition-colors"
+                className="text-white hover:text-[#0d9c06] transition-colors cursor-pointer"
               >
                 {isMuted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
               </button>
@@ -203,7 +203,7 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
                 max="100"
                 value={volume * 100}
                 onChange={handleVolumeChange}
-                className="w-0 group-hover/volume:w-20 transition-all duration-300 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                className="w-0 group-hover/volume:w-20 transition-all duration-300 h-1 bg-gray-600 rounded-md appearance-none cursor-pointer"
                 style={{
                   background: `linear-gradient(to right, #0d9c06 0%, #0d9c06 ${volume * 100}%, #4b5563 ${volume * 100}%, #4b5563 100%)`
                 }}
@@ -218,14 +218,14 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
 
           <div className="flex items-center gap-3">
             {/* Settings (placeholder) */}
-            <button className="text-white hover:text-[#0d9c06] transition-colors">
+            <button className="text-white hover:text-[#0d9c06] transition-colors cursor-pointer">
               <Settings size={20} />
             </button>
 
             {/* Fullscreen */}
             <button
               onClick={toggleFullscreen}
-              className="text-white hover:text-[#0d9c06] transition-colors"
+              className="text-white hover:text-[#0d9c06] transition-colors cursor-pointer"
             >
               <Maximize size={20} />
             </button>

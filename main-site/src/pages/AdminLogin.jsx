@@ -118,7 +118,7 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+      <div className="bg-white rounded-md shadow-2xl w-full max-w-md overflow-hidden">
         {/* Header */}
         <div className="bg-linear-to-r from-[#0d9c06] to-[#0b7e05] p-8 text-white text-center">
           <Shield className="w-16 h-16 mx-auto mb-4" />
@@ -128,7 +128,7 @@ export default function AdminLogin() {
 
         {/* Login Mode Toggle */}
         <div className="p-6 border-b border-gray-200">
-          <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+          <div className="flex gap-2 bg-gray-100 p-1 rounded-md">
             <button
               type="button"
               onClick={() => setLoginMode("super")}
@@ -165,41 +165,39 @@ export default function AdminLogin() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {loginMode === "role" && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                 <div className="mb-2" />
+                <div className="spark-input-group">
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required={loginMode === "role"}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
-                    placeholder="your.email@example.com"
+                    className="input-field"
+                    placeholder=" "
                   />
+                  <Mail className="spark-input-icon" />
+                  <label className="floating-label">Email Address</label>
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+             <div className="mb-2" />
+              <div className="spark-input-group">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0d9c06]"
-                  placeholder="Enter your password"
+                  className="input-field"
+                  placeholder=" "
                 />
+                <Lock className="spark-input-icon" />
+                <label className="floating-label">Password</label>
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 z-20"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -208,7 +206,7 @@ export default function AdminLogin() {
 
             <button
               type="submit"
-              className="w-full bg-[#0d9c06] text-white py-3 rounded-md hover:bg-[#0b7e05] font-medium shadow-sm transition-colors cursor-pointer"
+              className="spark-submit-btn cursor-pointer"
             >
               Sign In
             </button>

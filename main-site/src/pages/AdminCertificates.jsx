@@ -182,7 +182,7 @@ export default function AdminCertificates() {
             {selectedCourses.length > 0 && (
               <button 
                 onClick={handleDeleteSelected}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-700 transition-colors cursor-pointer shadow-sm hover:shadow-md"
+                className="bg-red-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-red-700 transition-colors cursor-pointer shadow-sm hover:shadow-md"
               >
                 <Trash2 size={20} />
                 Delete ({selectedCourses.length})
@@ -195,7 +195,7 @@ export default function AdminCertificates() {
                 setCertificateImage(null);
                 setShowModal(true);
               }}
-              className="bg-[#0d9c06] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#0b7e05] transition-colors cursor-pointer shadow-sm hover:shadow-md"
+              className="bg-[#0d9c06] text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-[#0b7e05] transition-colors cursor-pointer shadow-sm hover:shadow-md"
             >
               <Plus size={20} />
               Add Certificate
@@ -207,7 +207,7 @@ export default function AdminCertificates() {
           {courses.map(course => (
             <div 
               key={course.id} 
-              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group"
+              className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group"
             >
                {/* Selection Checkbox - appears on hover */}
                <div className="absolute top-3 left-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -227,7 +227,7 @@ export default function AdminCertificates() {
 
                <div className="p-6 relative z-5">
                  <div className="flex items-start justify-between mb-4">
-                   <div className="p-3 rounded-lg bg-green-100 text-[#0d9c06]">
+                   <div className="p-3 rounded-md bg-green-100 text-[#0d9c06]">
                      <ShieldCheck size={24} color="#0d9c06" />
                    </div>
                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-[#0d9c06]">
@@ -258,7 +258,7 @@ export default function AdminCertificates() {
         {/* Certificate Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-2xl w-full">
+            <div className="bg-white rounded-md max-w-2xl w-full">
               <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">
@@ -278,7 +278,7 @@ export default function AdminCertificates() {
                   <div className="mb-6">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Select Course</label>
                     <select 
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
                       onChange={(e) => {
                         const course = courses.find(c => c.id === e.target.value);
                         setSelectedCourse(course);
@@ -295,7 +295,7 @@ export default function AdminCertificates() {
                 )}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Certificate Template</label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative">
+                  <div className="border-2 border-dashed border-gray-300 rounded-md p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative">
                     <input 
                       type="file" 
                       accept="image/*" 
@@ -321,7 +321,7 @@ export default function AdminCertificates() {
                   </div>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
                   <h4 className="font-semibold text-blue-900 text-sm mb-2">Dynamic Fields</h4>
                   <p className="text-xs text-blue-700">
                     The system will automatically overlay the student's name, course title, and completion date onto this template.
@@ -332,13 +332,13 @@ export default function AdminCertificates() {
               <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl flex justify-end gap-3">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer font-medium border border-gray-300"
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors cursor-pointer font-medium border border-gray-300"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSaveCertificate}
-                  className="px-6 py-2 bg-[#0d9c06] text-white rounded-lg hover:bg-[#0b7e05] font-medium flex items-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all"
+                  className="px-6 py-2 bg-[#0d9c06] text-white rounded-md hover:bg-[#0b7e05] font-medium flex items-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all"
                 >
                   <Check size={18} />
                   Save Template
@@ -351,10 +351,10 @@ export default function AdminCertificates() {
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (
           <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-md w-full">
+            <div className="bg-white rounded-md max-w-md w-full">
               <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-red-100">
+                  <div className="p-2 rounded-md bg-red-100">
                     <Trash2 size={24} className="text-red-600" />
                   </div>
                   <div>
@@ -375,7 +375,7 @@ export default function AdminCertificates() {
               </div>
 
               <div className="p-6">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
                   <p className="text-sm text-red-800">
                     Are you sure you want to delete certificate templates for <strong>{selectedCourses.length}</strong> course(s)?
                   </p>
@@ -384,7 +384,7 @@ export default function AdminCertificates() {
                   </p>
                 </div>
 
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
                   <p className="text-xs text-gray-600 font-medium mb-2">Selected courses:</p>
                   <div className="max-h-32 overflow-y-auto space-y-1">
                     {courses
@@ -403,13 +403,13 @@ export default function AdminCertificates() {
               <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl flex justify-end gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer font-medium border border-gray-300"
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors cursor-pointer font-medium border border-gray-300"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium flex items-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all"
+                  className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium flex items-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all"
                 >
                   <Trash2 size={18} />
                   Delete {selectedCourses.length} Certificate{selectedCourses.length > 1 ? 's' : ''}

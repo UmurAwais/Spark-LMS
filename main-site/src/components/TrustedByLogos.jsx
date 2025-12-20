@@ -55,7 +55,7 @@ export default function TrustedByLogos({
                   <a
                     href={logo.href}
                     aria-label={logo.name}
-                    className="inline-flex items-center"
+                    className="inline-flex items-center cursor-pointer"
                     target="_blank"
                     rel="noreferrer"
                   >

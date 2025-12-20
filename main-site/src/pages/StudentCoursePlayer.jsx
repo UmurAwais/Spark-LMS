@@ -335,7 +335,7 @@ export default function StudentCoursePlayer() {
       {/* Header */}
       <header className="bg-white text-gray-900 h-16 flex items-center justify-between px-6 sticky top-0 z-50 shadow-sm border-b border-gray-200">
         <div className="flex items-center gap-4">
-          <Link to="/student/dashboard" className="hover:text-[#0d9c06] transition-colors p-2 rounded-full hover:bg-gray-100">
+          <Link to="/student/dashboard" className="hover:text-[#0d9c06] transition-colors p-2 rounded-full hover:bg-gray-100 cursor-pointer">
             <ArrowLeft size={20} />
           </Link>
           <div className="border-l border-gray-300 pl-4 h-8 flex items-center">
@@ -345,7 +345,7 @@ export default function StudentCoursePlayer() {
           </div>
         </div>
         <button 
-          className="lg:hidden p-2 hover:bg-gray-100 rounded-full text-gray-700"
+          className="lg:hidden p-2 hover:bg-gray-100 rounded-full text-gray-700 cursor-pointer"
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >
           {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
@@ -437,7 +437,7 @@ export default function StudentCoursePlayer() {
               <button
                 onClick={() => prevLecture && handleLectureClick(prevLecture)}
                 disabled={!prevLecture}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-md font-medium transition-all ${
                   prevLecture 
                     ? 'text-gray-700 hover:bg-gray-100 border border-gray-300 hover:border-gray-400' 
                     : 'text-gray-300 cursor-not-allowed border border-gray-100'
@@ -450,7 +450,7 @@ export default function StudentCoursePlayer() {
               <button
                 onClick={() => nextLecture && handleLectureClick(nextLecture)}
                 disabled={!nextLecture}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-md font-medium transition-all ${
                   nextLecture 
                     ? 'bg-white text-[#0d9c06] border border-[#0d9c06] hover:bg-green-50 shadow-sm hover:shadow-md' 
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
@@ -477,7 +477,7 @@ export default function StudentCoursePlayer() {
                         const isPassed = completedLectures[quizKey];
                         
                         return (
-                            <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-8 text-center">
+                            <div className="bg-green-50 border border-green-200 rounded-md p-6 mb-8 text-center">
                                 <div className="w-16 h-16 bg-green-100 text-[#0d9c06] rounded-full flex items-center justify-center mx-auto mb-4">
                                     <HelpCircle size={32} />
                                 </div>
@@ -491,7 +491,7 @@ export default function StudentCoursePlayer() {
                                 </p>
                                 <button
                                     onClick={() => handleStartQuiz(section)}
-                                    className="px-8 py-3 bg-[#0d9c06] text-white rounded-lg font-bold hover:bg-[#0b7e05] shadow-md transition-all cursor-pointer"
+                                    className="px-8 py-3 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] shadow-md transition-all cursor-pointer"
                                 >
                                     {isPassed ? "Retake Quiz" : "Start Quiz"}
                                 </button>
@@ -536,7 +536,7 @@ export default function StudentCoursePlayer() {
             {progress >= 100 && (
               <button
                 onClick={() => setShowCertificateModal(true)}
-                className="w-full py-2 bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white rounded-lg font-bold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer animate-pulse"
+                className="w-full py-2 bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white rounded-md font-bold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer animate-pulse"
               >
                 <ShieldCheck size={18} />
                 Collect Your Certificate
@@ -662,7 +662,7 @@ export default function StudentCoursePlayer() {
       {/* Badge Modal */}
       {showBadgeModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative overflow-hidden">
+          <div className="bg-white rounded-md shadow-2xl max-w-sm w-full p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative overflow-hidden">
             {/* Confetti/Background Effect */}
             <div className="absolute inset-0 bg-linear-to-b from-yellow-50 to-white -z-10"></div>
             
@@ -679,7 +679,7 @@ export default function StudentCoursePlayer() {
             
             <button
               onClick={() => setShowBadgeModal(null)}
-              className="w-full py-3 bg-[#0d9c06] text-white rounded-xl font-bold hover:bg-[#0b7e05] shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
+              className="w-full py-3 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
             >
               Awesome!
             </button>
@@ -691,7 +691,7 @@ export default function StudentCoursePlayer() {
       {/* Quiz Modal */}
       {showQuizModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="bg-white rounded-md shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
              {/* Header */}
              <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                 <h2 className="text-xl font-bold text-gray-900">
@@ -713,11 +713,11 @@ export default function StudentCoursePlayer() {
                       <p className="text-gray-600 mb-6">You scored <span className="font-bold text-gray-900">{quizResult.score}%</span> ({quizResult.correct} / {quizResult.total} correct).</p>
                       
                       {quizResult.passed ? (
-                         <div className="p-4 bg-green-50 rounded-lg border border-green-200 text-green-800 text-sm">
+                         <div className="p-4 bg-green-50 rounded-md border border-green-200 text-green-800 text-sm">
                             You have passed this section! The next section is now unlocked.
                          </div>
                       ) : (
-                         <div className="p-4 bg-red-50 rounded-lg border border-red-200 text-red-800 text-sm">
+                         <div className="p-4 bg-red-50 rounded-md border border-red-200 text-red-800 text-sm">
                             You need 55% to pass. Please review the material and try again.
                          </div>
                       )}
@@ -726,14 +726,14 @@ export default function StudentCoursePlayer() {
                          {!quizResult.passed && (
                             <button 
                                onClick={() => { setQuizResult(null); setQuizAnswers({}); }}
-                               className="px-6 py-2 bg-[#0d9c06] text-white rounded-lg font-bold hover:bg-[#0b7e05] transition-colors"
+                               className="px-6 py-2 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] transition-colors"
                             >
                                Try Again
                             </button>
                          )}
                          <button 
                             onClick={() => setShowQuizModal(false)}
-                            className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg font-bold hover:bg-gray-300 transition-colors"
+                            className="px-6 py-2 bg-gray-200 text-gray-800 rounded-md font-bold hover:bg-gray-300 transition-colors"
                          >
                             Close
                          </button>
@@ -742,7 +742,7 @@ export default function StudentCoursePlayer() {
                 ) : (
                    <div className="space-y-8">
                       {currentQuiz.questions.map((q, idx) => (
-                         <div key={idx} className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                         <div key={idx} className="bg-gray-50 p-6 rounded-md border border-gray-200">
                             <p className="font-semibold text-gray-900 mb-4 flex gap-3">
                                <span className="text-[#0d9c06]">{idx + 1}.</span>
                                {q.question}
@@ -778,7 +778,7 @@ export default function StudentCoursePlayer() {
                    <button 
                       onClick={handleQuizSubmit}
                       disabled={Object.keys(quizAnswers).length < currentQuiz.questions.length}
-                      className="px-8 py-3 bg-[#0d9c06] text-white rounded-lg font-bold hover:bg-[#0b7e05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
+                      className="px-8 py-3 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
                    >
                       Submit Answers
                    </button>
@@ -791,7 +791,7 @@ export default function StudentCoursePlayer() {
       {/* Certificate Modal */}
       {showCertificateModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col relative overflow-hidden">
+          <div className="bg-white rounded-md shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col relative overflow-hidden">
             <div className="absolute top-4 right-4 z-10">
               <button 
                 onClick={() => setShowCertificateModal(false)}
@@ -813,7 +813,7 @@ export default function StudentCoursePlayer() {
                   />
                 </div>
               ) : (
-                <div className="aspect-video w-full max-w-3xl bg-white rounded-lg flex flex-col items-center justify-center text-gray-500 shadow-sm">
+                <div className="aspect-video w-full max-w-3xl bg-white rounded-md flex flex-col items-center justify-center text-gray-500 shadow-sm">
                   <ShieldCheck size={64} className="mb-4 text-gray-300" />
                   <p>Certificate template not available yet.</p>
                 </div>
@@ -831,7 +831,7 @@ export default function StudentCoursePlayer() {
                     link.click();
                   }
                 }}
-                className={`px-8 py-3 bg-[#0d9c06] text-white rounded-lg font-bold hover:bg-[#0b7e05] shadow-lg transition-colors flex items-center gap-2 cursor-pointer ${!course.certificateTemplate ? 'opacity-50 pointer-events-none' : ''}`}
+                className={`px-8 py-3 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] shadow-lg transition-colors flex items-center gap-2 cursor-pointer ${!course.certificateTemplate ? 'opacity-50 pointer-events-none' : ''}`}
               >
                 <Download size={20} />
                 Download Certificate
@@ -901,5 +901,5 @@ function CertificateCanvas({ templateUrl, studentName, courseTitle, regNo, issue
     };
   }, [templateUrl, studentName, courseTitle, regNo, issueDate]);
 
-  return <canvas id="certificate-canvas" ref={canvasRef} className="w-full rounded-lg shadow-inner" style={{ maxWidth: '100%', height: 'auto' }} />;
+  return <canvas id="certificate-canvas" ref={canvasRef} className="w-full rounded-md shadow-inner" style={{ maxWidth: '100%', height: 'auto' }} />;
 }
