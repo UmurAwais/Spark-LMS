@@ -270,9 +270,24 @@ export default function AdminOrders(){
                       {o.paymentScreenshot ? (
                         <button
                           onClick={() => {
-                            const url = o.paymentScreenshot.startsWith('http') 
-                              ? o.paymentScreenshot 
-                              : `${config.apiUrl}${o.paymentScreenshot}`;
+                            // Construct proper URL for screenshot
+                            let url = o.paymentScreenshot;
+                            
+                            // If it's already a full URL (http/https), use as is
+                            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                              // If it starts with /uploads, prepend API URL
+                              if (url.startsWith('/uploads')) {
+                                url = `${config.apiUrl}${url}`;
+                              } else if (url.startsWith('uploads')) {
+                                // Handle case without leading slash
+                                url = `${config.apiUrl}/${url}`;
+                              } else {
+                                // Fallback: prepend API URL
+                                url = `${config.apiUrl}/${url}`;
+                              }
+                            }
+                            
+                            console.log('Screenshot URL:', url); // Debug log
                             setSelectedScreenshot(url);
                           }}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md text-xs font-medium transition-colors cursor-pointer"
