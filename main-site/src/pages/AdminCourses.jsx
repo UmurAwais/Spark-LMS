@@ -32,6 +32,7 @@ export default function AdminCourses() {
     duration: "2 Months",
     language: "Urdu / Hindi",
     badge: "",
+    companyLogo: "",
     whatYouWillLearn: [""],
     includes: [""],
     fullDescription: [""]
@@ -386,6 +387,7 @@ export default function AdminCourses() {
       formDataToSend.append('duration', formData.duration);
       formDataToSend.append('language', formData.language);
       formDataToSend.append('badge', formData.badge);
+      formDataToSend.append('companyLogo', formData.companyLogo || '');
       
       // Add array fields (filter out empty strings)
       formDataToSend.append('whatYouWillLearn', JSON.stringify(formData.whatYouWillLearn.filter(item => item.trim())));
@@ -459,6 +461,7 @@ export default function AdminCourses() {
       duration: "2 Months",
       language: "Urdu / Hindi",
       badge: "",
+      companyLogo: "",
       whatYouWillLearn: [""],
       includes: [""],
       fullDescription: [""]
@@ -670,6 +673,7 @@ export default function AdminCourses() {
                           duration: courseToEdit.duration || '2 Months',
                           language: courseToEdit.language || 'Urdu / Hindi',
                           badge: typeof courseToEdit.badge === 'object' ? (courseToEdit.badge?.label || '') : (courseToEdit.badge || ''),
+                          companyLogo: courseToEdit.companyLogo || '',
                           whatYouWillLearn: courseToEdit.whatYouWillLearn || [''],
                           includes: courseToEdit.includes || [''],
                           fullDescription: courseToEdit.fullDescription || ['']
@@ -959,6 +963,31 @@ export default function AdminCourses() {
                           placeholder="e.g., Premium, Best Seller"
                         />
                       </div>
+                    </div>
+
+                    {/* Company Logo Dropdown */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Company Logo
+                        <span className="text-gray-500 text-xs font-normal ml-2">(Optional - Logo to display with Spark Trainings)</span>
+                      </label>
+                      <select
+                        value={formData.companyLogo || ''}
+                        onChange={(e) => setFormData({ ...formData, companyLogo: e.target.value })}
+                        className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                      >
+                        <option value="">None (Spark Trainings only)</option>
+                        <option value="uk">🇬🇧 UK Flag (English/IELTS)</option>
+                        <option value="wordpress">WordPress</option>
+                        <option value="adobe">Adobe</option>
+                        <option value="shopify">Shopify</option>
+                        <option value="meta">Meta</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="tiktok">TikTok</option>
+                      </select>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Select a platform logo to display alongside Spark Trainings logo in the course player header
+                      </p>
                     </div>
 
                     {/* What You Will Learn */}

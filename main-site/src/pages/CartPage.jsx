@@ -165,14 +165,14 @@ export default function CartPage() {
                 </div>
 
                 {/* Coupon row (functional) */}
-                <div className="rounded-md bg-white border border-[#e4e5e7] p-5 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center shadow-sm">
+                <div className="rounded-md bg-white border border-[#e4e5e7] p-5 flex flex-col sm:flex-row gap-3 items-stretch shadow-sm">
                   <div className="flex-1">
                     <input
                       type="text"
                       placeholder="Coupon code"
                       value={couponInput}
                       onChange={(e) => setCouponInput(e.target.value)}
-                      className="input-field"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-md focus:border-[#0d9c06] focus:ring-2 focus:ring-green-200 transition-all outline-none"
                     />
                   </div>
                   <button
@@ -182,7 +182,7 @@ export default function CartPage() {
                       setCouponMsg(resp.message);
                       if (resp.ok) setCouponInput('');
                     }}
-                    className="spark-submit-btn sm:w-auto px-8"
+                    className="px-8 py-3 bg-[#0d9c06] text-white rounded-md font-semibold hover:bg-[#0b7e05] transition-all cursor-pointer shadow-sm hover:shadow-md sm:w-auto whitespace-nowrap"
                   >
                     Apply coupon
                   </button>

@@ -262,7 +262,7 @@ export default function AdminProfile() {
         {/* Profile Information */}
         <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden mb-6">
           {/* Profile Header */}
-          <div className="bg-gradient-to-r from-[#0d9c06] to-[#0b7e05] h-32"></div>
+          <div className="bg-linear-to-r from-[#0d9c06] to-[#0b7e05] h-32"></div>
           
           <div className="px-8 pb-8">
             {/* Profile Picture */}
@@ -276,7 +276,7 @@ export default function AdminProfile() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="h-full w-full bg-gradient-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white text-4xl font-bold">
+                    <div className="h-full w-full bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white text-4xl font-bold">
                       {profileData.name.charAt(0).toUpperCase()}
                     </div>
                   )}

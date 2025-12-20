@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { apiFetch } from '../config';
 import { auth } from '../firebaseConfig';
+import SparkLogo from '../assets/Logo.png';
 
 export default function StudentCoursePlayer() {
   const { courseId } = useParams();
@@ -311,9 +312,113 @@ export default function StudentCoursePlayer() {
     });
 
     if (totalLectures === 0) return 0;
-
     const completedCount = Object.keys(completedLectures).filter(key => key !== 'certificate' && completedLectures[key]).length;
     return Math.round((completedCount / totalLectures) * 100);
+  };
+
+  // Platform logo mapping based on course title/category
+  // Platform logo mapping based on course.companyLogo field set by admin
+  const getPlatformLogos = (course) => {
+    const companyLogo = course.companyLogo;
+    
+    // If admin selected a specific company logo, use that
+    if (companyLogo) {
+      const logoMap = {
+        'uk': {
+          name: 'UK',
+          logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg/200px-Flag_of_the_United_Kingdom_%281-2%29.svg.png'
+        },
+        'wordpress': {
+          name: 'WordPress',
+          logo: 'https://s.w.org/style/images/about/WordPress-logotype-wmark.png'
+        },
+        'adobe': {
+          name: 'Adobe',
+          logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Adobe_Corporate_logo.svg/200px-Adobe_Corporate_logo.svg.png'
+        },
+        'shopify': {
+          name: 'Shopify',
+          logo: 'https://cdn.shopify.com/shopifycloud/brochure/assets/brand-assets/shopify-logo-primary-logo-456baa801ee66a0a435671082365958316831c9960c480451dd0330bcdae304f.svg'
+        },
+        'meta': {
+          name: 'Meta',
+          logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/200px-Meta_Platforms_Inc._logo.svg.png'
+        },
+        'youtube': {
+          name: 'YouTube',
+          logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_Logo_2017.svg/200px-YouTube_Logo_2017.svg.png'
+        },
+        'tiktok': {
+          name: 'TikTok',
+          logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/200px-TikTok_logo.svg.png'
+        }
+      };
+      
+      const selectedLogo = logoMap[companyLogo];
+      if (selectedLogo) {
+        return [
+          { name: 'Spark Trainings', logo: null },
+          selectedLogo
+        ];
+      }
+    }
+    
+    // Fallback: Auto-detect from title (for backward compatibility with old courses)
+    const title = course.title.toLowerCase();
+    
+    // English Speaking / IELTS courses
+    if (title.includes('english') || title.includes('speaking') || title.includes('ielts')) {
+      return [
+        { name: 'Spark Trainings', logo: null },
+        { name: 'UK', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg/200px-Flag_of_the_United_Kingdom_%281-2%29.svg.png' }
+      ];
+    }
+    
+    if (title.includes('web') || title.includes('wordpress') || title.includes('development')) {
+      return [
+        { name: 'Spark Trainings', logo: null },
+        { name: 'WordPress', logo: 'https://s.w.org/style/images/about/WordPress-logotype-wmark.png' }
+      ];
+    }
+    
+    if (title.includes('graphic') || title.includes('design') || title.includes('video') || title.includes('editing') || title.includes('adobe')) {
+      return [
+        { name: 'Spark Trainings', logo: null },
+        { name: 'Adobe', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Adobe_Corporate_logo.svg/200px-Adobe_Corporate_logo.svg.png' }
+      ];
+    }
+    
+    if (title.includes('shopify') || title.includes('ecommerce') || title.includes('e-commerce')) {
+      return [
+        { name: 'Spark Trainings', logo: null },
+        { name: 'Shopify', logo: 'https://cdn.shopify.com/shopifycloud/brochure/assets/brand-assets/shopify-logo-primary-logo-456baa801ee66a0a435671082365958316831c9960c480451dd0330bcdae304f.svg' }
+      ];
+    }
+    
+    if (title.includes('social') || title.includes('marketing') || title.includes('meta') || title.includes('facebook')) {
+      return [
+        { name: 'Spark Trainings', logo: null },
+        { name: 'Meta', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/200px-Meta_Platforms_Inc._logo.svg.png' }
+      ];
+    }
+    
+    if (title.includes('youtube')) {
+      return [
+        { name: 'Spark Trainings', logo: null },
+        { name: 'YouTube', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_Logo_2017.svg/200px-YouTube_Logo_2017.svg.png' }
+      ];
+    }
+    
+    if (title.includes('tiktok')) {
+      return [
+        { name: 'Spark Trainings', logo: null },
+        { name: 'TikTok', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/200px-TikTok_logo.svg.png' }
+      ];
+    }
+    
+    return [
+      { name: 'Spark Trainings', logo: null }
+    ];
   };
 
   if (loading) {
@@ -329,6 +434,7 @@ export default function StudentCoursePlayer() {
   const nextLecture = getNextLecture();
   const prevLecture = getPrevLecture();
   const progress = calculateProgress();
+  const platformLogos = getPlatformLogos(course);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
@@ -338,7 +444,35 @@ export default function StudentCoursePlayer() {
           <Link to="/student/dashboard" className="hover:text-[#0d9c06] transition-colors p-2 rounded-full hover:bg-gray-100 cursor-pointer">
             <ArrowLeft size={20} />
           </Link>
-          <div className="border-l border-gray-300 pl-4 h-8 flex items-center">
+          
+          {/* Platform Logos - Coursera + Meta Style */}
+          <div className="flex items-center gap-2 pl-4">
+            {platformLogos.map((platform, index) => (
+              <React.Fragment key={platform.name}>
+                {platform.logo ? (
+                  <img 
+                    src={platform.logo} 
+                    alt={platform.name}
+                    className="h-6 object-contain"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <img 
+                    src={SparkLogo} 
+                    alt="Spark Trainings"
+                    className="h-12 object-contain"
+                  />
+                )}
+                {index < platformLogos.length - 1 && (
+                  <div className="h-8 border-l border-gray-300 mx-3"></div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+          
+          <div className="hidden md:block border-l border-gray-300 pl-4 h-8 flex items-center">
             <h1 className="text-base md:text-lg font-bold truncate max-w-[200px] md:max-w-md text-gray-800">
               {course.title}
             </h1>
@@ -355,8 +489,9 @@ export default function StudentCoursePlayer() {
       <div className="flex-1 flex overflow-hidden relative">
         {/* Main Content (Video) */}
         <main className="flex-1 overflow-y-auto bg-white flex flex-col">
-          <div className="w-full bg-black">
-            <div className="max-w-6xl mx-auto aspect-video bg-black shadow-2xl">
+          {/* Video Player Container with Padding and Rounded Corners */}
+          <div className="w-full bg-white py-6 px-6">
+            <div className="max-w-6xl mx-auto aspect-video bg-black rounded-md overflow-hidden shadow-lg">
               {currentLecture ? (
                 currentLecture.videoUrl && (currentLecture.videoUrl.endsWith('.mp4') || currentLecture.videoUrl.includes('/uploads/videos/')) ? (
                   <video
@@ -377,18 +512,44 @@ export default function StudentCoursePlayer() {
                     src={(() => {
                       const url = currentLecture.videoUrl;
                       if (!url) return '';
-                      // Handle Google Drive URLs
-                      if (url.includes('drive.google.com')) {
-                        // Extract File ID and convert to preview URL
-                        const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                        if (fileIdMatch && fileIdMatch[1]) {
-                          return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+                      
+                      // Handle YouTube URLs
+                      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                        let videoId = '';
+                        if (url.includes('youtube.com/watch')) {
+                          const urlParams = new URLSearchParams(new URL(url).search);
+                          videoId = urlParams.get('v');
+                        } else if (url.includes('youtu.be/')) {
+                          videoId = url.split('youtu.be/')[1].split('?')[0];
                         }
-                        const idParamMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
-                        if (idParamMatch && idParamMatch[1]) {
-                          return `https://drive.google.com/file/d/${idParamMatch[1]}/preview`;
+                        if (videoId) {
+                          return `https://www.youtube.com/embed/${videoId}`;
                         }
                       }
+                      
+                      // Handle Google Drive URLs
+                      if (url.includes('drive.google.com')) {
+                        // Extract File ID from various Google Drive URL formats
+                        let fileId = '';
+                        
+                        // Format: https://drive.google.com/file/d/FILE_ID/view
+                        const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                        if (fileIdMatch && fileIdMatch[1]) {
+                          fileId = fileIdMatch[1];
+                        }
+                        
+                        // Format: https://drive.google.com/open?id=FILE_ID
+                        const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                        if (idParamMatch && idParamMatch[1]) {
+                          fileId = idParamMatch[1];
+                        }
+                        
+                        if (fileId) {
+                          // Use the embed URL which works better for shared files
+                          return `https://drive.google.com/file/d/${fileId}/preview`;
+                        }
+                      }
+                      
                       return url;
                     })()} 
                     title={currentLecture.title}
@@ -398,14 +559,15 @@ export default function StudentCoursePlayer() {
                   ></iframe>
                 )
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-500">
-                  Select a lecture to start watching
+                <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 p-8">
+                  <p className="text-lg mb-2">Select a lecture to start watching</p>
+                  <p className="text-sm text-gray-400">Choose a lecture from the sidebar</p>
                 </div>
               )}
             </div>
           </div>
           
-          <div className="max-w-6xl mx-auto w-full px-4 py-6 md:px-8">
+          <div className="max-w-6xl mx-auto w-full px-4 md:px-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
                 {currentLecture?.title}
@@ -518,7 +680,7 @@ export default function StudentCoursePlayer() {
             ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
             lg:block flex flex-col
           `}
-          style={{ top: '64px', height: 'calc(100vh - 64px)' }}
+          style={{ height: 'calc(100vh - 64px)' }}
         >
           {/* Sidebar Header with Progress */}
           <div className="p-4 border-b border-gray-200 bg-white">
@@ -547,7 +709,7 @@ export default function StudentCoursePlayer() {
           <div className="flex border-b border-gray-200">
             <button
               onClick={() => setActiveTab('curriculum')}
-              className={`flex-1 py-4 text-sm font-semibold text-center transition-colors ${
+              className={`flex-1 py-4 text-sm font-semibold text-center transition-colors cursor-pointer ${
                 activeTab === 'curriculum' 
                   ? 'text-[#0d9c06] border-b-2 border-[#0d9c06] bg-green-50/50' 
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
@@ -557,7 +719,7 @@ export default function StudentCoursePlayer() {
             </button>
             <button
               onClick={() => setActiveTab('resources')}
-              className={`flex-1 py-4 text-sm font-semibold text-center transition-colors ${
+              className={`flex-1 py-4 text-sm font-semibold text-center transition-colors cursor-pointer ${
                 activeTab === 'resources' 
                   ? 'text-[#0d9c06] border-b-2 border-[#0d9c06] bg-green-50/50' 
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
@@ -592,7 +754,7 @@ export default function StudentCoursePlayer() {
                             <button
                               key={lecture.id}
                               onClick={() => handleLectureClick(lecture, idx)}
-                              className={`w-full px-4 py-3 flex items-start gap-3 hover:bg-gray-100 transition-all text-left border-l-[3px] ${
+                              className={`w-full px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-gray-100 transition-all text-left border-l-[3px] ${
                                 currentLecture?.id === lecture.id 
                                   ? 'border-[#0d9c06] bg-green-50/60' 
                                   : 'border-transparent'
@@ -726,14 +888,14 @@ export default function StudentCoursePlayer() {
                          {!quizResult.passed && (
                             <button 
                                onClick={() => { setQuizResult(null); setQuizAnswers({}); }}
-                               className="px-6 py-2 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] transition-colors"
+                               className="px-6 py-2 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] transition-colors cursor-pointer"
                             >
                                Try Again
                             </button>
                          )}
                          <button 
                             onClick={() => setShowQuizModal(false)}
-                            className="px-6 py-2 bg-gray-200 text-gray-800 rounded-md font-bold hover:bg-gray-300 transition-colors"
+                            className="px-6 py-2 bg-gray-200 text-gray-800 rounded-md font-bold hover:bg-gray-300 transition-colors cursor-pointer"
                          >
                             Close
                          </button>
