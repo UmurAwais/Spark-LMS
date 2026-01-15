@@ -2,7 +2,7 @@
 const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
 // Get production API URL from env or use default
-const PRODUCTION_API_URL = import.meta.env.VITE_API_URL || 'https://spark-lms-backend-production.up.railway.app';
+const PRODUCTION_API_URL = import.meta.env.VITE_API_URL || 'https://api.sparktrainings.com';
 
 // Try multiple ports in order of preference (for local dev)
 const POSSIBLE_PORTS = [4001, 4000, 3001, 3000, 5000];
