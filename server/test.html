@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test - Spark Trainings</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 40px; 
+            background: #f5f5f5;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { color: #0d9c06; }
+        button { 
+            padding: 12px 24px; 
+            margin: 10px; 
+            cursor: pointer; 
+            background: #0d9c06;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        button:hover { background: #0b8005; }
+        pre { 
+            background: #fff; 
+            padding: 20px; 
+            border-radius: 8px; 
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .success { color: #0d9c06; }
+        .error { color: #dc2626; }
+        .info { 
+            background: #e0f2fe; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 20px 0;
+            border-left: 4px solid #0284c7;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .status.ok { background: #dcfce7; color: #166534; }
+        .status.fail { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <h1>🧪 API Test Page - Spark Trainings</h1>
+    
+    <div class="info">
+        <strong>Testing API at:</strong> http://localhost:4001<br>
+        <strong>Purpose:</strong> Verify course upload system is working
+    </div>
+    
+    <div>
+        <button onclick="testHealth()">🏥 Test Health</button>
+        <button onclick="testOnsiteCourses()">🏢 Test Onsite Courses</button>
+        <button onclick="testOnlineCourses()">💻 Test Online Courses</button>
+        <button onclick="testAll()">🚀 Test All</button>
+    </div>
+    
+    <div id="result"></div>
+
+    <script>
+        const API_URL = 'http://localhost:4001';
+        
+        async function testHealth() {
+            showLoading('Testing health endpoint...');
+            try {
+                const response = await fetch(`${API_URL}/api/health`);
+                const data = await response.json();
+                showResult('Health Check', data, response.ok, response.status);
+            } catch (error) {
+                showResult('Health Check', { error: error.message }, false, 0);
+            }
+        }
+        
+        async function testOnsiteCourses() {
+            showLoading('Fetching onsite courses...');
+            try {
+                const response = await fetch(`${API_URL}/api/courses/onsite`);
+                const data = await response.json();
+                showResult('Onsite Courses', data, response.ok, response.status);
+            } catch (error) {
+                showResult('Onsite Courses', { error: error.message }, false, 0);
+            }
+        }
+        
+        async function testOnlineCourses() {
+            showLoading('Fetching online courses...');
+            try {
+                const response = await fetch(`${API_URL}/api/courses/online`);
+                const data = await response.json();
+                showResult('Online Courses', data, response.ok, response.status);
+            } catch (error) {
+                showResult('Online Courses', { error: error.message }, false, 0);
+            }
+        }
+        
+        async function testAll() {
+            await testHealth();
+            await new Promise(r => setTimeout(r, 500));
+            await testOnsiteCourses();
+            await new Promise(r => setTimeout(r, 500));
+            await testOnlineCourses();
+        }
+        
+        function showLoading(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<h2>⏳ ${message}</h2>`;
+        }
+        
+        function showResult(title, data, success, status) {
+            const resultDiv = document.getElementById('result');
+            const statusBadge = success 
+                ? `<span class="status ok">✓ ${status} OK</span>`
+                : `<span class="status fail">✗ ${status || 'ERROR'}</span>`;
+            
+            let summary = '';
+            if (data.courses) {
+                summary = `<p><strong>Found ${data.courses.length} courses</strong></p>`;
+            }
+            
+            resultDiv.innerHTML = `
+                <h2 class="${success ? 'success' : 'error'}">${title} ${statusBadge}</h2>
+                ${summary}
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { apiFetch } from "../config"; // Assuming apiFetch is a function to handle API calls
+import { auth } from "../firebaseConfig";
+import { createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword } from "firebase/auth";
+import { Link } from "react-router-dom";
+import { User, MapPin, Phone, Mail, FileText, Lock, Eye, EyeOff } from "lucide-react";
+import { useCart } from "../components/CartContext";
+
+function CheckoutPage({ selectedCourse }) {
+  const { appliedCoupon } = useCart();
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    city: "",
+    phone: "",
+    email: "",
+    notes: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [authMode, setAuthMode] = useState("signup"); // 'signup' or 'login'
+  const [user, setUser] = useState(null);
+  const [screenshot, setScreenshot] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [serverMsg, setServerMsg] = useState({ text: "", isError: false });
+
+  // Check for logged in user
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        // Pre-fill form
+        const names = (currentUser.displayName || "").split(" ");
+        setForm(prev => ({
+          ...prev,
+          firstName: names[0] || "",
+          lastName: names.slice(1).join(" ") || "",
+          email: currentUser.email || ""
+        }));
+      } else {
+        setUser(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    setScreenshot(file);
+  };
+
+  // create preview URL for selected screenshot
+  useEffect(() => {
+    if (!screenshot) {
+      setPreviewUrl("");
+      return;
+    }
+    const url = URL.createObjectURL(screenshot);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [screenshot]);
+
+  // capture route state items (Cart -> Checkout navigation uses location.state.items)
+  const location = useLocation();
+  const routeItems = location.state?.items || [];
+
+  // Price helpers for the order summary
+  const parsePrice = (p) => {
+    if (!p) return 0;
+    if (typeof p === "number") return p;
+    const num = parseInt(String(p).replace(/[^\d]/g, ""), 10);
+    return Number.isNaN(num) ? 0 : num;
+  };
+
+  const formatRs = (n) => `Rs. ${Intl.NumberFormat("en-IN").format(n)}`;
+
+  // build items list: prefer cart items, then route items, then selectedCourse
+  const items = (routeItems && routeItems.length > 0)
+    ? routeItems
+    : (selectedCourse ? [{ ...selectedCourse, quantity: 1 }] : []);
+
+
+  // compute subtotal from items (supports quantity)
+  const subtotal = items.reduce((acc, it) => acc + parsePrice(it.price) * (it.quantity || 1), 0);
+  const taxRate = 0; // change if needed
+  const taxAmount = Math.round(subtotal * taxRate);
+  
+  // Handle discount from coupon
+  let discount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === 'percent') {
+      discount = Math.round(subtotal * (appliedCoupon.value / 100));
+    } else {
+      discount = appliedCoupon.value;
+    }
+  }
+
+  const total = Math.max(0, subtotal + taxAmount - discount);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setServerMsg({ text: "", isError: false });
+
+    if (!screenshot) {
+      setServerMsg({ text: "Please upload payment screenshot.", isError: true });
+      return;
+    }
+
+    // client-side size validation (5 MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (screenshot.size > maxSize) {
+      setServerMsg({ text: "Screenshot is too large. Max size is 5 MB.", isError: true });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      let currentUser = user;
+
+      // Handle Authentication if not logged in
+      if (!currentUser) {
+        if (authMode === "signup") {
+          // Signup logic
+          if (form.password !== form.confirmPassword) {
+            setServerMsg({ text: "Passwords do not match.", isError: true });
+            setLoading(false);
+            return;
+          }
+
+          if (form.password.length < 6) {
+            setServerMsg({ text: "Password should be at least 6 characters.", isError: true });
+            setLoading(false);
+            return;
+          }
+
+          try {
+            const { user: newUser } = await createUserWithEmailAndPassword(
+              auth,
+              form.email,
+              form.password
+            );
+            await updateProfile(newUser, {
+              displayName: `${form.firstName} ${form.lastName}`.trim(),
+            });
+
+            // Call backend to register user
+            await apiFetch("/api/users/register", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                uid: newUser.uid,
+                email: newUser.email,
+                displayName: `${form.firstName} ${form.lastName}`.trim(),
+              }),
+            });
+            currentUser = newUser;
+          } catch (err) {
+            console.error("Signup error:", err);
+            let msg = "Account creation failed. ";
+            if (err.code === "auth/email-already-in-use") {
+              msg += "This email is already registered. Please try logging in.";
+            } else {
+              msg += err.message;
+            }
+            setServerMsg({ text: msg, isError: true });
+            setLoading(false);
+            return;
+          }
+        } else {
+          // Login logic
+          try {
+            const userCredential = await signInWithEmailAndPassword(
+              auth,
+              form.email,
+              form.password
+            );
+            currentUser = userCredential.user;
+
+            // Generate and save session (like in LoginForm)
+            const sessionId = Date.now().toString() + Math.random().toString(36).substring(2);
+            await apiFetch("/api/auth/session", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ uid: currentUser.uid, sessionId }),
+            });
+            localStorage.setItem(`session_${currentUser.uid}`, sessionId);
+          } catch (err) {
+            console.error("Login error:", err);
+            setServerMsg({ text: "Invalid email or password.", isError: true });
+            setLoading(false);
+            return;
+          }
+        }
+      }
+
+      const fd = new FormData();
+      fd.append("uid", currentUser?.uid || "");
+      fd.append("firstName", form.firstName);
+      fd.append("lastName", form.lastName);
+      fd.append("city", form.city);
+      fd.append("phone", form.phone);
+      fd.append("email", form.email);
+      fd.append("notes", form.notes);
+      fd.append("screenshot", screenshot);
+
+      // Append courseId and courseTitle for server compatibility
+      if (items.length > 0) {
+        fd.append("courseId", items[0].id);
+        fd.append("courseTitle", items[0].title);
+      }
+      
+      // Append amount as string
+      fd.append("amount", String(total));
+
+      // This is where you call your API to submit the order
+      const response = await apiFetch("/api/orders", {
+        method: "POST",
+        body: fd, // Send the FormData object
+      });
+
+      // Handle non-200 responses
+      if (!response.ok) {
+        const text = await response.text();
+        try {
+          const json = JSON.parse(text);
+          throw new Error(json.message || `Server error: ${response.status}`);
+        } catch (e) {
+          // If response is not JSON, use the text or status
+          throw new Error(e.message === "Unexpected token" ? `Server error: ${response.status}` : (json?.message || `Server error: ${response.status}`));
+        }
+      }
+
+      const res = await response.json();
+
+      if (res.success) {
+        setServerMsg({ text: "Order placed successfully! Please check your email/WhatsApp for confirmation.", isError: false });
+        // Optional: Redirect user or clear form
+        setForm({
+            firstName: "",
+            lastName: "",
+            city: "",
+            phone: "",
+            email: "",
+            notes: "",
+            password: "",
+            confirmPassword: "",
+        });
+        setScreenshot(null);
+        setPreviewUrl(""); // Clear preview
+      } else {
+        // Handle server errors (e.g., res.message)
+        setServerMsg({ text: res.message || "Order failed to place. Please try again.", isError: true });
+      }
+
+    } catch (error) {
+      console.error("Submission error:", error);
+      setServerMsg({ text: error.message || "An unexpected error occurred. Please check your connection or try again.", isError: true });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+      <h1 className="text-2xl font-bold mb-6">Checkout</h1>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Left: Checkout Form */}
+        <form onSubmit={handleSubmit} className="lg:col-span-2">
+          
+          {serverMsg.text && (
+            <div className={`text-sm rounded-md px-3 py-2 border mb-4 ${
+              serverMsg.isError 
+                ? "bg-red-50 border-red-200 text-red-800" 
+                : "bg-green-50 border-green-200 text-green-800"
+            }`}>
+              {serverMsg.text}
+            </div>
+          )}
+
+          {user && (
+            <div className="text-sm rounded-md px-3 py-2 bg-blue-50 border border-blue-100 text-blue-700 mb-6 flex items-center justify-between">
+              <span>Logged in as <strong>{user.email}</strong></span>
+              <button 
+                type="button" 
+                onClick={() => auth.signOut()} 
+                className="text-xs font-semibold underline hover:text-blue-800"
+              >
+                Sign out
+              </button>
+            </div>
+          )}
+
+          {/* form body (Udemy-like compact form) */}
+          <div className="grid grid-cols-1 gap-6">
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="spark-input-group">
+                <input name="firstName" value={form.firstName} onChange={handleChange} required placeholder=" " className="input-field" />
+                <User className="spark-input-icon" />
+                <label className="floating-label">First name</label>
+              </div>
+              <div className="spark-input-group">
+                <input name="lastName" value={form.lastName} onChange={handleChange} required placeholder=" " className="input-field" />
+                <User className="spark-input-icon" />
+                <label className="floating-label">Last name</label>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="spark-input-group">
+                <input name="city" value={form.city} onChange={handleChange} required placeholder=" " className="input-field" />
+                <MapPin className="spark-input-icon" />
+                <label className="floating-label">Town / City</label>
+              </div>
+              <div className="spark-input-group">
+                <input name="phone" value={form.phone} onChange={handleChange} required placeholder=" " className="input-field" />
+                <Phone className="spark-input-icon" />
+                <label className="floating-label">WhatsApp number</label>
+              </div>
+            </div>
+
+            <div className="spark-input-group">
+              <input type="email" name="email" value={form.email} onChange={handleChange} required placeholder=" " className="input-field" />
+              <Mail className="spark-input-icon" />
+              <label className="floating-label">Email address</label>
+            </div>
+
+            {!user && (
+              <>
+                <div className="bg-gray-50 p-4 rounded-md border border-gray-100 mt-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-gray-800">
+                      {authMode === "signup" ? "Create an account" : "Log in to your account"}
+                    </h3>
+                    <button 
+                      type="button" 
+                      onClick={() => setAuthMode(authMode === "signup" ? "login" : "signup")}
+                      className="text-xs text-[#0d9c06] font-semibold hover:underline"
+                    >
+                      {authMode === "signup" ? "Already have an account?" : "Need to create an account?"}
+                    </button>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div className="spark-input-group">
+                      <input 
+                        type="password" 
+                        name="password" 
+                        value={form.password} 
+                        onChange={handleChange} 
+                        required 
+                        placeholder=" "
+                        className="input-field" 
+                      />
+                      <Lock className="spark-input-icon" />
+                      <label className="floating-label">Password</label>
+                    </div>
+                    {authMode === "signup" && (
+                      <div className="spark-input-group">
+                        <input 
+                          type="password" 
+                          name="confirmPassword" 
+                          value={form.confirmPassword} 
+                          onChange={handleChange} 
+                          required 
+                          placeholder=" "
+                          className="input-field" 
+                        />
+                        <Lock className="spark-input-icon" />
+                        <label className="floating-label">Confirm password</label>
+                      </div>
+                    )}
+                  </div>
+                  {authMode === "signup" && (
+                    <p className="text-[10px] text-gray-500 mt-2">
+                      Password must be at least 6 characters.
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Custom file upload */}
+            <div>
+              <label className="block text-xs font-semibold mb-2">Upload payment screenshot</label>
+              <div className="flex items-center gap-3">
+                <label className="inline-flex items-center gap-2 cursor-pointer rounded-md border border-dashed border-[#dfe3e6] px-4 py-2 bg-white text-sm hover:bg-slate-50">
+                  <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                  <svg className="w-4 h-4 text-[#0d9c06]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path><polyline points="7 10 12 5 17 10" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></polyline><line x1="12" y1="5" x2="12" y2="19" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></line></svg>
+                  <span className="text-sm text-[#0d9c06] font-semibold">Choose file</span>
+                </label>
+                <div className="text-sm text-slate-500">Max 5 MB • JPG/PNG</div>
+              </div>
+
+              {previewUrl && (
+                <div className="mt-3 flex items-center gap-3">
+                  <img src={previewUrl} alt="preview" className="w-20 h-14 object-cover rounded-md border" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium">{screenshot?.name}</div>
+                    <div className="text-xs text-slate-500">{(screenshot?.size / 1024 / 1024).toFixed(2)} MB</div>
+                  </div>
+                  <button type="button" onClick={() => setScreenshot(null)} className="text-sm text-red-600">Remove</button>
+                </div>
+              )}
+
+              <p className="mt-2 text-xs text-[#6a6f73]">Upload JazzCash / Easypaisa / Bank transfer receipt.</p>
+            </div>
+
+            <div className="spark-input-group">
+              <textarea name="notes" value={form.notes} onChange={handleChange} rows={3} placeholder=" " className="input-field" />
+              <FileText className="spark-input-icon" />
+              <label className="floating-label">Order notes (optional)</label>
+            </div>
+
+            <div>
+              <button type="submit" disabled={loading} className="spark-submit-btn cursor-pointer">
+                {loading ? "Processing..." : "Place order"}
+              </button>
+            </div>
+          </div>
+        </form>
+
+        {/* Right: Order Summary (Udemy-style card) */}
+        <aside className="bg-white rounded-md shadow-sm border border-[#e4e5e7] p-6 sm:p-8 h-fit sticky top-20 cursor-pointer">
+          <h2 className="text-lg font-semibold mb-4">Your order</h2>
+
+          {/* Prominent essential totals always visible */}
+          <div className="p-4 rounded-md bg-[#f7fcf7] border border-[#eaf7ea] mb-4">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-[#6a6f73]">Subtotal</span>
+              <span className="font-semibold">{formatRs(subtotal)}</span>
+            </div>
+
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-[#6a6f73]">Tax</span>
+              <span className="text-sm text-[#6a6f73]">{formatRs(taxAmount)}</span>
+            </div>
+
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-[#6a6f73]">Discount</span>
+              <span className="text-sm text-[#6a6f73]">{formatRs(discount)}</span>
+            </div>
+
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#e6efe6]">
+              <span className="text-base font-semibold">Total</span>
+              <span className="text-lg font-bold text-[#1c1d1f]">{formatRs(total)}</span>
+            </div>
+          </div>
+
+          {/* Course details (optional) */}
+          {items.length > 0 ? (
+            <div className="flex gap-3 items-start mb-3">
+              <img src={items[0].image} alt={items[0].title} className="w-20 h-14 object-cover rounded-md" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-[#1c1d1f] line-clamp-2">{items[0].title}</p>
+                <p className="text-xs text-[#6a6f73] mt-1">Online Training • Spark Trainings</p>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-3 text-sm text-slate-500">No course selected — totals show the essential amount.</div>
+          )}
+
+          <div className="mt-4 bg-white p-4 rounded-md border border-[#e4e5e7] text-sm text-[#6a6f73]">
+            <p className="font-semibold mb-2">JazzCash / Bank Transfer Details</p>
+            <p className="mb-0.5"><strong>Account Name:</strong> Hafiza Adila Fazal</p>
+            <p className="mb-0.5"><strong>Account No:</strong> 03204045091</p>
+            <p className="mb-2"><strong>Bank:</strong> JazzCash</p>
+            <p className="mt-1">Please send payment and upload the screenshot in the form. Your enrollment will be confirmed after verification.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+export default CheckoutPage;

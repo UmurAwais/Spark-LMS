@@ -1,0 +1,204 @@
+/* Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-sora: "Sora", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html,
+  body {
+    font-family: "Work Sans", ui-sans-serif, system-ui, sans-serif !important;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.no-default-styles),
+  select,
+  textarea:not(.resize-none) {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 0.375rem;
+    outline: none;
+    font-size: 0.95rem;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    color: #1c1d1f;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.no-default-styles):focus,
+  select:focus,
+  textarea:focus {
+    border-color: #0d9c06;
+    box-shadow: 0 0 0 4px rgba(13, 156, 6, 0.1);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* FLOATING LABEL GROUP */
+.spark-input-group {
+  position: relative;
+  width: 100%;
+}
+
+/* PREMIUM INPUT FIELD (Universal) */
+.input-field {
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 0.375rem;
+  outline: none;
+  font-size: 0.95rem;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  color: #1c1d1f;
+  appearance: none;
+  display: block;
+}
+
+/* Apply specific padding when inside a group with an icon */
+.spark-input-group .input-field {
+  padding-left: 3.25rem;
+}
+
+.input-field:focus {
+  border-color: #0d9c06;
+  box-shadow: 0 0 0 4px rgba(13, 156, 6, 0.1);
+}
+
+.input-field::placeholder {
+  color: #9ca3af;
+}
+
+/* Support for floating label placeholder behavior */
+.spark-input-group .input-field::placeholder {
+  color: transparent;
+}
+
+/* PREMIUM FLOATING LABEL */
+.floating-label {
+  position: absolute;
+  left: 3.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: #6a6f73;
+  background: transparent;
+  padding: 0 0.5rem;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+/* ICON POSITIONING */
+.spark-input-icon {
+  position: absolute;
+  left: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6a6f73;
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: color 0.2s ease;
+  z-index: 10;
+}
+
+.input-field:focus ~ .spark-input-icon {
+  color: #0d9c06;
+}
+
+/* FLOAT LABEL ACTIVE STATE */
+.input-field:focus ~ .floating-label,
+.input-field:not(:placeholder-shown) ~ .floating-label,
+.input-field:-webkit-autofill ~ .floating-label {
+  top: 0;
+  left: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0d9c06;
+  background: white;
+  transform: translateY(-50%);
+}
+
+/* ADJUSTMENT FOR TEXTAREA */
+textarea.input-field {
+  min-height: 120px;
+  padding-top: 1rem;
+  resize: vertical;
+}
+
+.spark-input-group textarea.input-field ~ .spark-input-icon {
+  top: 1.5rem;
+  transform: none;
+}
+
+.spark-input-group textarea.input-field ~ .floating-label {
+  top: 1.5rem;
+  transform: none;
+}
+
+.spark-input-group textarea.input-field:focus ~ .floating-label,
+.spark-input-group textarea.input-field:not(:placeholder-shown) ~ .floating-label {
+  top: 0;
+  transform: translateY(-50%);
+}
+
+/* Standardized Button style */
+.spark-submit-btn {
+  width: 100%;
+  background-color: #0d9c06;
+  color: white;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.spark-submit-btn:hover {
+  background-color: #0b8a05;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 156, 6, 0.2);
+}
+
+.spark-submit-btn:active {
+  transform: translateY(0);
+}
+
+.spark-submit-btn:disabled {
+  background-color: #94d691;
+  cursor: not-allowed;
+  transform: none;
+}
