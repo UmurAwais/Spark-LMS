@@ -56,11 +56,45 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 
 // Connect to MongoDB with timeout and better error handling
-const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/spark-lms";
-let isMongoDBConnected = false;
+// Mongoose Connection for Serverless (Vercel)
+const MONGODB_URI = process.env.MONGODB_URI;
 
-// Connection logic moved to app.listen
+let isMongoDBConnected = false;
+let cached = global.mongoose || { conn: null, promise: null };
+
+if (!global.mongoose) {
+  global.mongoose = cached;
+}
+
+async function connectToDatabase() {
+  if (cached.conn) {
+    isMongoDBConnected = true;
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => {
+      isMongoDBConnected = true;
+      console.log("✅ Vercel: New MongoDB Connection Established");
+      return mongoose;
+    });
+  }
+  
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+// Ensure connection runs on every request
+app.use(async (req, res, next) => {
+  if (!isMongoDBConnected) {
+    try {
+      await connectToDatabase();
+    } catch (e) {
+      console.error("Database connection failed:", e);
+    }
+  }
+  next();
+});
 
 // Export connection status checker
 function checkMongoConnection(req, res, next) {
@@ -3382,38 +3416,39 @@ app.delete(
   }
 );
 
-// Start the server
-console.log("🏁 Attempting to start server...");
-
-// Start the server - SIMPLIFIED for Railway
+// Start the server - SIMPLIFIED for Railway/Vercel
 console.log("🏁 Attempting to start server...");
 console.log("PORT from env:", process.env.PORT);
 console.log("Using PORT:", PORT);
 
-const server = app.listen(PORT, () => {
-  const address = server.address();
-  console.log(`✅ Server started successfully!`);
-  console.log(`📡 Server address:`, address);
-  console.log(`📡 Listening on port ${PORT}`);
+// Only start server if running directly (Locally or Hostinger/Render)
+// Vercel handles the server start automatically via the export
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    const address = server.address();
+    console.log(`✅ Server started successfully!`);
+    console.log(`📡 Server address:`, address);
+    console.log(`📡 Listening on port ${PORT}`);
 
-  // Connect to MongoDB AFTER server starts
-  console.log("🔌 Connecting to MongoDB...");
-  mongoose
-    .connect(MONGODB_URI)
-    .then(() => {
-      console.log("✅ Connected to MongoDB");
-      isMongoDBConnected = true;
-    })
-    .catch((err) => {
-      console.error("❌ MongoDB connection error:", err.message);
-    });
-});
+    // Connect to MongoDB AFTER server starts
+    console.log("🔌 Connecting to MongoDB...");
+    mongoose
+      .connect(MONGODB_URI)
+      .then(() => {
+        console.log("✅ Connected to MongoDB");
+        isMongoDBConnected = true;
+      })
+      .catch((err) => {
+        console.error("❌ MongoDB connection error:", err.message);
+      });
+  });
 
-server.on("error", (e) => {
-  console.error("❌ Server startup error:", e);
-  if (e.code === "EADDRINUSE") {
-    console.error(`Port ${PORT} is already in use`);
-  }
-});
+  server.on("error", (e) => {
+    console.error("❌ Server startup error:", e);
+    if (e.code === "EADDRINUSE") {
+      console.error(`Port ${PORT} is already in use`);
+    }
+  });
+}
 
 module.exports = app;
