@@ -3399,10 +3399,7 @@ const server = app.listen(PORT, () => {
   // Connect to MongoDB AFTER server starts
   console.log("🔌 Connecting to MongoDB...");
   mongoose
-    .connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    })
+    .connect(MONGODB_URI)
     .then(() => {
       console.log("✅ Connected to MongoDB");
       isMongoDBConnected = true;

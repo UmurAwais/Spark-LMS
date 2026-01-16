@@ -15,9 +15,19 @@
   html,
   body {
     font-family: "Work Sans", ui-sans-serif, system-ui, sans-serif !important;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
   }
 
-  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.no-default-styles),
+  /* Chrome, Safari, Opera */
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+      .no-default-styles
+    ),
   select,
   textarea:not(.resize-none) {
     width: 100%;
@@ -31,7 +41,9 @@
     color: #1c1d1f;
   }
 
-  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(.no-default-styles):focus,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+      .no-default-styles
+    ):focus,
   select:focus,
   textarea:focus {
     border-color: #0d9c06;
@@ -164,7 +176,9 @@ textarea.input-field {
 }
 
 .spark-input-group textarea.input-field:focus ~ .floating-label,
-.spark-input-group textarea.input-field:not(:placeholder-shown) ~ .floating-label {
+.spark-input-group
+  textarea.input-field:not(:placeholder-shown)
+  ~ .floating-label {
   top: 0;
   transform: translateY(-50%);
 }
