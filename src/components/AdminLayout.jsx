@@ -253,7 +253,7 @@ export default function AdminLayout({ children }) {
           <img src={Logo} alt="S" className="h-12 w-auto md:hidden" />
         </div>
 
-        <nav className="flex-1 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 py-4 space-y-1 overflow-y-auto scrollbar-hide">
           {visibleMenuItems.map((item) => (
             <SidebarItem 
               key={item.to}
