@@ -13,41 +13,8 @@ export default function StudentProtectedRoute() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        // User is logged in, now verify session
-        const sessionId = localStorage.getItem(`session_${currentUser.uid}`);
-        
-        if (!sessionId) {
-           // No session ID found locally, but user is logged in. 
-           // This shouldn't happen if they logged in via our LoginPage.
-           // Force logout.
-           console.warn("No local session found, forcing logout");
-           await handleLogout("No session found. Please log in again.");
-           return;
-        }
-
-        try {
-          const res = await apiFetch('/api/auth/verify-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ uid: currentUser.uid, sessionId })
-          });
-          const data = await res.json();
-
-          if (data.ok && data.valid) {
-            setUser(currentUser);
-          } else {
-            console.warn("Session invalid:", data.message);
-            await handleLogout("You have been logged out because you logged in on another device.");
-            return;
-          }
-        } catch (err) {
-          console.error("Session verification failed:", err);
-          // If server is down, maybe allow? Or block?
-          // Let's block to be safe.
-          await handleLogout("Session verification failed. Please try again.");
-          return;
-        }
-
+        // User is logged in. Session verification is now disabled to allow multiple devices.
+        setUser(currentUser);
       } else {
         navigate("/login");
       }
