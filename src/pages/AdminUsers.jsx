@@ -536,16 +536,25 @@ Spark Trainings Team`;
                     <td className="p-4 text-sm text-gray-600">
                       {user.metadata?.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'Never'}
                     </td>
-                    <td className="p-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.disabled
-                          ? 'bg-[#ffd8d8] text-[#9c0606]'
-                          : user.emailVerified
-                            ? 'bg-[#daffd8] text-[#0d9c06]'
-                            : 'bg-[#daffd8] text-[#0d9c06]'
-                      }`}>
-                        {user.disabled ? 'Disabled' : user.emailVerified ? 'Verified' : 'Active'}
-                      </span>
+                  <td className="p-4">
+                      <div className="flex flex-col gap-1">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                          user.disabled
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-green-100 text-green-700'
+                        }`}>
+                          {user.disabled ? 'Disabled' : 'Active'}
+                        </span>
+                        {user.source === 'both' ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-100 text-blue-700">
+                            Linked
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-700" title="User exists in database but sync status unknown or missing in Firebase">
+                            DB Only
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4 flex items-center gap-2">
                       <button
