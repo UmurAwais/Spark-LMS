@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { User, Mail, Shield, Camera, Save, X, Lock, Eye, EyeOff, KeyRound } from 'lucide-react';
-import { apiFetch } from '../config';
+import { apiFetch, config } from '../config';
 import { useNotifications } from '../context/NotificationContext';
 
 export default function AdminProfile() {

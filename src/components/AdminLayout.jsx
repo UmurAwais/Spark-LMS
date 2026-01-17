@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield, Volume2, VolumeX, Image as ImageIcon, Ticket } from 'lucide-react';
 import Logo from '../assets/Spark.png';
-import { apiFetch } from '../config';
+import { apiFetch, config } from '../config';
 import { useNotifications } from '../context/NotificationContext';
 import AdminSearchBar from './AdminSearchBar';
 
