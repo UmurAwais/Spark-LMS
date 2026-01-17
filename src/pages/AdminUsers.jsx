@@ -515,8 +515,21 @@ Spark Trainings Team`;
                 filteredUsers.map((user) => (
                   <tr key={user.uid} className={`hover:bg-gray-50 transition-colors ${user.disabled ? 'bg-gray-50 opacity-75' : ''}`}>
                     <td className="p-4">
-                      <div className="font-medium text-gray-900">{user.displayName || "No name"}</div>
-                      <div className="text-xs text-gray-500">{user.email}</div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0 border border-gray-200">
+                          {user.profilePicture ? (
+                            <img src={user.profilePicture} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white font-bold text-sm">
+                              {user.displayName?.charAt(0) || "U"}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{user.displayName || "No name"}</div>
+                          <div className="text-xs text-gray-500">{user.email}</div>
+                        </div>
+                      </div>
                     </td>
                     <td className="p-4">
                       {user.referenceNumber ? (

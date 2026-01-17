@@ -107,6 +107,17 @@ export default function StudentProfile() {
       setProfileData(prev => ({ ...prev, photoURL }));
       setUser(updatedUser);
       
+      // Update in MongoDB as well
+      try {
+        await apiFetch('/api/student/update-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: user.uid, photoURL })
+        });
+      } catch (err) {
+        console.error("Failed to sync profile to DB:", err);
+      }
+      
       // Show success popup
       setShowSuccessPopup(true);
       setTimeout(() => setShowSuccessPopup(false), 3000);

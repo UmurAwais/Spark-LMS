@@ -61,7 +61,10 @@ export default function AdminLayout({ children }) {
       const role = localStorage.getItem('admin_role') || 'super_admin';
       const email = localStorage.getItem('admin_email') || 'admin';
       const name = localStorage.getItem('admin_name') || 'Sajid Ali';
-      const profilePicture = localStorage.getItem('admin_profile_picture') || null;
+      let profilePicture = localStorage.getItem('admin_profile_picture') || null;
+      if (profilePicture && profilePicture.includes('localhost:')) {
+        profilePicture = profilePicture.substring(profilePicture.indexOf('/uploads/'));
+      }
       const permissions = JSON.parse(localStorage.getItem('admin_permissions') || '[]');
       
       setUserRole(role);
@@ -381,7 +384,16 @@ export default function AdminLayout({ children }) {
               </div>
               <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center shadow-md ring-2 ring-white">
                 {userProfilePicture ? (
-                  <img src={userProfilePicture} alt={userName} className="h-full w-full object-cover" />
+                  <img 
+                    src={userProfilePicture.startsWith('http') ? userProfilePicture : `${config.apiUrl}${userProfilePicture}`} 
+                    alt={userName} 
+                    className="h-full w-full object-cover" 
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.style.display = 'none';
+                      e.target.parentNode.innerHTML = `<div class="h-full w-full bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white font-bold">${userName.charAt(0).toUpperCase()}</div>`;
+                    }}
+                  />
                 ) : (
                   <div className="h-full w-full bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white font-bold">
                     {userName.charAt(0).toUpperCase()}

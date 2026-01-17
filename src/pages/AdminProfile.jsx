@@ -271,7 +271,7 @@ export default function AdminProfile() {
                 <div className="h-32 w-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-100">
                   {imagePreview ? (
                     <img 
-                      src={imagePreview} 
+                      src={imagePreview.startsWith('http') || imagePreview.startsWith('blob:') ? imagePreview : `${config.apiUrl}${imagePreview}`} 
                       alt="Profile" 
                       className="h-full w-full object-cover"
                     />
