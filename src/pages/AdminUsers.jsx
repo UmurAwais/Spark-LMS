@@ -592,6 +592,7 @@ Spark Trainings Team`;
                   placeholder="Min. 6 characters"
                 />
               </div>
+
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"

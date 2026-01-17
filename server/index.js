@@ -73,28 +73,37 @@ async function connectToDatabase() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => {
+    if (!MONGODB_URI) {
+      console.error("❌ MONGODB_URI is not defined in environment variables!");
+      throw new Error("MONGODB_URI environment variable is required");
+    }
+    
+    console.log("🔌 Initiating MongoDB connection...");
+    cached.promise = mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+    }).then((mongoose) => {
       isMongoDBConnected = true;
-      console.log("✅ Vercel: New MongoDB Connection Established");
+      console.log("✅ Vercel: MongoDB Connection Established Successfully");
       return mongoose;
+    }).catch((err) => {
+      console.error("❌ MongoDB Connection Error:", err.message);
+      cached.promise = null; // Reset promise so it can retry
+      throw err;
     });
   }
   
-  cached.conn = await cached.promise;
-  return cached.conn;
+  try {
+    cached.conn = await cached.promise;
+    return cached.conn;
+  } catch (error) {
+    console.error("❌ Failed to establish MongoDB connection:", error);
+    cached.promise = null; // Reset for retry
+    throw error;
+  }
 }
 
-// Ensure connection runs on every request
-app.use(async (req, res, next) => {
-  if (!isMongoDBConnected) {
-    try {
-      await connectToDatabase();
-    } catch (e) {
-      console.error("Database connection failed:", e);
-    }
-  }
-  next();
-});
+
 
 // Export connection status checker
 function checkMongoConnection(req, res, next) {
@@ -116,17 +125,32 @@ const serviceAccountPath = path.join(
   "firebase-service-account.json"
 );
 
-// Only initialize if service account exists
-if (fs.existsSync(serviceAccountPath)) {
-  const serviceAccount = require(serviceAccountPath);
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-  console.log("✅ Firebase Admin SDK initialized");
-} else {
-  console.warn(
-    "⚠️  Firebase service account not found. User management features will be limited."
-  );
+// Initialize Firebase Admin - support both local file and environment variables
+if (!admin.apps.length) {
+  try {
+    // Try environment variable first (for Vercel/production)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+      console.log("✅ Firebase Admin SDK initialized from environment variable");
+    }
+    // Fallback to local file (for development)
+    else if (fs.existsSync(serviceAccountPath)) {
+      const serviceAccount = require(serviceAccountPath);
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+      console.log("✅ Firebase Admin SDK initialized from local file");
+    } else {
+      console.warn(
+        "⚠️  Firebase service account not found. User management features will be limited."
+      );
+    }
+  } catch (error) {
+    console.error("❌ Failed to initialize Firebase Admin:", error.message);
+  }
 }
 
 const app = express();
@@ -195,6 +219,18 @@ app.get("/", (req, res) => {
 // Basic request logger to help debug network issues
 app.use((req, res, next) => {
   console.log(new Date().toISOString(), req.method, req.originalUrl);
+  next();
+});
+
+// Ensure database connection on every request (for Vercel serverless)
+app.use(async (req, res, next) => {
+  if (!isMongoDBConnected) {
+    try {
+      await connectToDatabase();
+    } catch (e) {
+      console.error("Database connection failed:", e);
+    }
+  }
   next();
 });
 
@@ -498,59 +534,50 @@ async function generateReferenceNumber() {
   return referenceNumber;
 }
 
-// Get all users (Admin only)
+// Get all users (Admin only) - MongoDB based
 app.get("/api/admin/users", adminAuth, async (req, res) => {
   try {
-    if (!admin.apps.length) {
-      return res
-        .status(503)
-        .json({ ok: false, message: "Firebase Admin not initialized" });
-    }
-
-    const listUsersResult = await admin.auth().listUsers(1000); // Max 1000 users
-
-    // Fetch reference numbers from MongoDB
-    const userRecords = await User.find({});
-    const referenceMap = {};
-    userRecords.forEach((user) => {
-      referenceMap[user.uid] = user.referenceNumber;
-    });
-
-    const users = listUsersResult.users.map((user) => ({
+    console.log("📋 Fetching users from MongoDB...");
+    
+    // Fetch all users from MongoDB
+    const users = await User.find({}).sort({ createdAt: -1 });
+    
+    console.log(`✅ Found ${users.length} users in database`);
+    
+    // Format the response to match the expected structure
+    const formattedUsers = users.map((user) => ({
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      emailVerified: user.emailVerified,
-      disabled: user.disabled,
-      referenceNumber: referenceMap[user.uid] || null,
+      displayName: user.displayName || user.email.split('@')[0],
+      photoURL: user.photoURL || null,
+      emailVerified: user.emailVerified || false,
+      disabled: user.disabled || false,
+      referenceNumber: user.referenceNumber,
       metadata: {
-        creationTime: user.metadata.creationTime,
-        lastSignInTime: user.metadata.lastSignInTime,
+        creationTime: user.createdAt || user.metadata?.creationTime,
+        lastSignInTime: user.lastSignInTime || user.metadata?.lastSignInTime,
       },
-      providerData: user.providerData,
+      providerData: user.providerData || [],
     }));
 
-    res.json({ ok: true, users });
+    res.json({ ok: true, users: formattedUsers });
   } catch (err) {
-    console.error("Error listing users:", err);
-    res.status(500).json({ ok: false, message: err.message });
+    console.error("❌ Error listing users:", err);
+    res.status(500).json({ 
+      ok: false, 
+      message: err.message,
+      error: "Failed to fetch users from database"
+    });
   }
 });
 
-// Create new user (Admin only)
+// Create new user (Admin only) - Uses Firebase Admin to create auth account
 app.post(
   "/api/admin/users/create",
   adminAuth,
   express.json(),
   async (req, res) => {
     try {
-      if (!admin.apps.length) {
-        return res
-          .status(503)
-          .json({ ok: false, message: "Firebase Admin not initialized" });
-      }
-
       const { email, password, displayName } = req.body;
 
       if (!email || !password) {
@@ -559,6 +586,17 @@ app.post(
           .json({ ok: false, message: "Email and password are required" });
       }
 
+      // Check if Firebase Admin is initialized
+      if (!admin.apps.length) {
+        return res
+          .status(503)
+          .json({ 
+            ok: false, 
+            message: "Firebase Admin not initialized. Please check server configuration." 
+          });
+      }
+
+      // Create Firebase authentication account
       const userRecord = await admin.auth().createUser({
         email,
         password,
@@ -566,13 +604,14 @@ app.post(
         emailVerified: false,
       });
 
-      // Generate and store reference number
+      // Generate and store reference number in MongoDB
       const referenceNumber = await generateReferenceNumber();
       await User.create({
         uid: userRecord.uid,
         email: userRecord.email,
         displayName: userRecord.displayName || "",
         referenceNumber,
+        createdAt: new Date(),
       });
 
       res.json({
@@ -587,7 +626,18 @@ app.post(
       });
     } catch (err) {
       console.error("Error creating user:", err);
-      res.status(500).json({ ok: false, message: err.message });
+      
+      // Handle Firebase-specific errors
+      let errorMessage = "Failed to create user";
+      if (err.code === 'auth/email-already-exists') {
+        errorMessage = "A user with this email already exists";
+      } else if (err.code === 'auth/invalid-email') {
+        errorMessage = "Invalid email address";
+      } else if (err.code === 'auth/weak-password') {
+        errorMessage = "Password should be at least 6 characters";
+      }
+      
+      res.status(500).json({ ok: false, message: errorMessage });
     }
   }
 );
@@ -3415,6 +3465,139 @@ app.delete(
     }
   }
 );
+
+// --- Coupon Management Endpoints ---
+// Get all coupons
+app.get("/api/admin/coupons", adminAuth, async (req, res) => {
+  try {
+    const coupons = await Coupon.find().sort({ createdAt: -1 });
+    res.json({ ok: true, coupons });
+  } catch (err) {
+    console.error("Error fetching coupons:", err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// Create new coupon
+app.post("/api/admin/coupons", adminAuth, express.json(), async (req, res) => {
+  try {
+    const { code, type, value, label, expiryDate } = req.body;
+
+    if (!code || !type || !value || !label) {
+      return res.status(400).json({ 
+        ok: false, 
+        message: "Code, type, value, and label are required" 
+      });
+    }
+
+    // Check if coupon code already exists
+    const existing = await Coupon.findOne({ code: code.toUpperCase() });
+    if (existing) {
+      return res.status(400).json({ 
+        ok: false, 
+        message: "Coupon code already exists" 
+      });
+    }
+
+    const newCoupon = await Coupon.create({
+      code: code.toUpperCase(),
+      type,
+      value: parseFloat(value),
+      label,
+      expiryDate: expiryDate ? new Date(expiryDate) : null,
+      isActive: true
+    });
+
+    res.json({ ok: true, coupon: newCoupon });
+  } catch (err) {
+    console.error("Error creating coupon:", err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// Update coupon
+app.put("/api/admin/coupons/:id", adminAuth, express.json(), async (req, res) => {
+  try {
+    const { code, type, value, label, isActive, expiryDate } = req.body;
+
+    const updateData = {};
+    if (code) updateData.code = code.toUpperCase();
+    if (type) updateData.type = type;
+    if (value !== undefined) updateData.value = parseFloat(value);
+    if (label) updateData.label = label;
+    if (isActive !== undefined) updateData.isActive = isActive;
+    if (expiryDate !== undefined) updateData.expiryDate = expiryDate ? new Date(expiryDate) : null;
+
+    const updatedCoupon = await Coupon.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+
+    if (!updatedCoupon) {
+      return res.status(404).json({ ok: false, message: "Coupon not found" });
+    }
+
+    res.json({ ok: true, coupon: updatedCoupon });
+  } catch (err) {
+    console.error("Error updating coupon:", err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// Delete coupon
+app.delete("/api/admin/coupons/:id", adminAuth, async (req, res) => {
+  try {
+    const deletedCoupon = await Coupon.findByIdAndDelete(req.params.id);
+    
+    if (!deletedCoupon) {
+      return res.status(404).json({ ok: false, message: "Coupon not found" });
+    }
+
+    res.json({ ok: true, message: "Coupon deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting coupon:", err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// Validate coupon (public endpoint for checkout)
+app.post("/api/coupons/validate", express.json(), async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return res.status(400).json({ ok: false, message: "Coupon code is required" });
+    }
+
+    const coupon = await Coupon.findOne({ 
+      code: code.toUpperCase(),
+      isActive: true
+    });
+
+    if (!coupon) {
+      return res.status(404).json({ ok: false, message: "Invalid coupon code" });
+    }
+
+    // Check if expired
+    if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+      return res.status(400).json({ ok: false, message: "Coupon has expired" });
+    }
+
+    res.json({ 
+      ok: true, 
+      coupon: {
+        code: coupon.code,
+        type: coupon.type,
+        value: coupon.value,
+        label: coupon.label
+      }
+    });
+  } catch (err) {
+    console.error("Error validating coupon:", err);
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
 
 // Start the server - SIMPLIFIED for Railway/Vercel
 console.log("🏁 Attempting to start server...");
