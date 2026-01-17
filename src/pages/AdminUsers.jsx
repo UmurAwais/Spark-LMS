@@ -11,7 +11,8 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newUser, setNewUser] = useState({ email: "", password: "", displayName: "" });
+  const [newUser, setNewUser] = useState({ email: "", displayName: "" });
+  const [tempPasswordModal, setTempPasswordModal] = useState({ isOpen: false, email: "", password: "", referenceNumber: "" });
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   
@@ -85,14 +86,15 @@ export default function AdminUsers() {
       const data = await res.json();
 
       if (res.ok && data.ok) {
-        addNotification({
-          type: 'success',
-          title: 'User Created',
-          message: `Successfully created user ${newUser.displayName || newUser.email}`
+        // Show temporary password modal
+        setTempPasswordModal({
+          isOpen: true,
+          email: data.user.email,
+          password: data.user.temporaryPassword,
+          referenceNumber: data.user.referenceNumber
         });
-        setMessage({ type: "success", text: "User created successfully!" });
         setShowAddModal(false);
-        setNewUser({ email: "", password: "", displayName: "" });
+        setNewUser({ email: "", displayName: "" });
         fetchUsers(); // Refresh the list
       } else {
         setMessage({ type: "error", text: data.message || "Failed to create user" });
@@ -580,25 +582,13 @@ Spark Trainings Team`;
                   placeholder="user@example.com"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
-                <input
-                  type="password"
-                  value={newUser.password}
-                  onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                  required
-                  minLength={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
-                  placeholder="Min. 6 characters"
-                />
-              </div>
 
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setShowAddModal(false);
-                    setNewUser({ email: "", password: "", displayName: "" });
+                    setNewUser({ email: "", displayName: "" });
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium transition-colors cursor-pointer"
                 >
@@ -730,6 +720,120 @@ Spark Trainings Team`;
                   {confirmationModal.confirmText}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Temporary Password Modal */}
+      {tempPasswordModal.isOpen && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-md shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="p-6 border-b border-gray-100 bg-linear-to-r from-green-50 to-emerald-50">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full mb-4">
+                <CheckCircle className="text-green-600" size={32} />
+              </div>
+              <h2 className="text-2xl font-bold text-center text-gray-900">User Created Successfully!</h2>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-md p-4">
+                <p className="text-sm text-amber-800 font-medium mb-2">⚠️ Important: Save these credentials</p>
+                <p className="text-xs text-amber-700">The temporary password will not be shown again. Make sure to copy it and send it to the user.</p>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={tempPasswordModal.email}
+                      readOnly
+                      className="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-800 font-medium"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(tempPasswordModal.email);
+                        addNotification({ type: 'success', title: 'Copied!', message: 'Email copied to clipboard' });
+                      }}
+                      className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors cursor-pointer"
+                      title="Copy email"
+                    >
+                      📋
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Temporary Password</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={tempPasswordModal.password}
+                      readOnly
+                      className="flex-1 px-3 py-2 bg-green-50 border border-green-300 rounded-md text-green-800 font-bold text-lg"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(tempPasswordModal.password);
+                        addNotification({ type: 'success', title: 'Copied!', message: 'Password copied to clipboard' });
+                      }}
+                      className="px-3 py-2 bg-green-100 hover:bg-green-200 rounded-md transition-colors cursor-pointer"
+                      title="Copy password"
+                    >
+                      📋
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Reference Number</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={tempPasswordModal.referenceNumber}
+                      readOnly
+                      className="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-800 font-medium"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(tempPasswordModal.referenceNumber);
+                        addNotification({ type: 'success', title: 'Copied!', message: 'Reference number copied to clipboard' });
+                      }}
+                      className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors cursor-pointer"
+                      title="Copy reference number"
+                    >
+                      📋
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mt-4">
+                <p className="text-sm text-blue-800">
+                  <strong>Next steps:</strong>
+                </p>
+                <ul className="text-xs text-blue-700 mt-2 space-y-1 list-disc list-inside">
+                  <li>Send these credentials to the user via email or WhatsApp</li>
+                  <li>User must change password on first login</li>
+                  <li>Temporary password expires after first use</li>
+                </ul>
+              </div>
+
+              <button
+                onClick={() => {
+                  setTempPasswordModal({ isOpen: false, email: "", password: "", referenceNumber: "" });
+                  addNotification({
+                    type: 'success',
+                    title: 'User Created',
+                    message: `User account created successfully`
+                  });
+                }}
+                className="w-full bg-[#0d9c06] text-white px-4 py-3 rounded-md hover:bg-[#0b7e05] font-medium transition-colors cursor-pointer shadow-sm"
+              >
+                Done
+              </button>
             </div>
           </div>
         </div>
