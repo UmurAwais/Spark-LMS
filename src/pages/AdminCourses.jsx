@@ -252,11 +252,10 @@ export default function AdminCourses() {
 
   useEffect(() => {
     fetchDynamicCourses();
-    const interval = setInterval(fetchDynamicCourses, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   async function fetchDynamicCourses() {
+    setLoading(true);
     try {
       // Add timestamp to prevent caching
       const timestamp = new Date().getTime();
@@ -284,11 +283,8 @@ export default function AdminCourses() {
         // API error - show static courses as fallback
         setOnlineCourses(initialOnlineCourses);
       }
-    } catch (error) {
-      console.error("Error fetching dynamic courses:", error);
-      // On network error, show static courses
-      setCourses(initialCourses);
-      setOnlineCourses(initialOnlineCourses);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -619,9 +615,25 @@ export default function AdminCourses() {
 
           {type === 'online' && (
             <button
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.stopPropagation();
-                openCurriculumModal(course);
+                // Set loading state on the button or global
+                setLoading(true);
+                try {
+                  const res = await apiFetch(`/api/courses/detail/${type}/${course.id}`, {
+                    headers: { "x-admin-token": localStorage.getItem("admin_token") }
+                  });
+                  const data = await res.json();
+                  if (data.ok) {
+                    openCurriculumModal(data.course);
+                  } else {
+                    addNotification({ type: 'error', title: 'Error', message: data.message });
+                  }
+                } catch (err) {
+                  addNotification({ type: 'error', title: 'Error', message: 'Failed to fetch course details' });
+                } finally {
+                  setLoading(false);
+                }
               }}
               className="mt-4 w-full flex items-center justify-center gap-2 bg-green-50 text-[#0d9c06] hover:bg-green-100 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer"
             >
@@ -652,43 +664,56 @@ export default function AdminCourses() {
               <>
                 {selectedCourses.length === 1 && (
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       // Get the selected course
                       const [type, courseId] = selectedCourses[0].split('-');
-                      const courseList = type === 'onsite' ? courses : onlineCourses;
-                      const courseToEdit = courseList.find(c => c.id === courseId);
                       
-                      if (courseToEdit) {
-                        // Set editing mode
-                        setIsEditing(true);
-                        
-                        // Populate form with course data
-                        setFormData({
-                          id: courseToEdit.id || '',
-                          title: courseToEdit.title || '',
-                          excerpt: courseToEdit.excerpt || '',
-                          price: courseToEdit.price || '',
-                          rating: courseToEdit.rating || '4.5',
-                          ratingCount: courseToEdit.ratingCount || '0 ratings',
-                          duration: courseToEdit.duration || '2 Months',
-                          language: courseToEdit.language || 'Urdu / Hindi',
-                          badge: typeof courseToEdit.badge === 'object' ? (courseToEdit.badge?.label || '') : (courseToEdit.badge || ''),
-                          companyLogo: courseToEdit.companyLogo || '',
-                          whatYouWillLearn: courseToEdit.whatYouWillLearn || [''],
-                          includes: courseToEdit.includes || [''],
-                          fullDescription: courseToEdit.fullDescription || ['']
+                      setLoading(true);
+                      try {
+                        const res = await apiFetch(`/api/courses/detail/${type}/${courseId}`, {
+                          headers: { "x-admin-token": localStorage.getItem("admin_token") }
                         });
+                        const data = await res.json();
                         
-                        // Set image preview if exists
-                        if (courseToEdit.image) {
-                          setImagePreview(courseToEdit.image);
+                        if (data.ok) {
+                          const courseToEdit = data.course;
+                          // Set editing mode
+                          setIsEditing(true);
+                          
+                          // Populate form with course data
+                          setFormData({
+                            id: courseToEdit.id || '',
+                            title: courseToEdit.title || '',
+                            excerpt: courseToEdit.excerpt || '',
+                            price: courseToEdit.price || '',
+                            rating: courseToEdit.rating || '4.5',
+                            ratingCount: courseToEdit.ratingCount || '0 ratings',
+                            duration: courseToEdit.duration || '2 Months',
+                            language: courseToEdit.language || 'Urdu / Hindi',
+                            badge: typeof courseToEdit.badge === 'object' ? (courseToEdit.badge?.label || '') : (courseToEdit.badge || ''),
+                            companyLogo: courseToEdit.companyLogo || '',
+                            whatYouWillLearn: courseToEdit.whatYouWillLearn || [''],
+                            includes: courseToEdit.includes || [''],
+                            fullDescription: courseToEdit.fullDescription || ['']
+                          });
+                          
+                          // Set image preview if exists
+                          if (courseToEdit.image) {
+                            setImagePreview(courseToEdit.image);
+                          }
+                          
+                          // Set course type
+                          setCourseType(type);
+                          
+                          // Open modal
+                          setShowModal(true);
+                        } else {
+                          addNotification({ type: 'error', title: 'Error', message: data.message });
                         }
-                        
-                        // Set course type
-                        setCourseType(type);
-                        
-                        // Open modal
-                        setShowModal(true);
+                      } catch (err) {
+                        addNotification({ type: 'error', title: 'Error', message: 'Failed to fetch course details' });
+                      } finally {
+                        setLoading(false);
                       }
                     }}
                     className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition cursor-pointer"
@@ -717,45 +742,51 @@ export default function AdminCourses() {
         </div>
 
         <div className="space-y-8">
-            {/* Onsite Courses */}
-            <div className="bg-white rounded-md shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold">Onsite Courses ({courses.length})</h2>
-                {courses.length > 0 && (
-                  <button
-                    onClick={() => selectAllCourses('onsite')}
-                    className="text-sm text-[#0d9c06] hover:py-2 hover:px-2 px-2 py-2 hover:bg-[#daffd8] hover:text-[#0d9c06] rounded-md transition-all ease-in-out duration-300 cursor-pointer"
-                  >
-                    {courses.every(c => selectedCourses.includes(`onsite-${c.id}`)) ? 'Deselect All' : 'Select All'}
-                  </button>
-                )}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {courses.map((course) => (
-                  <CourseCard key={course.id} course={course} type="onsite" />
-                ))}
-              </div>
-            </div>
+            {loading && courses.length === 0 && onlineCourses.length === 0 ? (
+              <AdminGridSkeleton />
+            ) : (
+              <>
+                {/* Onsite Courses */}
+                <div className="bg-white rounded-md shadow-sm p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-lg font-semibold">Onsite Courses ({courses.length})</h2>
+                    {courses.length > 0 && (
+                      <button
+                        onClick={() => selectAllCourses('onsite')}
+                        className="text-sm text-[#0d9c06] hover:py-2 hover:px-2 px-2 py-2 hover:bg-[#daffd8] hover:text-[#0d9c06] rounded-md transition-all ease-in-out duration-300 cursor-pointer"
+                      >
+                        {courses.every(c => selectedCourses.includes(`onsite-${c.id}`)) ? 'Deselect All' : 'Select All'}
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {courses.map((course) => (
+                      <CourseCard key={course.id} course={course} type="onsite" />
+                    ))}
+                  </div>
+                </div>
 
-            {/* Online Courses */}
-            <div className="bg-white rounded-md shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold">Online Courses ({onlineCourses.length})</h2>
-                {onlineCourses.length > 0 && (
-                  <button
-                    onClick={() => selectAllCourses('online')}
-                    className="text-sm text-[#0d9c06] hover:py-2 hover:px-2 px-2 py-2 hover:bg-[#daffd8] hover:text-[#0d9c06] rounded-md transition-all ease-in-out duration-300 cursor-pointer"
-                  >
-                    {onlineCourses.every(c => selectedCourses.includes(`online-${c.id}`)) ? 'Deselect All' : 'Select All'}
-                  </button>
-                )}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {onlineCourses.map((course) => (
-                  <CourseCard key={course.id} course={course} type="online" />
-                ))}
-              </div>
-            </div>
+                {/* Online Courses */}
+                <div className="bg-white rounded-md shadow-sm p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-lg font-semibold">Online Courses ({onlineCourses.length})</h2>
+                    {onlineCourses.length > 0 && (
+                      <button
+                        onClick={() => selectAllCourses('online')}
+                        className="text-sm text-[#0d9c06] hover:py-2 hover:px-2 px-2 py-2 hover:bg-[#daffd8] hover:text-[#0d9c06] rounded-md transition-all ease-in-out duration-300 cursor-pointer"
+                      >
+                        {onlineCourses.every(c => selectedCourses.includes(`online-${c.id}`)) ? 'Deselect All' : 'Select All'}
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {onlineCourses.map((course) => (
+                      <CourseCard key={course.id} course={course} type="online" />
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
         </div>
 
         {/* Add Course Modal */}
