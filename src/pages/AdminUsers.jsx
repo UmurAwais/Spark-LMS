@@ -69,6 +69,30 @@ export default function AdminUsers() {
     }
   }
 
+  async function handleSyncFirebase() {
+    if (!window.confirm("This will import all users from Firebase into MongoDB and sync their status. Proceed?")) return;
+    
+    setLoading(true);
+    try {
+      const res = await apiFetch('/api/admin/users/sync-firebase', {
+        method: "POST",
+        headers: { "x-admin-token": localStorage.getItem("admin_token") }
+      });
+      const data = await res.json();
+      if (data.ok) {
+        addNotification({ type: "success", title: "Sync Complete", message: data.message });
+        fetchUsers();
+      } else {
+        addNotification({ type: "error", title: "Sync Failed", message: data.message });
+      }
+    } catch (err) {
+      console.error("Sync error:", err);
+      addNotification({ type: "error", title: "Error", message: "Failed to connect to backend" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleAddUser(e) {
     e.preventDefault();
     setMessage({ type: "", text: "" });
@@ -375,12 +399,22 @@ Spark Trainings Team`;
         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
           <Users className="text-[#0d9c06]" /> User Management
         </h1>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-[#0d9c06] text-white px-4 py-2 rounded-md hover:bg-[#0b8a05] transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
-        >
-          <UserPlus size={20} /> Add User
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={handleSyncFirebase}
+            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-all font-medium whitespace-nowrap shadow-sm cursor-pointer"
+            title="Import/Sync missing users from Firebase Auth"
+          >
+            <RefreshCw size={18} className={loading && !users.length ? "animate-spin" : ""} />
+            Sync Firebase
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-[#0d9c06] text-white px-4 py-2 rounded-md hover:bg-[#0b8a05] transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
+          >
+            <UserPlus size={20} /> Add User
+          </button>
+        </div>
       </div>
 
       {message.text && (
