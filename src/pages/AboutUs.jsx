@@ -29,7 +29,7 @@ const AboutUs = ({ image }) => {
   return (
     <div className="w-full mx-auto pb-12 sm:pb-16">
       <SEO 
-        title="About Us | Empowering Global Learners" 
+        title="About Us - Empowering Global Learners" 
         description="Learn about Spark Trainings, our mission to bridge the skill gap, and how we empower students worldwide with practical, market-driven certifications."
         keywords="about spark trainings, learning platform mission, professional education history, skill development experts"
         canonical="/about"
