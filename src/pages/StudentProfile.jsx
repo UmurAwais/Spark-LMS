@@ -20,7 +20,7 @@ import {
 import { auth, storage } from "../firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { updateProfile } from "firebase/auth";
-import { apiFetch } from "../config";
+import { apiFetch, config } from "../config";
 
 export default function StudentProfile() {
   const navigate = useNavigate();
@@ -94,29 +94,33 @@ export default function StudentProfile() {
     setProfileData(prev => ({ ...prev, photoURL: previewURL }));
     
     try {
-      const storageRef = ref(storage, `profile-photos/${user.uid}/${Date.now()}_${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const photoURL = await getDownloadURL(storageRef);
+      const formData = new FormData();
+      formData.append('photo', file);
+      formData.append('uid', user.uid);
+
+      const res = await apiFetch('/api/student/upload-photo', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.message || "Upload failed");
+
+      const relativeURL = data.photoURL;
+      const fullPhotoURL = relativeURL.startsWith('http') ? relativeURL : `${config.apiUrl}${relativeURL}`;
       
       URL.revokeObjectURL(previewURL);
       
-      await updateProfile(auth.currentUser, { photoURL });
-      await auth.currentUser.reload();
-      const updatedUser = auth.currentUser;
-      
-      setProfileData(prev => ({ ...prev, photoURL }));
-      setUser(updatedUser);
-      
-      // Update in MongoDB as well
+      // Update Firebase Auth for consistency
       try {
-        await apiFetch('/api/student/update-profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid: user.uid, photoURL })
-        });
-      } catch (err) {
-        console.error("Failed to sync profile to DB:", err);
+        await updateProfile(auth.currentUser, { photoURL: fullPhotoURL });
+        await auth.currentUser.reload();
+      } catch (authErr) {
+        console.warn("Failed to update Firebase Auth profile:", authErr);
       }
+      
+      setProfileData(prev => ({ ...prev, photoURL: fullPhotoURL }));
+      setUser({ ...auth.currentUser });
       
       // Show success popup
       setShowSuccessPopup(true);
