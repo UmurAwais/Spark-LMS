@@ -8,6 +8,7 @@ import { doc, getDoc, collection, query, where, getDocs as firestoreGetDocs } fr
 import { apiFetch } from "../config"; // This import is not used but kept for completeness
 
 import { CourseDetailSkeleton } from "../components/SkeletonLoaders";
+import SEO from "../components/SEO";
 
 const defaultWhatYouLearn = [
   "Comprehensive understanding of the subject",
@@ -107,6 +108,13 @@ const SingleCoursePage = () => {
 
   return (
     <div className="bg-[#f7f9fa] pb-16">
+      <SEO 
+        title={`${course.title} | Onsite Course`} 
+        description={course.excerpt || `Master ${course.title} with our intensive onsite training program. Join hands-on classes at Spark Trainings campus in Pakistan.`}
+        keywords={`${course.title}, onsite training, professional ${course.title} course, spark trainings ${course.title}`}
+        canonical={`/course/${id}`}
+        ogImage={course.image}
+      />
       {/* TOP HERO */}
       <section className="bg-[#1c1d1f] text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">

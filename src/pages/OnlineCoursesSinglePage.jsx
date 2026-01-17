@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import { Star, Globe, CheckCircle, PlayCircle, Lock, Video } from "lucide-react";
 import { apiFetch } from "../config";
 import VideoPlayer from "../components/VideoPlayer";
+import SEO from "../components/SEO";
 
 import { CourseDetailSkeleton } from "../components/SkeletonLoaders";
 import { onlineCourses as initialOnlineCourses } from "../data/onlineCourses";
@@ -105,6 +106,13 @@ export default function OnlineCoursePage() {
 
   return (
     <div className="bg-[#f7f9fa] pb-16">
+      <SEO 
+        title={`${course.title} | Online Course`} 
+        description={course.excerpt || `Master ${course.title} with our world-class online training program. Get HD recordings and lifelong access at Spark Trainings.`}
+        keywords={`${course.title} online, learn ${course.title} worldwide, best online ${course.title} course`}
+        canonical={`/online-course/${id}`}
+        ogImage={course.image}
+      />
       {/* TOP HERO */}
       <section className="bg-[#1c1d1f] text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">

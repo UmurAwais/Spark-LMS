@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import App from "./App.jsx";
 import Home from "./pages/Home.jsx";
 import AboutUs from "./pages/AboutUs.jsx";
@@ -106,11 +107,11 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <CartProvider>
-      <NotificationProvider>
-        <RouterProvider router={router} />
-      </NotificationProvider>
-    </CartProvider>
-  </React.StrictMode>
+    <HelmetProvider>
+      <CartProvider>
+        <NotificationProvider>
+          <RouterProvider router={router} />
+        </NotificationProvider>
+      </CartProvider>
+    </HelmetProvider>
 );

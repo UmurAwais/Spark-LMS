@@ -1,8 +1,15 @@
 import React from "react";
+import SEO from "../components/SEO";
 
 const PrivacyPolicyPage = () => {
   return (
     <main className="bg-[#f7f9fa] min-h-screen">
+      <SEO 
+        title="Privacy Policy - Your Data Security" 
+        description="Read the Spark Trainings Privacy Policy to understand how we collect, use, and protect your personal information while you learn with us."
+        keywords="privacy policy, data protection, student data security, spark trainings terms"
+        canonical="/privacypolicy"
+      />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         {/* Page heading */}
         <header className="mb-10">

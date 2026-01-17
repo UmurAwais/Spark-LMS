@@ -6,6 +6,7 @@ import AboutPageStats from "../components/AboutPageStats.jsx";
 import Button from "../components/Button.jsx";
 import Testimonial from "../components/Testimonial";
 import TrustedByLogos from "../components/TrustedByLogos";
+import SEO from "../components/SEO";
 
 const AboutUs = ({ image }) => {
   const [currentBg, setCurrentBg] = useState(desktopBg);
@@ -26,8 +27,13 @@ const AboutUs = ({ image }) => {
   }, [image]);
 
   return (
-    <div className="w-full mx-auto pb-12 sm:pb-16"> 
-      {/* ↑ This adds bottom spacing */}
+    <div className="w-full mx-auto pb-12 sm:pb-16">
+      <SEO 
+        title="About Us | Empowering Global Learners" 
+        description="Learn about Spark Trainings, our mission to bridge the skill gap, and how we empower students worldwide with practical, market-driven certifications."
+        keywords="about spark trainings, learning platform mission, professional education history, skill development experts"
+        canonical="/about"
+      />
 
       <div
         className="h-[250px] sm:h-80 lg:h-[420px] w-full mx-auto max-w-[1440px] bg-cover bg-center bg-no-repeat"

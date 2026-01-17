@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { PlayCircle, X } from "lucide-react";
 import { apiFetch, config } from "../config";
+import SEO from "../components/SEO";
 
 const FILTERS = ["All", "Classroom", "Students", "Setups", "Certificates", "Events"];
 
@@ -81,6 +82,12 @@ const GalleryPage = () => {
 
   return (
     <div className="min-h-screen bg-[#f7f9fa] py-10 px-4 sm:px-6 lg:px-8">
+      <SEO 
+        title="Gallery - Life at Spark Trainings" 
+        description="Explore our training sessions, workshops, and student success events. See how our community learns and grows together at Spark Trainings campus."
+        keywords="training gallery, student activities, learning environment photos, spark trainings events, education workshops"
+        canonical="/gallery"
+      />
       <div className="max-w-6xl mx-auto">
         {/* PAGE TITLE */}
         <h1 className="text-3xl sm:text-4xl font-bold font-sora text-[#1c1d1f] mb-3">

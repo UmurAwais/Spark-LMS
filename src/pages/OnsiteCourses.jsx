@@ -3,6 +3,7 @@ import desktopImage from "../assets/OnsiteCoursesImage.jpg";
 import mobileImage from "../assets/OnsiteCoursesImageMobile.jpg";
 import BannerButton from "../components/BannerButton.jsx";
 import CoursesTab from "../components/CoursesTab.jsx";
+import SEO from "../components/SEO";
 
 const OnsiteCourses = () => {
   const [currentBg, setCurrentBg] = useState(desktopImage);
@@ -24,6 +25,12 @@ const OnsiteCourses = () => {
 
   return (
     <div className="w-full mx-auto pb-12 sm:pb-16">
+      <SEO 
+        title="Onsite Courses - Practical Hands-on Training in Pakistan" 
+        description="Join our physical classes for intensive hands-on training. Top-rated onsite courses in Web Development, Graphic Design, and Office Management at Spark Trainings campus."
+        keywords="onsite training lahore, physical computer classes, professional hands-on learning, spark trainings pakistan, best training institute"
+        canonical="/onsite-courses"
+      />
       <div
         className="h-[250px] sm:h-80 lg:h-[420px] w-full mx-auto max-w-[1440px] bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${currentBg})` }}

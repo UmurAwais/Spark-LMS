@@ -1,5 +1,6 @@
 import React from "react";
 import { Quote } from "lucide-react";
+import SEO from "../components/SEO";
 
 const reviews = [
   {
@@ -47,6 +48,12 @@ const reviews = [
 export default function ReviewsPage() {
   return (
     <main className="bg-[#f7f9fb] min-h-screen">
+      <SEO 
+        title="Student Reviews - What Our Learners Say" 
+        description="Read honest reviews and success stories from thousands of students who have transformed their lives through Spark Trainings. Real feedback from real learners."
+        keywords="spark trainings reviews, student testimonials Pakistan, top training institute feedback, success stories"
+        canonical="/reviews"
+      />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
 
         {/* Heading */}

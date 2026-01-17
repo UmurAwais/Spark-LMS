@@ -3,6 +3,7 @@ import desktopImg from "../assets/Contact Image.png";   // add your desktop imag
 import mobileImg from "../assets/Contact Image Mobile.png"; // add your mobile image
 import BannerButton from "../components/BannerButton.jsx";
 import ContactForm from "../components/ContactForm.jsx";
+import SEO from "../components/SEO";
 
 const ContactUs = ({ image }) => {
   const [currentBg, setCurrentBg] = useState(desktopImg);
@@ -24,6 +25,12 @@ const ContactUs = ({ image }) => {
 
   return (
     <div className="w-full mx-auto sm:pb-16">
+      <SEO 
+        title="Contact Us - Get in Touch with Experts" 
+        description="Have questions? Contact Spark Trainings for course inquiries, career guidance, or support. We're here to help you spark your potential."
+        keywords="contact spark trainings, customer support, course inquiry, spark trainings location, professional training help"
+        canonical="/contact"
+      />
       <div
         className="h-[250px] sm:h-80 lg:h-[420px] w-full mx-auto max-w-[1440px] bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${currentBg})` }}

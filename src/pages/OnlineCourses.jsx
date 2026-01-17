@@ -3,6 +3,7 @@ import desktopImage from "../assets/OnlineCoursesImage.jpg";
 import mobileImage from "../assets/OnlineCoursesImageMobile.jpg";
 import BannerButton from "../components/BannerButton.jsx";
 import OnlineCoursesTab from "../components/OnlineCoursesTab.jsx";
+import SEO from "../components/SEO";
 
 const OnlineCourses = () => {
   const [currentBg, setCurrentBg] = useState(desktopImage);
@@ -24,6 +25,12 @@ const OnlineCourses = () => {
 
   return (
     <div className="w-full mx-auto pb-12 sm:pb-16">
+      <SEO 
+        title="Online Courses - Learn from Anywhere, Anytime" 
+        description="High-quality online courses with lifelong access. Master Digital Marketing, Shopify, Social Media, and more from world-class instructors at Spark Trainings."
+        keywords="online learning pakistan, learn from home courses, professional online training, shopify masterclass, digital marketing experts"
+        canonical="/online-courses"
+      />
       <div
         className="h-[250px] sm:h-80 lg:h-[420px] w-full mx-auto max-w-[1440px] bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${currentBg})` }}

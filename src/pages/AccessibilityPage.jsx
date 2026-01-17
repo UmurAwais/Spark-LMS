@@ -1,8 +1,15 @@
 import React from "react";
+import SEO from "../components/SEO";
 
 const AccessibilityPage = () => {
   return (
     <main className="bg-[#f7f9fa] min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+      <SEO 
+        title="Accessibility | Learning for Everyone" 
+        description="Spark Trainings is committed to providing an accessible learning environment for all students. Learn about our accessibility standards and initiatives."
+        keywords="accessibility statement, inclusive learning, wcag compliance, spark trainings accessibility"
+        canonical="/accessibility"
+      />
       <div className="max-w-5xl mx-auto bg-white shadow-sm rounded-md px-4 sm:px-8 py-8 sm:py-10">
         {/* Page Title */}
         <header className="mb-8 sm:mb-10 border-b border-gray-200 pb-4">

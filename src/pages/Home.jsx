@@ -8,10 +8,17 @@ import TrustedByLogos from "../components/TrustedByLogos";
 import Testimonial from "../components/Testimonial";
 import { Link } from "react-router-dom";
 import OnlineCoursesTab from "../components/OnlineCoursesTab";
+import SEO from "../components/SEO";
 
 export default function Home() {
   return (
     <>
+      <SEO 
+        title="Best Online & Onsite Training Platform" 
+        description="Spark Trainings is a premium learning platform offering expert-led onsite and online courses in Digital Marketing, Graphic Design, Web Development, and more."
+        keywords="online courses, professional training, skill development, career growth, spark trainings, pakistan training"
+        canonical="/"
+      />
       <div className="w-full max-w-[1440px] mx-auto font-display">
         <ImageBanner />
 

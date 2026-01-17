@@ -1,8 +1,15 @@
 import React from "react";
+import SEO from "../components/SEO";
 
 const TermsAndConditions = () => {
   return (
     <main className="bg-[#f7f9fa] min-h-screen">
+      <SEO 
+        title="Terms & Conditions - Platform Policies" 
+        description="Review the Spark Trainings Terms and Conditions. Understand our enrollment policies, refund rules, and student conduct guidelines."
+        keywords="terms and conditions, spark trainings policies, refund policy, student conduct"
+        canonical="/termsandconditions"
+      />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         {/* Header */}
         <header className="mb-10">
