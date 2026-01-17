@@ -134,6 +134,13 @@ export default function AdminProfile() {
         body: formData
       });
 
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Non-JSON response received:", text);
+        throw new Error(`Server returned non-JSON response (${res.status}). Please check backend logs.`);
+      }
+
       const data = await res.json();
 
       if (data.ok) {
