@@ -20,7 +20,8 @@ import {
 import { auth, storage } from "../firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { updateProfile } from "firebase/auth";
-import { apiFetch, config } from "../config";
+import { apiFetch, config, API_URL_PROMISE } from "../config";
+import { useImageUrl } from "../hooks/useImageUrl";
 
 export default function StudentProfile() {
   const navigate = useNavigate();
@@ -169,6 +170,9 @@ export default function StudentProfile() {
     );
   }
 
+  // Use hook to get properly resolved profile picture URL
+  const profilePictureUrl = useImageUrl(profileData.photoURL);
+
   return (
     <div className="min-h-screen bg-linear-to-br from-green-50 via-white to-green-50 relative">
       {/* Decorative Background */}
@@ -226,11 +230,14 @@ export default function StudentProfile() {
               <div className="text-center mb-6">
                 <div className="relative inline-block group">
                   <div className="w-40 h-40 bg-linear-to-br from-[#0d9c06] to-[#0b7e05] rounded-full flex items-center justify-center text-white text-5xl font-bold mx-auto shadow-2xl overflow-hidden ring-4 ring-white">
-                    {profileData.photoURL ? (
+                    {profilePictureUrl ? (
                       <img 
-                        src={profileData.photoURL} 
+                        src={profilePictureUrl} 
                         alt="Profile"
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
                       />
                     ) : (
                       user?.displayName?.charAt(0) || user?.email?.charAt(0).toUpperCase()

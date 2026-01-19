@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { Search, UserPlus, Mail, Trash2, RefreshCw, Ban, CheckCircle, AlertTriangle, X, Users, Loader2, Download, ChevronDown } from "lucide-react";
+import { Trash2, Shield, UserCheck, UserPlus, Search, Filter, Mail, Phone, Calendar, ShieldAlert, Image as ImageIcon, X, Check } from "lucide-react";
 import { apiFetch, config } from "../config";
+import { useImageUrl } from "../hooks/useImageUrl";
 import { useNotifications } from "../context/NotificationContext";
 
 
@@ -517,21 +518,7 @@ Spark Trainings Team`;
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0 border border-gray-200">
-                          {user.profilePicture ? (
-                            <img 
-                              src={user.profilePicture.startsWith('http') ? user.profilePicture : `${config.apiUrl}${user.profilePicture}`} 
-                              alt="" 
-                              className="w-full h-full object-cover" 
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.parentElement.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white font-bold text-sm">${user.displayName?.charAt(0) || "U"}</div>`;
-                              }}
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white font-bold text-sm">
-                              {user.displayName?.charAt(0) || "U"}
-                            </div>
-                          )}
+                          <UserAvatar user={user} />
                         </div>
                         <div>
                           <div className="font-medium text-gray-900">{user.displayName || "No name"}</div>

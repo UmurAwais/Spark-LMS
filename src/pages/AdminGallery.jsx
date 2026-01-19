@@ -18,8 +18,70 @@ import {
 } from "lucide-react";
 import { apiFetch, config } from "../config";
 import { useNotifications } from "../context/NotificationContext";
+import { useImageUrl } from "../hooks/useImageUrl";
 
 const CATEGORIES = ["General", "Classroom", "Students", "Setups", "Certificates", "Events"];
+
+const GalleryCard = ({ item, onDelete }) => {
+  const url = useImageUrl(item.type === 'video' ? item.thumbnail : item.url);
+  const fullResUrl = useImageUrl(item.url);
+
+  return (
+    <div className="bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+      <div className="aspect-video relative overflow-hidden bg-gray-100">
+        {item.type === "video" ? (
+          <div className="w-full h-full flex items-center justify-center">
+            {url ? (
+              <img src={url} alt={item.title} className="w-full h-full object-cover" />
+            ) : (
+              <Film size={48} className="text-gray-300" />
+            )}
+            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+              <div className="bg-white/90 p-3 rounded-full text-[#0d9c06]">
+                <Video size={24} />
+              </div>
+            </div>
+          </div>
+        ) : (
+          url && <img src={url} alt={item.title} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
+        )}
+        
+        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button 
+            onClick={() => onDelete(item._id)}
+            className="p-2 bg-white/90 text-red-600 rounded-md hover:bg-red-50 shadow-sm transition-colors cursor-pointer"
+            title="Delete"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+
+        <div className="absolute bottom-2 left-2">
+          <span className="px-2 py-1 bg-black/60 backdrop-blur-md text-white text-[10px] uppercase font-bold rounded-md tracking-wider">
+            {item.category}
+          </span>
+        </div>
+      </div>
+      <div className="p-4">
+        <h3 className="font-bold text-gray-800 truncate mb-1">{item.title}</h3>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-500 flex items-center gap-1">
+            {item.type === "image" ? <ImageIcon size={12} /> : <Video size={12} />}
+            {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+          </span>
+          <a 
+            href={fullResUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-[#0d9c06] hover:text-[#0b7e05] transition-colors cursor-pointer"
+          >
+            <ExternalLink size={14} />
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function AdminGallery() {
   const [items, setItems] = useState([]);
@@ -250,59 +312,7 @@ export default function AdminGallery() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {items.map((item) => (
-            <div key={item._id} className="bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
-              <div className="aspect-video relative overflow-hidden bg-gray-100">
-                {item.type === "video" ? (
-                  <div className="w-full h-full flex items-center justify-center">
-                    {item.thumbnail ? (
-                      <img src={getFullUrl(item.thumbnail)} alt={item.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <Film size={48} className="text-gray-300" />
-                    )}
-                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                      <div className="bg-white/90 p-3 rounded-full text-[#0d9c06]">
-                        <Video size={24} />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <img src={getFullUrl(item.url)} alt={item.title} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
-                )}
-                
-                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button 
-                    onClick={() => handleDelete(item._id)}
-                    className="p-2 bg-white/90 text-red-600 rounded-md hover:bg-red-50 shadow-sm transition-colors cursor-pointer"
-                    title="Delete"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-
-                <div className="absolute bottom-2 left-2">
-                  <span className="px-2 py-1 bg-black/60 backdrop-blur-md text-white text-[10px] uppercase font-bold rounded-md tracking-wider">
-                    {item.category}
-                  </span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="font-bold text-gray-800 truncate mb-1">{item.title}</h3>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500 flex items-center gap-1">
-                    {item.type === "image" ? <ImageIcon size={12} /> : <Video size={12} />}
-                    {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-                  </span>
-                  <a 
-                    href={getFullUrl(item.url)} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-[#0d9c06] hover:text-[#0b7e05] transition-colors cursor-pointer"
-                  >
-                    <ExternalLink size={14} />
-                  </a>
-                </div>
-              </div>
-            </div>
+            <GalleryCard key={item._id} item={item} onDelete={handleDelete} />
           ))}
         </div>
       )}
