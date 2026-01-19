@@ -468,57 +468,104 @@ function CheckoutPage({ selectedCourse }) {
             <div className="mb-3 text-sm text-slate-500">No course selected — totals show the essential amount.</div>
           )}
 
-          <div className="mt-4 bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-lg border-2 border-yellow-300 shadow-sm">
-            <h3 className="font-bold text-base text-gray-900 mb-4 text-center">Payment Methods</h3>
+          <div className="mt-4 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+            {/* Premium Header */}
+            <div className="bg-gradient-to-r from-[#0d9c06] via-[#0eb507] to-[#0d9c06] px-5 py-3.5 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+              <h3 className="font-bold text-base text-white text-center relative z-10 flex items-center justify-center gap-2">
+                <span className="text-xl">💳</span>
+                <span>Payment Methods</span>
+              </h3>
+            </div>
             
-            {/* QR Code Section */}
-            <div className="bg-white rounded-lg p-5 mb-4 shadow-sm">
-              <p className="font-semibold text-sm text-gray-800 mb-3 text-center">Scan QR Code to Pay</p>
-              <div className="flex justify-center mb-4">
-                <div className="bg-white p-3 rounded-lg border-2 border-gray-300 shadow-md">
-                  <img 
-                    src={qrCodeImage} 
-                    alt="JazzCash/Raast QR Code Payment" 
-                    className="w-48 h-48 object-contain"
-                  />
+            <div className="p-5">
+              {/* QR Code Section - Enhanced */}
+              <div className="mb-5 pb-5 border-b-2 border-dashed border-gray-200">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <div className="w-8 h-[2px] bg-gradient-to-r from-transparent to-gray-300"></div>
+                  <p className="font-bold text-sm text-gray-800 uppercase tracking-wide">Scan QR Code</p>
+                  <div className="w-8 h-[2px] bg-gradient-to-l from-transparent to-gray-300"></div>
+                </div>
+                
+                <div className="flex justify-center mb-3">
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
+                    <div className="relative bg-white p-3 rounded-xl border-2 border-gray-300 shadow-md">
+                      <img 
+                        src={qrCodeImage} 
+                        alt="JazzCash/Raast QR Code" 
+                        className="w-36 h-36 object-contain"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* TILL ID - Enhanced */}
+                <div className="bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-yellow-400 rounded-xl p-3 shadow-sm">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                    <p className="text-xs font-bold text-gray-800 uppercase tracking-wider">TILL ID</p>
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                  </div>
+                  <p className="text-2xl font-black text-gray-900 text-center tracking-[0.3em] mb-2 font-mono">9814257 10</p>
+                  <div className="flex items-center justify-center gap-2 pt-2 border-t border-yellow-300">
+                    <span className="text-[10px] text-gray-700">Dial</span>
+                    <span className="bg-gray-900 text-yellow-400 px-2 py-0.5 rounded font-bold text-xs">*786*10#</span>
+                    <span className="text-[10px] text-gray-700">• Enter TILL ID</span>
+                  </div>
                 </div>
               </div>
-              
-              {/* TILL ID */}
-              <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 mb-3">
-                <p className="text-xs font-bold text-gray-800 mb-2 text-center uppercase tracking-wide">TILL ID</p>
-                <p className="text-xl font-bold text-gray-900 text-center tracking-widest mb-2">9 8 1 4 2 5 7 1 0</p>
-                <div className="border-t border-yellow-300 pt-3 mt-3">
-                  <p className="text-xs text-gray-700 text-center leading-relaxed">
-                    Dial <span className="font-bold text-gray-900">*786*10#</span> and enter TILL ID to pay via <span className="font-bold text-gray-900">JazzCash</span> account
-                  </p>
+
+              {/* Bank Transfer Section - Enhanced */}
+              <div>
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <div className="w-8 h-[2px] bg-gradient-to-r from-transparent to-blue-300"></div>
+                  <p className="font-bold text-sm text-gray-800 uppercase tracking-wide">Bank Transfer</p>
+                  <div className="w-8 h-[2px] bg-gradient-to-l from-transparent to-blue-300"></div>
+                </div>
+                
+                <div className="space-y-2">
+                  {/* Account Name */}
+                  <div className="flex justify-between items-center bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-4 py-2.5 border border-gray-200 hover:border-gray-300 transition-colors">
+                    <span className="text-xs text-gray-600 font-semibold">Account Title</span>
+                    <span className="font-bold text-sm text-gray-900">Spark Trainings</span>
+                  </div>
+                  
+                  {/* Account Number */}
+                  <div className="flex justify-between items-center bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg px-4 py-2.5 border border-gray-200 hover:border-gray-300 transition-colors">
+                    <span className="text-xs text-gray-600 font-semibold">Account No</span>
+                    <span className="font-bold text-sm text-gray-900 font-mono tracking-wide">2119337597428</span>
+                  </div>
+                  
+                  {/* IBAN */}
+                  <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg px-4 py-2.5 border-2 border-indigo-200">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-indigo-700 font-bold uppercase tracking-wide">IBAN</span>
+                      <span className="text-[9px] text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full">International</span>
+                    </div>
+                    <p className="font-bold text-xs text-indigo-900 font-mono tracking-wider break-all">PK50UNIL0109000337597428</p>
+                  </div>
+                  
+                  {/* Bank Name */}
+                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg px-4 py-3 shadow-md">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-blue-100 font-semibold">Bank</span>
+                      <span className="font-bold text-base text-white">United Bank Limited</span>
+                    </div>
+                    <p className="text-[10px] text-blue-100 mt-1 text-right">UBL Pakistan</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Manual Transfer Details */}
-            <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
-              <p className="font-semibold text-sm text-gray-800 mb-3 text-center">Or Transfer Manually</p>
-              <div className="space-y-2 text-sm text-gray-700">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Account Name:</span>
-                  <span className="font-semibold text-gray-900">Hafiza Adila Fazal</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Account No:</span>
-                  <span className="font-semibold text-gray-900">03204045091</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Bank:</span>
-                  <span className="font-semibold text-gray-900">JazzCash</span>
-                </div>
+            {/* Footer Note - Enhanced */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-t-2 border-blue-200 px-5 py-3">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-lg">📸</span>
+                <p className="text-xs text-blue-900 font-medium">
+                  Upload payment screenshot above • Enrollment confirmed after verification
+                </p>
               </div>
-            </div>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-xs text-blue-800 text-center leading-relaxed">
-                <strong>📸 Important:</strong> After payment, please upload the screenshot above. Your enrollment will be confirmed after verification.
-              </p>
             </div>
           </div>
         </aside>
