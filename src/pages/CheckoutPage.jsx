@@ -507,7 +507,7 @@ function CheckoutPage({ selectedCourse }) {
                     <p className="text-xs font-bold text-gray-800 uppercase tracking-wider">TILL ID</p>
                     <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
                   </div>
-                  <p className="text-2xl font-black text-gray-900 text-center tracking-[0.3em] mb-2 font-mono">9814257 10</p>
+                  <p className="text-2xl font-black text-gray-900 text-center tracking-[0.3em] mb-2 font-mono">981425710</p>
                   <div className="flex items-center justify-center gap-2 pt-2 border-t border-yellow-300">
                     <span className="text-[10px] text-gray-700">Dial</span>
                     <span className="bg-gray-900 text-yellow-400 px-2 py-0.5 rounded font-bold text-xs">*786*10#</span>
