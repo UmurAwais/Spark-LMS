@@ -269,25 +269,31 @@ export default function AdminOrders(){
                     <td className="p-4">
                       {o.paymentScreenshot ? (
                         <button
-                          onClick={() => {
+                          onClick={async () => {
                             // Construct proper URL for screenshot
                             let url = o.paymentScreenshot;
+                            
+                            // Get the current API URL (wait for detection to complete)
+                            const { API_URL_PROMISE } = await import('../config');
+                            const apiUrl = await API_URL_PROMISE;
                             
                             // If it's already a full URL (http/https), use as is
                             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                               // If it starts with /uploads, prepend API URL
                               if (url.startsWith('/uploads')) {
-                                url = `${config.apiUrl}${url}`;
+                                url = `${apiUrl}${url}`;
                               } else if (url.startsWith('uploads')) {
                                 // Handle case without leading slash
-                                url = `${config.apiUrl}/${url}`;
+                                url = `${apiUrl}/${url}`;
                               } else {
                                 // Fallback: prepend API URL
-                                url = `${config.apiUrl}/${url}`;
+                                url = `${apiUrl}/${url}`;
                               }
                             }
                             
-                            console.log('Screenshot URL:', url); // Debug log
+                            console.log('Original path:', o.paymentScreenshot);
+                            console.log('API URL:', apiUrl);
+                            console.log('Constructed Screenshot URL:', url);
                             setSelectedScreenshot(url);
                           }}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md text-xs font-medium transition-colors cursor-pointer"
@@ -370,9 +376,17 @@ export default function AdminOrders(){
                   alt="Payment Screenshot"
                   className="max-w-full h-auto rounded-md shadow-lg"
                   onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
+                    console.error('Failed to load image:', selectedScreenshot);
+                    e.target.style.display = 'none';
+                    e.target.nextElementSibling.style.display = 'block';
                   }}
                 />
+                <div style={{ display: 'none' }} className="text-center p-8">
+                  <p className="text-red-600 font-semibold mb-2">❌ Failed to load image</p>
+                  <p className="text-sm text-gray-600 mb-4">The screenshot could not be loaded from:</p>
+                  <code className="block bg-gray-200 p-3 rounded text-xs break-all">{selectedScreenshot}</code>
+                  <p className="text-xs text-gray-500 mt-4">Please check if the file exists on the server.</p>
+                </div>
               </div>
               
               {/* Download/Open Link */}
@@ -386,6 +400,15 @@ export default function AdminOrders(){
                   <ArrowUpRight size={16} />
                   Open in New Tab
                 </a>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(selectedScreenshot);
+                    alert('URL copied to clipboard!');
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium transition-colors cursor-pointer"
+                >
+                  Copy URL
+                </button>
               </div>
             </div>
           </div>
