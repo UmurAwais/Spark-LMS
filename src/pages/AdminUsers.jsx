@@ -1,6 +1,23 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { Trash2, Shield, UserCheck, UserPlus, Search, Filter, Mail, Phone, Calendar, ShieldAlert, Image as ImageIcon, X, Check } from "lucide-react";
+import { 
+  Users, 
+  UserPlus, 
+  Search, 
+  RefreshCw, 
+  Download, 
+  Mail, 
+  X, 
+  Trash2, 
+  CheckCircle, 
+  Ban, 
+  AlertTriangle, 
+  Loader2, 
+  ChevronDown,
+  MoreVertical,
+  Filter,
+  Users as UsersIcon
+} from "lucide-react";
 import { apiFetch, config } from "../config";
 import { useImageUrl } from "../hooks/useImageUrl";
 import { useNotifications } from "../context/NotificationContext";
