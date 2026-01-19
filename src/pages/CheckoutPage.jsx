@@ -6,6 +6,7 @@ import { createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPasswo
 import { Link } from "react-router-dom";
 import { User, MapPin, Phone, Mail, FileText, Lock, Eye, EyeOff } from "lucide-react";
 import { useCart } from "../components/CartContext";
+import qrCodeImage from "../assets/jazzcash-qr-only.png";
 
 function CheckoutPage({ selectedCourse }) {
   const { appliedCoupon } = useCart();
@@ -467,12 +468,58 @@ function CheckoutPage({ selectedCourse }) {
             <div className="mb-3 text-sm text-slate-500">No course selected — totals show the essential amount.</div>
           )}
 
-          <div className="mt-4 bg-white p-4 rounded-md border border-[#e4e5e7] text-sm text-[#6a6f73]">
-            <p className="font-semibold mb-2">JazzCash / Bank Transfer Details</p>
-            <p className="mb-0.5"><strong>Account Name:</strong> Hafiza Adila Fazal</p>
-            <p className="mb-0.5"><strong>Account No:</strong> 03204045091</p>
-            <p className="mb-2"><strong>Bank:</strong> JazzCash</p>
-            <p className="mt-1">Please send payment and upload the screenshot in the form. Your enrollment will be confirmed after verification.</p>
+          <div className="mt-4 bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-lg border-2 border-yellow-300 shadow-sm">
+            <h3 className="font-bold text-base text-gray-900 mb-4 text-center">Payment Methods</h3>
+            
+            {/* QR Code Section */}
+            <div className="bg-white rounded-lg p-5 mb-4 shadow-sm">
+              <p className="font-semibold text-sm text-gray-800 mb-3 text-center">Scan QR Code to Pay</p>
+              <div className="flex justify-center mb-4">
+                <div className="bg-white p-3 rounded-lg border-2 border-gray-300 shadow-md">
+                  <img 
+                    src={qrCodeImage} 
+                    alt="JazzCash/Raast QR Code Payment" 
+                    className="w-48 h-48 object-contain"
+                  />
+                </div>
+              </div>
+              
+              {/* TILL ID */}
+              <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 mb-3">
+                <p className="text-xs font-bold text-gray-800 mb-2 text-center uppercase tracking-wide">TILL ID</p>
+                <p className="text-xl font-bold text-gray-900 text-center tracking-widest mb-2">9 8 1 4 2 5 7 1 0</p>
+                <div className="border-t border-yellow-300 pt-3 mt-3">
+                  <p className="text-xs text-gray-700 text-center leading-relaxed">
+                    Dial <span className="font-bold text-gray-900">*786*10#</span> and enter TILL ID to pay via <span className="font-bold text-gray-900">JazzCash</span> account
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Manual Transfer Details */}
+            <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
+              <p className="font-semibold text-sm text-gray-800 mb-3 text-center">Or Transfer Manually</p>
+              <div className="space-y-2 text-sm text-gray-700">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Account Name:</span>
+                  <span className="font-semibold text-gray-900">Hafiza Adila Fazal</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Account No:</span>
+                  <span className="font-semibold text-gray-900">03204045091</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Bank:</span>
+                  <span className="font-semibold text-gray-900">JazzCash</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-xs text-blue-800 text-center leading-relaxed">
+                <strong>📸 Important:</strong> After payment, please upload the screenshot above. Your enrollment will be confirmed after verification.
+              </p>
+            </div>
           </div>
         </aside>
       </div>
