@@ -44,18 +44,47 @@ export default function AdminDrive() {
     setLoading(true);
     const token = getToken();
     try {
+      console.log('📡 Fetching files from /api/drive/list...');
       const res = await apiFetch('/api/drive/list', {
         headers: { "x-admin-token": token },
       });
+      
+      console.log('Response status:', res.status);
+      
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+      }
+      
       const data = await res.json();
+      console.log('Response data:', data);
+      
       if (data.ok) {
         setFiles(data.files || []);
+        
+        // Show info if using mock data
+        if (data.mock) {
+          console.warn('⚠️ Using mock Google Drive data');
+          console.log('📝 To connect your Google Drive:');
+          console.log('   1. Set up Google Drive service account');
+          console.log('   2. Place drive-credentials.json in backend folder');
+          console.log('   3. Restart backend server');
+        } else {
+          console.log(`✅ Loaded ${data.files.length} files from Google Drive`);
+        }
       } else {
-        console.error(data.message);
+        console.error('API returned error:', data.message);
+        alert(`❌ Error: ${data.message}\n\n${data.hint || 'Check console for details'}`);
       }
     } catch (err) {
-      console.error(err);
-      alert("⚠️ Could not connect to server. Make sure the backend is running.\n\nError: " + err.message);
+      console.error('Failed to fetch files:', err);
+      alert(
+        "⚠️ Could not connect to server. Make sure the backend is running.\n\n" +
+        "Error: " + err.message + "\n\n" +
+        "Check:\n" +
+        "1. Backend server is running\n" +
+        "2. API URL is correct in config\n" +
+        "3. Admin token is valid"
+      );
     } finally {
       setLoading(false);
     }
@@ -319,7 +348,13 @@ export default function AdminDrive() {
       </div>
 
       {/* Files Grid */}
-      {filteredFiles.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-12 bg-white border border-gray-200 rounded-md">
+          <Loader className="animate-spin h-12 w-12 text-[#0d9c06] mx-auto mb-4" />
+          <p className="text-gray-600 font-medium">Loading resources...</p>
+          <p className="text-sm text-gray-500 mt-2">Connecting to Google Drive</p>
+        </div>
+      ) : filteredFiles.length === 0 ? (
         <div className="text-center py-12 bg-white border border-gray-200 rounded-md">
           <FileVideo size={48} className="mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500 mb-4">
