@@ -3,6 +3,7 @@ import AdminLayout from '../components/AdminLayout';
 import { User, Mail, Shield, Camera, Save, X, Lock, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { apiFetch, config } from '../config';
 import { useNotifications } from '../context/NotificationContext';
+import { useImageUrl } from '../hooks/useImageUrl';
 
 export default function AdminProfile() {
   const { addNotification } = useNotifications();
@@ -30,6 +31,9 @@ export default function AdminProfile() {
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  
+  // Use the hook to get properly resolved image URL
+  const profilePictureUrl = useImageUrl(imagePreview || profileData.profilePicture);
 
   useEffect(() => {
     loadProfileData();
@@ -276,11 +280,15 @@ export default function AdminProfile() {
             <div className="relative -mt-16 mb-6">
               <div className="relative inline-block">
                 <div className="h-32 w-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-100">
-                  {imagePreview ? (
+                  {profilePictureUrl ? (
                     <img 
-                      src={imagePreview.startsWith('http') || imagePreview.startsWith('blob:') ? imagePreview : `${config.apiUrl}${imagePreview}`} 
+                      src={profilePictureUrl} 
                       alt="Profile" 
                       className="h-full w-full object-cover"
+                      onError={(e) => {
+                        console.error('Failed to load profile picture:', profilePictureUrl);
+                        e.target.style.display = 'none';
+                      }}
                     />
                   ) : (
                     <div className="h-full w-full bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white text-4xl font-bold">

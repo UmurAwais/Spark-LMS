@@ -5,6 +5,7 @@ import Logo from '../assets/Spark.png';
 import { apiFetch, config } from '../config';
 import { useNotifications } from '../context/NotificationContext';
 import AdminSearchBar from './AdminSearchBar';
+import { useImageUrl } from '../hooks/useImageUrl';
 
 // Simple notification sound (short beep)
 const NOTIFICATION_SOUND = "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..."; // Placeholder, will use a real one below
@@ -55,6 +56,9 @@ export default function AdminLayout({ children }) {
   const [userName, setUserName] = useState('Sajid Ali');
   const [userProfilePicture, setUserProfilePicture] = useState(null);
   const [userPermissions, setUserPermissions] = useState([]);
+  
+  // Use hook to get properly resolved profile picture URL
+  const profilePictureUrl = useImageUrl(userProfilePicture);
 
   useEffect(() => {
     const loadUserData = () => {
@@ -383,12 +387,13 @@ export default function AdminLayout({ children }) {
                 <p className="text-xs text-gray-500">{getRoleDisplayName(userRole)}</p>
               </div>
               <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center shadow-md ring-2 ring-white">
-                {userProfilePicture ? (
+                {profilePictureUrl ? (
                   <img 
-                    src={userProfilePicture.startsWith('http') ? userProfilePicture : `${config.apiUrl}${userProfilePicture}`} 
+                    src={profilePictureUrl} 
                     alt={userName} 
                     className="h-full w-full object-cover" 
                     onError={(e) => {
+                      console.error('Failed to load profile picture:', profilePictureUrl);
                       e.target.onerror = null;
                       e.target.style.display = 'none';
                       e.target.parentNode.innerHTML = `<div class="h-full w-full bg-linear-to-br from-[#0d9c06] to-[#0b7e05] flex items-center justify-center text-white font-bold">${userName.charAt(0).toUpperCase()}</div>`;
