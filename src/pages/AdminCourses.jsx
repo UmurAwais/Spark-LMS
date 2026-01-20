@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { Plus, X, Loader, Trash2, Check, Star, FileVideo, FileImage, Search, BookOpen, Edit, Save, ChevronDown, ChevronUp, PlayCircle, Layers, CheckCircle, AlertTriangle, HelpCircle } from "lucide-react";
+import { Plus, X, Loader, Trash2, Check, Star, FileVideo, FileImage, FileText, Search, BookOpen, Edit, Save, ChevronDown, ChevronUp, PlayCircle, Layers, CheckCircle, AlertTriangle, HelpCircle } from "lucide-react";
 import { initialCourses } from "../data/initialCourses";
 import { onlineCourses as initialOnlineCourses } from "../data/onlineCourses";
 import { apiFetch } from "../config";
