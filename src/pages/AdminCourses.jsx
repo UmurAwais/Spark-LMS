@@ -8,6 +8,14 @@ import { useNotifications } from "../context/NotificationContext";
 import { AdminGridSkeleton } from "../components/SkeletonLoaders";
 import RichTextEditor from "../components/RichTextEditor";
 
+const formatDuration = (ms) => {
+  if (!ms) return "0:00";
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
+
 export default function AdminCourses() {
   const { addNotification } = useNotifications();
   const [courses, setCourses] = useState([]);
@@ -349,6 +357,12 @@ export default function AdminCourses() {
       } else {
         // Handle video resources (update lecture video)
         updateLecture(sectionId, lectureId, 'videoUrl', resource.webViewLink);
+        
+        // Auto-fetch duration if available
+        if (resource.videoMediaMetadata && resource.videoMediaMetadata.durationMillis) {
+          const duration = formatDuration(parseInt(resource.videoMediaMetadata.durationMillis));
+          updateLecture(sectionId, lectureId, 'duration', duration);
+        }
       }
       
       setCurrentLectureForResource(null);
