@@ -231,11 +231,12 @@ function CheckoutPage({ selectedCourse }) {
         const text = await response.text();
         try {
           const json = JSON.parse(text);
-          throw new Error(json.message || `Server error: ${response.status}`);
+          setServerMsg({ text: json.message || `Server error: ${response.status}`, isError: true });
         } catch (e) {
-          // If response is not JSON, use the text or status
-          throw new Error(e.message === "Unexpected token" ? `Server error: ${response.status}` : (json?.message || `Server error: ${response.status}`));
+          setServerMsg({ text: `Order submission failed: ${response.status}`, isError: true });
         }
+        setLoading(false);
+        return;
       }
 
       const res = await response.json();

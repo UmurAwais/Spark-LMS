@@ -437,7 +437,7 @@ export default function StudentCoursePlayer() {
   const platformLogos = getPlatformLogos(course);
 
   return (
-    <div className="h-screen bg-gray-100 flex flex-col font-sans overflow-hidden">
+    <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
       {/* Header */}
       <header className="bg-white text-gray-900 h-16 flex items-center justify-between px-6 sticky top-0 z-50 shadow-sm border-b border-gray-200">
         <div className="flex items-center gap-4">
@@ -486,9 +486,9 @@ export default function StudentCoursePlayer() {
         </button>
       </header>
 
-      <div className="flex-1 flex overflow-hidden relative">
+      <div className="flex flex-col lg:flex-row relative">
         {/* Main Content (Video) */}
-        <main className="flex-1 overflow-y-auto bg-white flex flex-col">
+        <main className="flex-1 bg-white flex flex-col min-w-0">
           {/* Video Player Container with Padding and Rounded Corners */}
           <div className="w-full bg-white py-6 px-6">
             <div className="max-w-6xl mx-auto aspect-video bg-black rounded-md overflow-hidden shadow-lg">
@@ -705,9 +705,9 @@ export default function StudentCoursePlayer() {
         {/* Sidebar (Course Content) */}
         <aside 
           className={`
-            fixed lg:relative inset-y-0 right-0 w-full lg:w-96 bg-white border-l border-gray-200 transform transition-transform duration-300 ease-in-out z-40 shadow-xl lg:shadow-none
-            ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-            lg:block flex flex-col
+            lg:sticky lg:top-16 w-full lg:w-96 bg-white border-l border-gray-200 z-40 lg:z-30 shadow-xl lg:shadow-none
+            ${sidebarOpen ? 'block' : 'hidden lg:block'}
+            flex flex-col
           `}
           style={{ height: 'calc(100vh - 64px)' }}
         >
