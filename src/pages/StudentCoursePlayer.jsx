@@ -437,7 +437,7 @@ export default function StudentCoursePlayer() {
   const platformLogos = getPlatformLogos(course);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
+    <div className="h-screen bg-gray-100 flex flex-col font-sans overflow-hidden">
       {/* Header */}
       <header className="bg-white text-gray-900 h-16 flex items-center justify-between px-6 sticky top-0 z-50 shadow-sm border-b border-gray-200">
         <div className="flex items-center gap-4">
