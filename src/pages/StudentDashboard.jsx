@@ -11,6 +11,8 @@ import {
   Menu,
   X,
   LogOut,
+  Sparkles,
+  Target,
   Zap,
   Home as HomeIcon
 } from "lucide-react";
