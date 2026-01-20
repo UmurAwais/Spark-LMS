@@ -17,6 +17,8 @@ import {
   Loader
 } from "lucide-react";
 import { apiFetch, config } from "../config";
+import { auth, storage } from "../firebaseConfig";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNotifications } from "../context/NotificationContext";
 import { useImageUrl } from "../hooks/useImageUrl";
 
@@ -148,37 +150,41 @@ export default function AdminGallery() {
     setUploading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("title", newItem.title);
-      formData.append("type", newItem.type);
-      formData.append("category", newItem.category);
-      
-      if (newItem.externalUrl) {
-        formData.append("externalUrl", newItem.externalUrl);
-      }
+      let finalUrl = newItem.externalUrl;
+      let finalThumbnail = newItem.thumbnail;
 
-      if (newItem.thumbnail && !selectedThumbnail) {
-        formData.append("thumbnail", newItem.thumbnail);
-      }
-      
+      // 1. Upload main file to Firebase if selected
       if (selectedFile) {
-        if (newItem.type === 'video') {
-          formData.append("video", selectedFile);
-        } else {
-          formData.append("file", selectedFile);
-        }
+        const path = newItem.type === 'video' ? 'gallery/videos' : 'gallery/images';
+        const storageRef = ref(storage, `${path}/${Date.now()}-${selectedFile.name}`);
+        await uploadBytes(storageRef, selectedFile);
+        finalUrl = await getDownloadURL(storageRef);
       }
 
+      // 2. Upload thumbnail if selected
       if (selectedThumbnail) {
-        formData.append("thumbnail", selectedThumbnail);
+        const storageRef = ref(storage, `gallery/thumbnails/${Date.now()}-${selectedThumbnail.name}`);
+        await uploadBytes(storageRef, selectedThumbnail);
+        finalThumbnail = await getDownloadURL(storageRef);
+      }
+
+      if (!finalUrl) {
+        throw new Error("Please select a file or provide a URL");
       }
 
       const res = await apiFetch("/api/admin/gallery/add", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           "x-admin-token": localStorage.getItem("admin_token")
         },
-        body: formData
+        body: JSON.stringify({
+          title: newItem.title,
+          type: newItem.type,
+          category: newItem.category,
+          url: finalUrl,
+          thumbnail: finalThumbnail
+        })
       });
 
       const data = await res.json();

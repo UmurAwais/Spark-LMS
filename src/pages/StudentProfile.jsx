@@ -95,24 +95,24 @@ export default function StudentProfile() {
     setProfileData(prev => ({ ...prev, photoURL: previewURL }));
     
     try {
-      const formData = new FormData();
-      formData.append('photo', file);
-      formData.append('uid', user.uid);
-
-      const res = await apiFetch('/api/student/upload-photo', {
+      // 1. Upload to Firebase Storage
+      const storageRef = ref(storage, `profiles/${user.uid}/${Date.now()}-${file.name}`);
+      await uploadBytes(storageRef, file);
+      const fullPhotoURL = await getDownloadURL(storageRef);
+      
+      // 2. Sync with backend
+      const res = await apiFetch('/api/student/update-photo-url', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: user.uid, photoURL: fullPhotoURL })
       });
       
       const data = await res.json();
-      if (!data.ok) throw new Error(data.message || "Upload failed");
+      if (!data.ok) console.warn("Backend sync failed, but photo uploaded to Firebase");
 
-      const relativeURL = data.photoURL;
-      const fullPhotoURL = relativeURL.startsWith('http') ? relativeURL : `${config.apiUrl}${relativeURL}`;
-      
       URL.revokeObjectURL(previewURL);
       
-      // Update Firebase Auth for consistency
+      // 3. Update Firebase Auth for consistency
       try {
         await updateProfile(auth.currentUser, { photoURL: fullPhotoURL });
         await auth.currentUser.reload();

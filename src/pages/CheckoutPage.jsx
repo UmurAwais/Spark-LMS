@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { apiFetch } from "../config"; // Assuming apiFetch is a function to handle API calls
-import { auth } from "../firebaseConfig";
+import { auth, storage } from "../firebaseConfig";
 import { createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Link } from "react-router-dom";
 import { User, MapPin, Phone, Mail, FileText, Lock, Eye, EyeOff } from "lucide-react";
 import { useCart } from "../components/CartContext";
@@ -201,6 +202,14 @@ function CheckoutPage({ selectedCourse }) {
         }
       }
 
+      // Upload to Firebase Storage for persistent storage (Vercel fix)
+      let screenshotUrl = "";
+      if (screenshot) {
+        const storageRef = ref(storage, `screenshots/${Date.now()}-${screenshot.name}`);
+        await uploadBytes(storageRef, screenshot);
+        screenshotUrl = await getDownloadURL(storageRef);
+      }
+
       const fd = new FormData();
       fd.append("uid", currentUser?.uid || "");
       fd.append("firstName", form.firstName);
@@ -209,6 +218,8 @@ function CheckoutPage({ selectedCourse }) {
       fd.append("phone", form.phone);
       fd.append("email", form.email);
       fd.append("notes", form.notes);
+      fd.append("screenshotUrl", screenshotUrl);
+      // We still append the file to pass backend validation in the meantime
       fd.append("screenshot", screenshot);
 
       // Append courseId and courseTitle for server compatibility

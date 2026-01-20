@@ -3,7 +3,9 @@ import AdminLayout from "../components/AdminLayout";
 import { Plus, X, Loader, Trash2, Check, Star, FileVideo, FileImage, FileText, Search, BookOpen, Edit, Save, ChevronDown, ChevronUp, PlayCircle, Layers, CheckCircle, AlertTriangle, HelpCircle } from "lucide-react";
 import { initialCourses } from "../data/initialCourses";
 import { onlineCourses as initialOnlineCourses } from "../data/onlineCourses";
-import { apiFetch } from "../config";
+import { apiFetch, config } from "../config";
+import { auth, storage } from "../firebaseConfig";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNotifications } from "../context/NotificationContext";
 import { AdminGridSkeleton } from "../components/SkeletonLoaders";
 import RichTextEditor from "../components/RichTextEditor";
@@ -414,9 +416,13 @@ export default function AdminCourses() {
       formDataToSend.append('includes', JSON.stringify(formData.includes.filter(item => item.trim())));
       formDataToSend.append('fullDescription', JSON.stringify(formData.fullDescription.filter(item => item.trim())));
       
-      // Add image (file or URL) - only if changed
+      // 1. Upload image to Firebase Storage if we have a new file
       if (imageFile) {
-        formDataToSend.append('image', imageFile);
+        setUploadProgress(10);
+        const storageRef = ref(storage, `courses/${Date.now()}-${imageFile.name}`);
+        await uploadBytes(storageRef, imageFile);
+        const persistentImageUrl = await getDownloadURL(storageRef);
+        formDataToSend.append('imageUrl', persistentImageUrl);
       } else if (importedImageUrl) {
         formDataToSend.append('imageUrl', importedImageUrl);
       } else if (isEditing && imagePreview) {
@@ -424,7 +430,7 @@ export default function AdminCourses() {
         formDataToSend.append('existingImageUrl', imagePreview);
       }
       
-      setUploadProgress(30);
+      setUploadProgress(40);
 
       // Use different endpoint and method for editing vs creating
       const endpoint = isEditing ? `/api/courses/update/${courseType}/${formData.id}` : '/api/courses/upload';
