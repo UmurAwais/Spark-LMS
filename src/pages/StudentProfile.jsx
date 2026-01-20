@@ -156,6 +156,9 @@ export default function StudentProfile() {
     }
   };
 
+  // Use hook to get properly resolved profile picture URL
+  const profilePictureUrl = useImageUrl(profileData.photoURL);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
@@ -169,9 +172,6 @@ export default function StudentProfile() {
       </div>
     );
   }
-
-  // Use hook to get properly resolved profile picture URL
-  const profilePictureUrl = useImageUrl(profileData.photoURL);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-green-50 via-white to-green-50 relative">
