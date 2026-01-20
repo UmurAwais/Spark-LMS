@@ -472,7 +472,7 @@ export default function StudentCoursePlayer() {
             ))}
           </div>
           
-          <div className="hidden md:block border-l border-gray-300 pl-4 h-8 flex items-center">
+          <div className="hidden md:flex border-l border-gray-300 pl-4 h-8 items-center">
             <h1 className="text-base md:text-lg font-bold truncate max-w-[200px] md:max-w-md text-gray-800">
               {course.title}
             </h1>
@@ -808,14 +808,68 @@ export default function StudentCoursePlayer() {
                 ))}
               </div>
             ) : (
-              <div className="p-6 text-center">
-                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Download className="text-gray-400" size={32} />
-                </div>
-                <h3 className="text-gray-900 font-bold mb-2">No Resources Yet</h3>
-                <p className="text-gray-500 text-sm">
-                  There are no downloadable resources available for this course yet.
-                </p>
+              <div className="p-4 space-y-4">
+                {/* Course-level resources (from course.includes) */}
+                {course.resources && course.resources.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Course Resources</h4>
+                    {course.resources.map((res, i) => (
+                      <a 
+                        key={i}
+                        href={res.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-md hover:border-[#0d9c06] hover:shadow-sm transition-all group"
+                      >
+                        <div className="p-2 bg-blue-50 text-blue-600 rounded-md group-hover:bg-[#0d9c06] group-hover:text-white transition-colors">
+                          <FileText size={18} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">{res.title}</p>
+                          <p className="text-[10px] text-gray-500">Course Resource</p>
+                        </div>
+                        <Download size={16} className="text-gray-400 group-hover:text-[#0d9c06]" />
+                      </a>
+                    ))}
+                  </div>
+                )}
+
+                {/* Lecture-specific resources */}
+                {currentLecture?.resources && currentLecture.resources.length > 0 ? (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Lecture Resources</h4>
+                    {currentLecture.resources.map((res, i) => (
+                      <a 
+                        key={i}
+                        href={res.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-md hover:border-[#0d9c06] hover:shadow-sm transition-all group"
+                      >
+                        <div className="p-2 bg-green-50 text-[#0d9c06] rounded-md group-hover:bg-[#0d9c06] group-hover:text-white transition-colors">
+                          <FileText size={18} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">{res.title}</p>
+                          <p className="text-[10px] text-gray-500">Lecture: {currentLecture.title}</p>
+                        </div>
+                        <Download size={16} className="text-gray-400 group-hover:text-[#0d9c06]" />
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  (!course.resources || course.resources.length === 0) && (
+                    <div className="py-12 text-center">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Download className="text-gray-300" size={32} />
+                      </div>
+                      <h3 className="text-gray-900 font-bold mb-1">No Resources Yet</h3>
+                      <p className="text-gray-500 text-xs px-6">
+                        There are no downloadable resources available for this lecture.
+                      </p>
+                    </div>
+                  )
+                )}
               </div>
             )}
           </div>

@@ -331,15 +331,25 @@ export default function AdminCourses() {
 
   function selectResource(resource) {
     if (currentLectureForResource) {
-      // Update specific lecture video
       const { sectionId, lectureId } = currentLectureForResource;
-      updateLecture(sectionId, lectureId, 'videoUrl', resource.webViewLink);
       
-      // Optional: Auto-fill title if it's the default
-      // const lecture = curriculumSections.find(s => s.id === sectionId)?.lectures.find(l => l.id === lectureId);
-      // if (lecture && lecture.title === 'New Lecture') {
-      //   updateLecture(sectionId, lectureId, 'title', resource.name.replace(/\.[^/.]+$/, ""));
-      // }
+      // Handle PDF resources (add to downloadable resources)
+      if (resourcePickerType === 'pdf') {
+        const section = curriculumSections.find(s => s.id === sectionId);
+        const lecture = section?.lectures.find(l => l.id === lectureId);
+        
+        if (lecture) {
+          const newResource = { 
+            title: resource.name, 
+            url: resource.webViewLink 
+          };
+          const currentResources = lecture.resources || [];
+          updateLecture(sectionId, lectureId, 'resources', [...currentResources, newResource]);
+        }
+      } else {
+        // Handle video resources (update lecture video)
+        updateLecture(sectionId, lectureId, 'videoUrl', resource.webViewLink);
+      }
       
       setCurrentLectureForResource(null);
     } else {
@@ -541,9 +551,16 @@ export default function AdminCourses() {
   // Filter resources based on search
   const filteredResources = availableResources.filter(resource => {
     const matchesSearch = resource.name.toLowerCase().includes(resourceSearchQuery.toLowerCase());
-    const matchesType = resourcePickerType === 'video' 
-      ? resource.mimeType.includes('video')
-      : resource.mimeType.includes('image');
+    let matchesType = false;
+    
+    if (resourcePickerType === 'video') {
+      matchesType = resource.mimeType.includes('video');
+    } else if (resourcePickerType === 'image') {
+      matchesType = resource.mimeType.includes('image');
+    } else if (resourcePickerType === 'pdf') {
+      matchesType = resource.mimeType.includes('pdf') || resource.mimeType.includes('application/pdf');
+    }
+    
     return matchesSearch && matchesType;
   });
 
@@ -1215,7 +1232,7 @@ export default function AdminCourses() {
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800">
-                    Select {resourcePickerType === 'video' ? 'Video' : 'Image'} from Resources
+                    Select {resourcePickerType === 'video' ? 'Video' : resourcePickerType === 'pdf' ? 'PDF' : 'Image'} from Resources
                   </h2>
                   <p className="text-gray-600 text-sm mt-1">
                     Choose a file from your imported resources
@@ -1276,7 +1293,9 @@ export default function AdminCourses() {
                           {resource.thumbnailLink ? (
                             <img src={resource.thumbnailLink} alt={resource.name} className="h-full object-contain rounded" />
                           ) : (
-                            resourcePickerType === 'video' ? <FileVideo size={48} className="text-[#5022C3]" /> : <FileImage size={48} className="text-[#0d9c06]" />
+                            resourcePickerType === 'video' ? <FileVideo size={48} className="text-[#5022C3]" /> : 
+                            resourcePickerType === 'pdf' ? <FileText size={48} className="text-[#f4c150]" /> : 
+                            <FileImage size={48} className="text-[#0d9c06]" />
                           )}
                         </div>
 
@@ -1503,6 +1522,15 @@ export default function AdminCourses() {
                                         Add Resource
                                       </button>
                                     </div>
+                                    
+                                    {/* Select from Resources Button */}
+                                    <button
+                                      onClick={() => openResourcePicker('pdf', { sectionId: section.id, lectureId: lecture.id })}
+                                      className="w-full px-3 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-md text-xs font-medium hover:bg-blue-100 transition-colors cursor-pointer flex items-center justify-center gap-2"
+                                    >
+                                      <FileText size={14} />
+                                      Select PDF from Resources
+                                    </button>
                                   </div>
                                 </div>
                               </div>
