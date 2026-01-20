@@ -623,6 +623,35 @@ export default function StudentCoursePlayer() {
               </button>
             </div>
 
+            {/* Resources for this Lesson */}
+            {currentLecture?.resources && currentLecture.resources.length > 0 && (
+              <div className="mb-8 p-6 bg-white border border-gray-200 rounded-md shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <FileText className="text-[#0d9c06]" size={20} />
+                  <h3 className="font-bold text-gray-900">Resources for this Lesson</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {currentLecture.resources.map((res, i) => (
+                    <a 
+                      key={i}
+                      href={res.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 bg-gray-50 border border-transparent rounded-md hover:border-[#0d9c06] hover:bg-white transition-all group shadow-sm"
+                    >
+                      <div className="p-2 bg-green-100 text-[#0d9c06] rounded-md group-hover:bg-[#0d9c06] group-hover:text-white transition-colors">
+                        <Download size={18} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{res.title}</p>
+                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">Download File</p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* End of Section Quiz Prompt */}
              {(() => {
                 // Find current section
@@ -834,41 +863,26 @@ export default function StudentCoursePlayer() {
                   </div>
                 )}
 
-                {/* Lecture-specific resources */}
-                {currentLecture?.resources && currentLecture.resources.length > 0 ? (
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Lecture Resources</h4>
-                    {currentLecture.resources.map((res, i) => (
-                      <a 
-                        key={i}
-                        href={res.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-md hover:border-[#0d9c06] hover:shadow-sm transition-all group"
-                      >
-                        <div className="p-2 bg-green-50 text-[#0d9c06] rounded-md group-hover:bg-[#0d9c06] group-hover:text-white transition-colors">
-                          <FileText size={18} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{res.title}</p>
-                          <p className="text-[10px] text-gray-500">Lecture: {currentLecture.title}</p>
-                        </div>
-                        <Download size={16} className="text-gray-400 group-hover:text-[#0d9c06]" />
-                      </a>
-                    ))}
+                {/* Hint about lecture resources */}
+                {currentLecture?.resources && currentLecture.resources.length > 0 && (
+                  <div className="p-3 bg-green-50 border border-green-100 rounded-md">
+                    <p className="text-[10px] text-green-700 font-bold mb-1 uppercase">Tip</p>
+                    <p className="text-xs text-green-600">
+                      Looking for lesson files? Check the section directly below the video player!
+                    </p>
                   </div>
-                ) : (
-                  (!course.resources || course.resources.length === 0) && (
-                    <div className="py-12 text-center">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Download className="text-gray-300" size={32} />
-                      </div>
-                      <h3 className="text-gray-900 font-bold mb-1">No Resources Yet</h3>
-                      <p className="text-gray-500 text-xs px-6">
-                        There are no downloadable resources available for this lecture.
-                      </p>
+                )}
+
+                {(!course.resources || course.resources.length === 0) && (!currentLecture?.resources || currentLecture.resources.length === 0) && (
+                  <div className="py-12 text-center">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Download className="text-gray-300" size={32} />
                     </div>
-                  )
+                    <h3 className="text-gray-900 font-bold mb-1">No Resources Yet</h3>
+                    <p className="text-gray-500 text-xs px-6">
+                      There are no downloadable resources available for this course.
+                    </p>
+                  </div>
                 )}
               </div>
             )}

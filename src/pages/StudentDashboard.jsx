@@ -11,8 +11,6 @@ import {
   Menu,
   X,
   LogOut,
-  Sparkles,
-  Target,
   Zap,
   Home as HomeIcon
 } from "lucide-react";
@@ -462,6 +460,8 @@ export default function StudentDashboard() {
                           </div>
                         </div>
                       </div>
+
+
 
                       {/* Milestones */}
                       {!isPending && (course.progress > 0) && (
