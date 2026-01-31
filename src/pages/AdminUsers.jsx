@@ -161,7 +161,7 @@ export default function AdminUsers() {
           referenceNumber: data.user.referenceNumber
         });
         setShowAddModal(false);
-        setNewUser({ email: "", displayName: "" });
+        setNewUser({ email: "", displayName: "", password: "" });
         fetchUsers(); // Refresh the list
       } else {
         setMessage({ type: "error", text: data.message || "Failed to create user" });
@@ -675,13 +675,25 @@ Spark Trainings Team`;
                   placeholder="user@example.com"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password (Optional)</label>
+                <input
+                  type="text"
+                  value={newUser.password || ""}
+                  onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
+                  placeholder="Leave empty to auto-generate"
+                  minLength={6}
+                />
+                <p className="text-xs text-gray-500 mt-1">Min 6 characters. If empty, a random password will be generated.</p>
+              </div>
 
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setShowAddModal(false);
-                    setNewUser({ email: "", displayName: "" });
+                    setNewUser({ email: "", displayName: "", password: "" });
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium transition-colors cursor-pointer"
                 >

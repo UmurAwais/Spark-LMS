@@ -53,6 +53,20 @@ export default function AdminDashboard() {
           headers: { "x-admin-token": localStorage.getItem("admin_token") }
         });
         const data = await res.json();
+
+        // Fetch courses count
+        let courseCount = 0;
+        try {
+          const courseRes = await apiFetch('/api/courses');
+          const courseData = await courseRes.json();
+          if (Array.isArray(courseData)) {
+            courseCount = courseData.length;
+          } else if (courseData.courses && Array.isArray(courseData.courses)) {
+            courseCount = courseData.courses.length;
+          }
+        } catch (e) {
+          console.error("Error fetching courses:", e);
+        }
         
         if (data.ok && data.orders) {
           setAllOrders(data.orders);
@@ -94,7 +108,7 @@ export default function AdminDashboard() {
           setMetrics({
             revenue: totalRevenue,
             students: uniqueStudents.size,
-            courses: 12, // You can fetch this from courses API
+            courses: courseCount, 
             orders: data.orders.length,
             thisMonth: thisMonthCount,
             lastMonth: lastMonthCount
