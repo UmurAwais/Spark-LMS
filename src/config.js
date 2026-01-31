@@ -59,9 +59,9 @@ async function detectApiUrl() {
     }
   }
 
-  // If no port works, default to 4001
-  console.error('❌ Could not detect API server on any port!');
-  API_URL = 'http://localhost:4001';
+  // If no port works, default to production API
+  console.warn('⚠️ Could not detect local API server. Falling back to production API.');
+  API_URL = PRODUCTION_API_URL;
   return API_URL;
 }
 
