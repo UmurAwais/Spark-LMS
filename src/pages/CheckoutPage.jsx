@@ -202,12 +202,18 @@ function CheckoutPage({ selectedCourse }) {
         }
       }
 
-      // Upload to Firebase Storage for persistent storage (Vercel fix)
+      // Attempt upload to Firebase Storage (for persistent storage)
+      // If this fails (e.g. network/CORS), we fallback to sending the file to backend directly
       let screenshotUrl = "";
       if (screenshot) {
-        const storageRef = ref(storage, `screenshots/${Date.now()}-${screenshot.name}`);
-        await uploadBytes(storageRef, screenshot);
-        screenshotUrl = await getDownloadURL(storageRef);
+        try {
+          const storageRef = ref(storage, `screenshots/${Date.now()}-${screenshot.name}`);
+          await uploadBytes(storageRef, screenshot);
+          screenshotUrl = await getDownloadURL(storageRef);
+        } catch (uploadErr) {
+          console.warn("Firebase upload failed, falling back to server upload:", uploadErr);
+          // Continue execution - backend will receive the file via FormData "screenshot" field
+        }
       }
 
       const fd = new FormData();
