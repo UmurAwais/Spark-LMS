@@ -13,7 +13,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAon4KXsfP6tqSJ6b9RgXd_xDkEowztJ3I",
   authDomain: "spark-trainings-lms.firebaseapp.com",
   projectId: "spark-trainings-lms",
-  storageBucket: "spark-trainings-lms.firebasestorage.app",
+  storageBucket: "spark-trainings-lms.appspot.com",
   messagingSenderId: "210481812654",
   appId: "1:210481812654:web:255bc24f5a49912e63893f",
   measurementId: "G-D79DNM0VD2"
