@@ -275,7 +275,13 @@ export default function AdminOrders(){
                             
                             // Get the current API URL (wait for detection to complete)
                             const { API_URL_PROMISE } = await import('../config');
-                            const apiUrl = await API_URL_PROMISE;
+                            let apiUrl = await API_URL_PROMISE;
+
+                            // FORCE LOCALHOST: If we are on localhost, ensure we look at localhost:4001 for images
+                            // This fixes the issue where config might have fallen back to production URL
+                            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                                apiUrl = 'http://localhost:4001';
+                            }
                             
                             // If it's already a full URL (http/https), use as is
                             if (!url.startsWith('http://') && !url.startsWith('https://')) {
