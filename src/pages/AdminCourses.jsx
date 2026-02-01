@@ -1439,6 +1439,7 @@ export default function AdminCourses() {
                       onDragStart={(e) => handleDragStart(e, 'section', sIdx)}
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, 'section', sIdx)}
+                      onDragEnd={() => setDraggedItem(null)}
                     >
                       <div className="bg-gray-100 p-4 border-b border-gray-200">
                         <div className="flex items-start justify-between gap-2">
@@ -1489,6 +1490,7 @@ export default function AdminCourses() {
                             onDragStart={(e) => handleDragStart(e, 'lecture', lIdx, sIdx)}
                             onDragOver={handleDragOver}
                             onDrop={(e) => handleDrop(e, 'lecture', lIdx, sIdx)}
+                            onDragEnd={() => setDraggedItem(null)}
                           >
                             {/* Lecture Header / Summary */}
                             <div className="flex items-center gap-3 p-3 bg-white cursor-pointer hover:bg-gray-50" onClick={() => {
