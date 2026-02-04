@@ -493,7 +493,9 @@ export default function StudentCoursePlayer() {
           <div className="w-full bg-white py-6 px-6">
             <div className="max-w-6xl mx-auto aspect-video bg-black rounded-md overflow-hidden shadow-lg">
               {currentLecture ? (
-                currentLecture.videoUrl && (currentLecture.videoUrl.endsWith('.mp4') || currentLecture.videoUrl.includes('/uploads/videos/')) ? (
+                currentLecture.videoUrl && 
+                (currentLecture.videoUrl.endsWith('.mp4') || currentLecture.videoUrl.includes('/uploads/videos/')) && 
+                !currentLecture.videoUrl.includes('drive.google.com') ? (
                   <video
                     src={(() => {
                         let url = currentLecture.videoUrl;
@@ -520,15 +522,13 @@ export default function StudentCoursePlayer() {
                       let url = currentLecture.videoUrl;
                       if (!url) return '';
                       
-                      // Fix legacy localhost URLs if they exist in DB
+                      // Fix legacy localhost URLs
                       if (url.includes('localhost:4001') || url.includes('localhost:4000') || url.includes('localhost:3000')) {
                         const path = url.split('/uploads/')[1];
-                        if (path) {
-                          url = `/uploads/${path}`;
-                        }
+                        if (path) url = `/uploads/${path}`;
                       }
                       
-                      // Handle YouTube URLs
+                      // Handle YouTube
                       if (url.includes('youtube.com') || url.includes('youtu.be')) {
                         let videoId = '';
                         if (url.includes('youtube.com/watch')) {
@@ -541,41 +541,34 @@ export default function StudentCoursePlayer() {
                         } else if (url.includes('youtube.com/shorts/')) {
                           videoId = url.split('youtube.com/shorts/')[1].split('?')[0];
                         }
-                        
-                        if (videoId) {
-                          return `https://www.youtube.com/embed/${videoId}`;
-                        }
+                        if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
                       }
                       
-                      // Handle Vimeo URLs
+                      // Handle Vimeo
                       if (url.includes('vimeo.com')) {
-                        const vimeoIdMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:\w+\/)?|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/);
-                        if (vimeoIdMatch && vimeoIdMatch[1]) {
-                          return `https://player.vimeo.com/video/${vimeoIdMatch[1]}`;
-                        }
+                        const vimeoIdMatch = url.match(/vimeo\.com\/(?:video\/|)(\d+)/);
+                        if (vimeoIdMatch && vimeoIdMatch[1]) return `https://player.vimeo.com/video/${vimeoIdMatch[1]}?autoplay=1`;
                       }
                       
-                      // Handle Google Drive URLs
-                      if (url.includes('drive.google.com')) {
-                        // Extract File ID from various Google Drive URL formats
+                      // Handle Google Drive
+                      if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
                         let fileId = '';
+                        const patterns = [
+                          /\/d\/([a-zA-Z0-9_-]+)/,
+                          /[?&]id=([a-zA-Z0-9_-]+)/,
+                          /\/file\/d\/([a-zA-Z0-9_-]+)/
+                        ];
                         
-                        // Format: https://drive.google.com/file/d/FILE_ID/view
-                        const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                        if (fileIdMatch && fileIdMatch[1]) {
-                          fileId = fileIdMatch[1];
-                        }
-                        
-                        // Format: https://drive.google.com/open?id=FILE_ID
-                        if (!fileId) {
-                          const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-                          if (idParamMatch && idParamMatch[1]) {
-                            fileId = idParamMatch[1];
+                        for (let pattern of patterns) {
+                          const match = url.match(pattern);
+                          if (match && match[1]) {
+                            fileId = match[1];
+                            break;
                           }
                         }
                         
                         if (fileId) {
-                          // Use the embed URL which works better for shared files
+                          // Crucial: Use the preview URL format which permits framing
                           return `https://drive.google.com/file/d/${fileId}/preview`;
                         }
                       }
