@@ -517,69 +517,71 @@ export default function StudentCoursePlayer() {
                     Your browser does not support the video tag.
                   </video>
                 ) : (
-                  <iframe 
-                    src={(() => {
-                      let url = currentLecture.videoUrl;
-                      if (!url) return '';
-                      
-                      // Fix legacy localhost URLs
-                      if (url.includes('localhost:4001') || url.includes('localhost:4000') || url.includes('localhost:3000')) {
-                        const path = url.split('/uploads/')[1];
-                        if (path) url = `/uploads/${path}`;
-                      }
-                      
-                      // Handle YouTube
-                      if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                        let videoId = '';
-                        if (url.includes('youtube.com/watch')) {
-                          const urlParams = new URLSearchParams(new URL(url).search);
-                          videoId = urlParams.get('v');
-                        } else if (url.includes('youtu.be/')) {
-                          videoId = url.split('youtu.be/')[1].split('?')[0];
-                        } else if (url.includes('youtube.com/embed/')) {
-                          videoId = url.split('youtube.com/embed/')[1].split('?')[0];
-                        } else if (url.includes('youtube.com/shorts/')) {
-                          videoId = url.split('youtube.com/shorts/')[1].split('?')[0];
-                        }
-                        if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-                      }
-                      
-                      // Handle Vimeo
-                      if (url.includes('vimeo.com')) {
-                        const vimeoIdMatch = url.match(/vimeo\.com\/(?:video\/|)(\d+)/);
-                        if (vimeoIdMatch && vimeoIdMatch[1]) return `https://player.vimeo.com/video/${vimeoIdMatch[1]}?autoplay=1`;
-                      }
-                      
-                      // Handle Google Drive
-                      if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
-                        let fileId = '';
-                        const patterns = [
-                          /\/d\/([a-zA-Z0-9_-]+)/,
-                          /[?&]id=([a-zA-Z0-9_-]+)/,
-                          /\/file\/d\/([a-zA-Z0-9_-]+)/
-                        ];
+                  <div className="w-full h-full flex flex-col">
+                    <iframe 
+                      src={(() => {
+                        let url = currentLecture.videoUrl;
+                        if (!url) return '';
                         
-                        for (let pattern of patterns) {
-                          const match = url.match(pattern);
-                          if (match && match[1]) {
-                            fileId = match[1];
-                            break;
+                        // Fix legacy localhost URLs
+                        if (url.includes('localhost:4001') || url.includes('localhost:4000') || url.includes('localhost:3000')) {
+                          const path = url.split('/uploads/')[1];
+                          if (path) url = `/uploads/${path}`;
+                        }
+                        
+                        // Handle YouTube
+                        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                          let videoId = '';
+                          if (url.includes('youtube.com/watch')) {
+                            const urlParams = new URLSearchParams(new URL(url).search);
+                            videoId = urlParams.get('v');
+                          } else if (url.includes('youtu.be/')) {
+                            videoId = url.split('youtu.be/')[1].split('?')[0];
+                          } else if (url.includes('youtube.com/embed/')) {
+                            videoId = url.split('youtube.com/embed/')[1].split('?')[0];
+                          } else if (url.includes('youtube.com/shorts/')) {
+                            videoId = url.split('youtube.com/shorts/')[1].split('?')[0];
+                          }
+                          if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                        }
+                        
+                        // Handle Vimeo
+                        if (url.includes('vimeo.com')) {
+                          const vimeoIdMatch = url.match(/vimeo\.com\/(?:video\/|)(\d+)/);
+                          if (vimeoIdMatch && vimeoIdMatch[1]) return `https://player.vimeo.com/video/${vimeoIdMatch[1]}?autoplay=1`;
+                        }
+                        
+                        // Handle Google Drive
+                        if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+                          let fileId = '';
+                          const patterns = [
+                            /\/d\/([a-zA-Z0-9_-]+)/,
+                            /[?&]id=([a-zA-Z0-9_-]+)/,
+                            /\/file\/d\/([a-zA-Z0-9_-]+)/
+                          ];
+                          
+                          for (let pattern of patterns) {
+                            const match = url.match(pattern);
+                            if (match && match[1]) {
+                              fileId = match[1];
+                              break;
+                            }
+                          }
+                          
+                          if (fileId) {
+                            // Using docs.google.com version which sometimes has better framing permissions
+                            return `https://docs.google.com/file/d/${fileId}/preview`;
                           }
                         }
                         
-                        if (fileId) {
-                          // Crucial: Use the preview URL format which permits framing
-                          return `https://drive.google.com/file/d/${fileId}/preview`;
-                        }
-                      }
-                      
-                      return url.startsWith('http') ? url : `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
-                    })()} 
-                    title={currentLecture.title}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowFullScreen
-                  ></iframe>
+                        return url.startsWith('http') ? url : `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+                      })()} 
+                      title={currentLecture.title}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowFullScreen
+                    ></iframe>
+                  </div>
                 )
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 p-8">
@@ -591,13 +593,26 @@ export default function StudentCoursePlayer() {
           </div>
           
           <div className="max-w-6xl mx-auto w-full px-4 md:px-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {currentLecture?.title}
-              </h2>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+                  {currentLecture?.title}
+                </h2>
+                {currentLecture?.videoUrl?.includes('google.com') && (
+                   <a 
+                    href={currentLecture.videoUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-[#0d9c06] hover:underline mt-2 font-medium"
+                  >
+                    <PlayCircle size={14} />
+                    Open in new window (if video doesn't load)
+                  </a>
+                )}
+              </div>
               <button
                 onClick={handleMarkComplete}
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold transition-all shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
+                className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-full font-semibold transition-all shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap min-w-[170px] ${
                   completedLectures[currentLecture?.id]
                     ? 'bg-green-100 text-green-700 border border-green-200'
                     : 'bg-[#0d9c06] text-white hover:bg-[#0b7e05]'
