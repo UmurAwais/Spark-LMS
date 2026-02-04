@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Play, Pause, Volume2, VolumeX, Maximize, Settings, SkipBack, SkipForward } from 'lucide-react';
+import { API_URL } from '../config';
 
 export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = false }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -12,7 +13,12 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
   const controlsTimeoutRef = useRef(null);
 
   // Use preview URL if in preview mode, otherwise use full video URL
-  const videoSource = isPreview ? previewUrl : videoUrl;
+  let videoSource = isPreview ? previewUrl : videoUrl;
+  
+  // Prefix with API_URL if it's a relative path
+  if (videoSource && !videoSource.startsWith('http')) {
+    videoSource = `${API_URL}${videoSource}`;
+  }
 
   const togglePlay = () => {
     if (videoRef.current) {

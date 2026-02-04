@@ -17,7 +17,7 @@ import {
   Lock,
   AlertCircle
 } from 'lucide-react';
-import { apiFetch } from '../config';
+import { apiFetch, API_URL } from '../config';
 import { auth } from '../firebaseConfig';
 import SparkLogo from '../assets/Logo.png';
 
@@ -495,14 +495,21 @@ export default function StudentCoursePlayer() {
               {currentLecture ? (
                 currentLecture.videoUrl && (currentLecture.videoUrl.endsWith('.mp4') || currentLecture.videoUrl.includes('/uploads/videos/')) ? (
                   <video
-                    src={currentLecture.videoUrl}
+                    src={(() => {
+                        let url = currentLecture.videoUrl;
+                        if (url.includes('localhost:4001') || url.includes('localhost:4000') || url.includes('localhost:3000')) {
+                            const path = url.split('/uploads/')[1];
+                            if (path) url = `/uploads/${path}`;
+                        }
+                        return url.startsWith('http') ? url : `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+                    })()}
                     className="w-full h-full"
                     controls
                     autoPlay
                     onEnded={() => {
-                      if (!completedLectures[currentLecture.id]) {
-                        handleMarkComplete();
-                      }
+                        if (!completedLectures[currentLecture.id]) {
+                            handleMarkComplete();
+                        }
                     }}
                   >
                     Your browser does not support the video tag.
@@ -510,8 +517,16 @@ export default function StudentCoursePlayer() {
                 ) : (
                   <iframe 
                     src={(() => {
-                      const url = currentLecture.videoUrl;
+                      let url = currentLecture.videoUrl;
                       if (!url) return '';
+                      
+                      // Fix legacy localhost URLs if they exist in DB
+                      if (url.includes('localhost:4001') || url.includes('localhost:4000') || url.includes('localhost:3000')) {
+                        const path = url.split('/uploads/')[1];
+                        if (path) {
+                          url = `/uploads/${path}`;
+                        }
+                      }
                       
                       // Handle YouTube URLs
                       if (url.includes('youtube.com') || url.includes('youtu.be')) {
@@ -521,9 +536,22 @@ export default function StudentCoursePlayer() {
                           videoId = urlParams.get('v');
                         } else if (url.includes('youtu.be/')) {
                           videoId = url.split('youtu.be/')[1].split('?')[0];
+                        } else if (url.includes('youtube.com/embed/')) {
+                          videoId = url.split('youtube.com/embed/')[1].split('?')[0];
+                        } else if (url.includes('youtube.com/shorts/')) {
+                          videoId = url.split('youtube.com/shorts/')[1].split('?')[0];
                         }
+                        
                         if (videoId) {
                           return `https://www.youtube.com/embed/${videoId}`;
+                        }
+                      }
+                      
+                      // Handle Vimeo URLs
+                      if (url.includes('vimeo.com')) {
+                        const vimeoIdMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:\w+\/)?|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/);
+                        if (vimeoIdMatch && vimeoIdMatch[1]) {
+                          return `https://player.vimeo.com/video/${vimeoIdMatch[1]}`;
                         }
                       }
                       
@@ -539,9 +567,11 @@ export default function StudentCoursePlayer() {
                         }
                         
                         // Format: https://drive.google.com/open?id=FILE_ID
-                        const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-                        if (idParamMatch && idParamMatch[1]) {
-                          fileId = idParamMatch[1];
+                        if (!fileId) {
+                          const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                          if (idParamMatch && idParamMatch[1]) {
+                            fileId = idParamMatch[1];
+                          }
                         }
                         
                         if (fileId) {
@@ -550,7 +580,7 @@ export default function StudentCoursePlayer() {
                         }
                       }
                       
-                      return url;
+                      return url.startsWith('http') ? url : `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
                     })()} 
                     title={currentLecture.title}
                     className="w-full h-full"

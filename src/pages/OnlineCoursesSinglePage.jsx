@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Star, Globe, CheckCircle, PlayCircle, Lock, Video } from "lucide-react";
-import { apiFetch } from "../config";
+import { apiFetch, API_URL } from "../config";
 import VideoPlayer from "../components/VideoPlayer";
 import SEO from "../components/SEO";
 
@@ -91,17 +91,47 @@ export default function OnlineCoursePage() {
 
   const getEmbedUrl = (url) => {
     if (!url) return '';
+    
+    // Handle YouTube URLs
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      let videoId = '';
+      if (url.includes('youtube.com/watch')) {
+        const urlParams = new URLSearchParams(new URL(url).search);
+        videoId = urlParams.get('v');
+      } else if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1].split('?')[0];
+      } else if (url.includes('youtube.com/embed/')) {
+        videoId = url.split('youtube.com/embed/')[1].split('?')[0];
+      } else if (url.includes('youtube.com/shorts/')) {
+        videoId = url.split('youtube.com/shorts/')[1].split('?')[0];
+      }
+      
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+    }
+    
+    // Handle Vimeo URLs
+    if (url.includes('vimeo.com')) {
+      const vimeoIdMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:\w+\/)?|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/);
+      if (vimeoIdMatch && vimeoIdMatch[1]) {
+        return `https://player.vimeo.com/video/${vimeoIdMatch[1]}`;
+      }
+    }
+    
+    // Handle Google Drive URLs
     if (url.includes('drive.google.com')) {
       const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (fileIdMatch && fileIdMatch[1]) {
         return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
       }
-      const idParamMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
+      const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
       if (idParamMatch && idParamMatch[1]) {
         return `https://drive.google.com/file/d/${idParamMatch[1]}/preview`;
       }
     }
-    return url;
+    
+    return url.startsWith('http') ? url : `${API_URL}${url}`;
   };
 
   return (
