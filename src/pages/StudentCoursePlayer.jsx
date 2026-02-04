@@ -517,7 +517,7 @@ export default function StudentCoursePlayer() {
                     Your browser does not support the video tag.
                   </video>
                 ) : (
-                  <div className="w-full h-full flex flex-col">
+                  <div className="relative w-full h-full flex flex-col bg-black">
                     <iframe 
                       src={(() => {
                         let url = currentLecture.videoUrl;
@@ -552,12 +552,13 @@ export default function StudentCoursePlayer() {
                         }
                         
                         // Handle Google Drive
-                        if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+                        if (url.includes('google.com')) {
                           let fileId = '';
                           const patterns = [
                             /\/d\/([a-zA-Z0-9_-]+)/,
                             /[?&]id=([a-zA-Z0-9_-]+)/,
-                            /\/file\/d\/([a-zA-Z0-9_-]+)/
+                            /\/file\/d\/([a-zA-Z0-9_-]+)/,
+                            /file\/d\/([a-zA-Z0-9_-]+)/
                           ];
                           
                           for (let pattern of patterns) {
@@ -569,8 +570,8 @@ export default function StudentCoursePlayer() {
                           }
                           
                           if (fileId) {
-                            // Using docs.google.com version which sometimes has better framing permissions
-                            return `https://docs.google.com/file/d/${fileId}/preview`;
+                            // Using standard preview but with explicit embedded flag
+                            return `https://drive.google.com/file/d/${fileId}/preview?embedded=true`;
                           }
                         }
                         
@@ -581,6 +582,15 @@ export default function StudentCoursePlayer() {
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                       allowFullScreen
                     ></iframe>
+                    
+                    {/* Guidance Overlay for Drive Videos */}
+                    {currentLecture.videoUrl.includes('google.com') && (
+                      <div className="absolute bottom-4 right-4 z-10 opacity-0 hover:opacity-100 transition-opacity">
+                        <div className="bg-black/80 text-white text-[10px] px-2 py-1 rounded border border-white/20">
+                          Video not loading? Click "Open in new window" below.
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )
               ) : (
@@ -603,10 +613,10 @@ export default function StudentCoursePlayer() {
                     href={currentLecture.videoUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-[#0d9c06] hover:underline mt-2 font-medium"
+                    className="inline-flex items-center gap-2 text-sm text-[#0d9c06] bg-[#0d9c06]/10 px-4 py-2 rounded-lg hover:bg-[#0d9c06]/20 transition-colors mt-3 font-semibold border border-[#0d9c06]/20"
                   >
-                    <PlayCircle size={14} />
-                    Open in new window (if video doesn't load)
+                    <PlayCircle size={18} />
+                    Watch Video on Google Drive (Instant Fix)
                   </a>
                 )}
               </div>
