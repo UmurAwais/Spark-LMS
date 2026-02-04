@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { apiFetch } from "../config"; // Assuming apiFetch is a function to handle API calls
 import { auth, storage } from "../firebaseConfig";
 import { createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword } from "firebase/auth";
@@ -10,7 +10,8 @@ import { useCart } from "../components/CartContext";
 import qrCodeImage from "../assets/jazzcash-qr-only.png";
 
 function CheckoutPage({ selectedCourse }) {
-  const { appliedCoupon } = useCart();
+  const { appliedCoupon, clearCart } = useCart();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -122,14 +123,16 @@ function CheckoutPage({ selectedCourse }) {
     }
 
     try {
+      console.log("🚀 Starting checkout process...");
       setLoading(true);
 
       let currentUser = user;
 
       // Handle Authentication if not logged in
       if (!currentUser) {
+        console.log("👤 User not logged in, handling authentication...");
         if (authMode === "signup") {
-          // Signup logic
+          console.log("📝 Attempting signup...");
           if (form.password !== form.confirmPassword) {
             setServerMsg({ text: "Passwords do not match.", isError: true });
             setLoading(false);
@@ -148,11 +151,14 @@ function CheckoutPage({ selectedCourse }) {
               form.email,
               form.password
             );
+            console.log("✅ Firebase user created:", newUser.uid);
+            
             await updateProfile(newUser, {
               displayName: `${form.firstName} ${form.lastName}`.trim(),
             });
 
             // Call backend to register user
+            console.log("📡 Registering user in MongoDB...");
             await apiFetch("/api/users/register", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -163,6 +169,7 @@ function CheckoutPage({ selectedCourse }) {
               }),
             });
             currentUser = newUser;
+            console.log("✅ User registered successfully");
           } catch (err) {
             console.error("Signup error:", err);
             let msg = "Account creation failed. ";
@@ -176,6 +183,7 @@ function CheckoutPage({ selectedCourse }) {
             return;
           }
         } else {
+          console.log("🔑 Attempting login...");
           // Login logic
           try {
             const userCredential = await signInWithEmailAndPassword(
@@ -184,8 +192,9 @@ function CheckoutPage({ selectedCourse }) {
               form.password
             );
             currentUser = userCredential.user;
+            console.log("✅ User logged in:", currentUser.uid);
 
-            // Generate and save session (like in LoginForm)
+            // Generate and save session
             const sessionId = Date.now().toString() + Math.random().toString(36).substring(2);
             await apiFetch("/api/auth/session", {
               method: "POST",
@@ -202,20 +211,22 @@ function CheckoutPage({ selectedCourse }) {
         }
       }
 
-      // Attempt upload to Firebase Storage (for persistent storage)
-      // If this fails (e.g. network/CORS), we fallback to sending the file to backend directly
+      // Attempt upload to Firebase Storage
       let screenshotUrl = "";
       if (screenshot) {
+        console.log("📸 Uploading screenshot to Firebase...");
         try {
           const storageRef = ref(storage, `screenshots/${Date.now()}-${screenshot.name}`);
-          await uploadBytes(storageRef, screenshot);
+          const uploadTask = await uploadBytes(storageRef, screenshot);
+          console.log("✅ Screenshot uploaded to bucket");
           screenshotUrl = await getDownloadURL(storageRef);
+          console.log("🔗 Screenshot URL:", screenshotUrl);
         } catch (uploadErr) {
-          console.warn("Firebase upload failed, falling back to server upload:", uploadErr);
-          // Continue execution - backend will receive the file via FormData "screenshot" field
+          console.warn("⚠️ Firebase upload failed, falling back to server upload:", uploadErr);
         }
       }
 
+      console.log("📦 Preparing order data...");
       const fd = new FormData();
       fd.append("uid", currentUser?.uid || "");
       fd.append("firstName", form.firstName);
@@ -225,8 +236,10 @@ function CheckoutPage({ selectedCourse }) {
       fd.append("email", form.email);
       fd.append("notes", form.notes);
       fd.append("screenshotUrl", screenshotUrl);
-      // We still append the file to pass backend validation in the meantime
       fd.append("screenshot", screenshot);
+      
+      // Fix: Append items as JSON string
+      fd.append("items", JSON.stringify(items));
 
       // Append courseId and courseTitle for server compatibility
       if (items.length > 0) {
@@ -237,15 +250,18 @@ function CheckoutPage({ selectedCourse }) {
       // Append amount as string
       fd.append("amount", String(total));
 
-      // This is where you call your API to submit the order
+      console.log("📡 Submitting order to backend...");
       const response = await apiFetch("/api/orders", {
         method: "POST",
-        body: fd, // Send the FormData object
+        body: fd,
       });
 
+      console.log("📥 Backend response received:", response.status);
+      
       // Handle non-200 responses
       if (!response.ok) {
         const text = await response.text();
+        console.error("❌ Order submission failed with status:", response.status, text);
         try {
           const json = JSON.parse(text);
           setServerMsg({ text: json.message || `Server error: ${response.status}`, isError: true });
@@ -257,10 +273,13 @@ function CheckoutPage({ selectedCourse }) {
       }
 
       const res = await response.json();
+      console.log("✅ Order response data:", res);
 
       if (res.success) {
-        setServerMsg({ text: "Order placed successfully! Please check your email/WhatsApp for confirmation.", isError: false });
-        // Optional: Redirect user or clear form
+        setServerMsg({ text: "Order placed successfully! Redirecting to dashboard...", isError: false });
+        
+        // Clear cart and form
+        if (clearCart) clearCart();
         setForm({
             firstName: "",
             lastName: "",
@@ -272,14 +291,18 @@ function CheckoutPage({ selectedCourse }) {
             confirmPassword: "",
         });
         setScreenshot(null);
-        setPreviewUrl(""); // Clear preview
+        setPreviewUrl("");
+
+        // Redirect after a short delay so they can see the message
+        setTimeout(() => {
+          navigate("/student-dashboard");
+        }, 2000);
       } else {
-        // Handle server errors (e.g., res.message)
         setServerMsg({ text: res.message || "Order failed to place. Please try again.", isError: true });
       }
 
     } catch (error) {
-      console.error("Submission error:", error);
+      console.error("🔥 Global submission error:", error);
       setServerMsg({ text: error.message || "An unexpected error occurred. Please check your connection or try again.", isError: true });
     } finally {
       setLoading(false);
