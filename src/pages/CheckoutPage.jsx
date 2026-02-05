@@ -211,19 +211,29 @@ function CheckoutPage({ selectedCourse }) {
         }
       }
 
-      // Attempt upload to Firebase Storage
+      // Upload to Firebase Storage (MANDATORY - no fallback)
       let screenshotUrl = "";
       if (screenshot) {
-        console.log("📸 Uploading screenshot to Firebase...");
+        console.log("📸 Uploading screenshot to Firebase Storage...");
         try {
-          const storageRef = ref(storage, `screenshots/${Date.now()}-${screenshot.name}`);
-          const uploadTask = await uploadBytes(storageRef, screenshot);
-          console.log("✅ Screenshot uploaded to bucket");
+          const storageRef = ref(storage, `payment-screenshots/${Date.now()}-${screenshot.name}`);
+          await uploadBytes(storageRef, screenshot);
+          console.log("✅ Screenshot uploaded to Firebase Storage");
           screenshotUrl = await getDownloadURL(storageRef);
           console.log("🔗 Screenshot URL:", screenshotUrl);
         } catch (uploadErr) {
-          console.warn("⚠️ Firebase upload failed, falling back to server upload:", uploadErr);
+          console.error("❌ Firebase upload failed:", uploadErr);
+          setServerMsg({ text: "Failed to upload screenshot. Please check your connection and try again.", isError: true });
+          setLoading(false);
+          return;
         }
+      }
+
+      // Validate that we have a screenshot URL
+      if (!screenshotUrl) {
+        setServerMsg({ text: "Screenshot upload failed. Please try again.", isError: true });
+        setLoading(false);
+        return;
       }
 
       console.log("📦 Preparing order data...");
@@ -235,8 +245,7 @@ function CheckoutPage({ selectedCourse }) {
       fd.append("phone", form.phone);
       fd.append("email", form.email);
       fd.append("notes", form.notes);
-      fd.append("screenshotUrl", screenshotUrl);
-      fd.append("screenshot", screenshot);
+      fd.append("screenshotUrl", screenshotUrl); // Firebase Storage URL only
       
       // Fix: Append items as JSON string
       fd.append("items", JSON.stringify(items));

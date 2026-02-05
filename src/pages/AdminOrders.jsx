@@ -269,38 +269,10 @@ export default function AdminOrders(){
                     <td className="p-4">
                       {o.paymentScreenshot ? (
                         <button
-                          onClick={async () => {
-                            // Construct proper URL for screenshot
-                            let url = o.paymentScreenshot;
-                            
-                            // Get the current API URL (wait for detection to complete)
-                            const { API_URL_PROMISE } = await import('../config');
-                            let apiUrl = await API_URL_PROMISE;
-
-                            // FORCE LOCALHOST: If we are on localhost, ensure we look at localhost:4001 for images
-                            // This fixes the issue where config might have fallen back to production URL
-                            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                                apiUrl = 'http://localhost:4001';
-                            }
-                            
-                            // If it's already a full URL (http/https), use as is
-                            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                              // If it starts with /uploads, prepend API URL
-                              if (url.startsWith('/uploads')) {
-                                url = `${apiUrl}${url}`;
-                              } else if (url.startsWith('uploads')) {
-                                // Handle case without leading slash
-                                url = `${apiUrl}/${url}`;
-                              } else {
-                                // Fallback: prepend API URL
-                                url = `${apiUrl}/${url}`;
-                              }
-                            }
-                            
-                            console.log('Original path:', o.paymentScreenshot);
-                            console.log('API URL:', apiUrl);
-                            console.log('Constructed Screenshot URL:', url);
-                            setSelectedScreenshot(url);
+                          onClick={() => {
+                            // Directly use the stored URL (Firebase Storage URL)
+                            console.log('Opening Screenshot:', o.paymentScreenshot);
+                            setSelectedScreenshot(o.paymentScreenshot);
                           }}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md text-xs font-medium transition-colors cursor-pointer"
                         >

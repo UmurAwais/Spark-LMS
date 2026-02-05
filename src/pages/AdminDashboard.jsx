@@ -510,30 +510,10 @@ export default function AdminDashboard() {
                       <td className="p-4">
                         {order.paymentScreenshot ? (
                           <button
-                            onClick={async () => {
-                              // Construct proper URL for screenshot
-                              let url = order.paymentScreenshot;
-                              
-                              // Get the current API URL (wait for detection to complete)
-                              const { API_URL_PROMISE } = await import('../config');
-                              const apiUrl = await API_URL_PROMISE;
-                              
-                              // If it's already a full URL (http/https), use as is
-                              if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                                // If it starts with /uploads, prepend API URL
-                                if (url.startsWith('/uploads')) {
-                                  url = `${apiUrl}${url}`;
-                                } else if (url.startsWith('uploads')) {
-                                  // Handle case without leading slash
-                                  url = `${apiUrl}/${url}`;
-                                } else {
-                                  // Fallback: prepend API URL
-                                  url = `${apiUrl}/${url}`;
-                                }
-                              }
-                              
-                              console.log('Constructed Screenshot URL:', url);
-                              setSelectedScreenshot(url);
+                            onClick={() => {
+                              // Directly use the stored URL (Firebase Storage URL)
+                              console.log('Opening Screenshot:', order.paymentScreenshot);
+                              setSelectedScreenshot(order.paymentScreenshot);
                             }}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md text-xs font-medium transition-colors cursor-pointer"
                           >
