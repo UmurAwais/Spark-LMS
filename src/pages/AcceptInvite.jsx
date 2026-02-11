@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Shield, Lock, Eye, EyeOff, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { apiFetch } from "../config";
 
 export default function AcceptInvite() {
   const [searchParams] = useSearchParams();
@@ -28,7 +29,7 @@ export default function AcceptInvite() {
 
   async function verifyToken() {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4001'}/api/admin/roles/verify-token/${token}`);
+      const res = await apiFetch(`/api/admin/roles/verify-token/${token}`);
       const data = await res.json();
 
       if (res.ok && data.ok) {
@@ -61,7 +62,7 @@ export default function AcceptInvite() {
     setSubmitting(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4001'}/api/admin/roles/accept-invite`, {
+      const res = await apiFetch('/api/admin/roles/accept-invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password })
