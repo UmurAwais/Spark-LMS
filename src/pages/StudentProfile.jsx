@@ -95,24 +95,24 @@ export default function StudentProfile() {
     setProfileData(prev => ({ ...prev, photoURL: previewURL }));
     
     try {
-      // 1. Upload to Firebase Storage
-      const storageRef = ref(storage, `profiles/${user.uid}/${Date.now()}-${file.name}`);
-      await uploadBytes(storageRef, file);
-      const fullPhotoURL = await getDownloadURL(storageRef);
-      
-      // 2. Sync with backend
-      const res = await apiFetch('/api/student/update-photo-url', {
+      // 1. Upload to backend (Cloudinary)
+      const formData = new FormData();
+      formData.append('photo', file);
+      formData.append('uid', user.uid);
+
+      const res = await apiFetch('/api/student/upload-photo', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: user.uid, photoURL: fullPhotoURL })
+        body: formData
       });
       
       const data = await res.json();
-      if (!data.ok) console.warn("Backend sync failed, but photo uploaded to Firebase");
+      if (!data.ok) throw new Error(data.message || "Failed to upload to server");
+
+      const fullPhotoURL = data.photoURL;
 
       URL.revokeObjectURL(previewURL);
       
-      // 3. Update Firebase Auth for consistency
+      // 2. Update Firebase Auth for consistency
       try {
         await updateProfile(auth.currentUser, { photoURL: fullPhotoURL });
         await auth.currentUser.reload();
