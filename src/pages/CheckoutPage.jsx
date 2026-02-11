@@ -106,9 +106,16 @@ function CheckoutPage({ selectedCourse }) {
   }
 
   const total = Math.max(0, subtotal + taxAmount - discount);
+  const [loadingMsg, setLoadingMsg] = useState("");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerMsg({ text: "", isError: false });
+
+    if (items.length === 0) {
+      setServerMsg({ text: "Cart is empty. Please add a course before checking out.", isError: true });
+      return;
+    }
 
     if (!screenshot) {
       setServerMsg({ text: "Please upload payment screenshot.", isError: true });
@@ -125,12 +132,15 @@ function CheckoutPage({ selectedCourse }) {
     try {
       console.log("🚀 Starting checkout process...");
       setLoading(true);
+      setLoadingMsg("Initializing...");
 
       let currentUser = user;
 
       // Handle Authentication if not logged in
       if (!currentUser) {
         console.log("👤 User not logged in, handling authentication...");
+        setLoadingMsg(authMode === "signup" ? "Creating account..." : "Logging in...");
+        
         if (authMode === "signup") {
           console.log("📝 Attempting signup...");
           if (form.password !== form.confirmPassword) {
@@ -159,6 +169,7 @@ function CheckoutPage({ selectedCourse }) {
 
             // Call backend to register user
             console.log("📡 Registering user in MongoDB...");
+            setLoadingMsg("Registering profile...");
             await apiFetch("/api/users/register", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -215,6 +226,7 @@ function CheckoutPage({ selectedCourse }) {
       let screenshotUrl = "";
       if (screenshot) {
         console.log("📸 Uploading screenshot to Firebase Storage...");
+        setLoadingMsg("Uploading payment receipt...");
         try {
           const storageRef = ref(storage, `payment-screenshots/${Date.now()}-${screenshot.name}`);
           await uploadBytes(storageRef, screenshot);
@@ -237,6 +249,7 @@ function CheckoutPage({ selectedCourse }) {
       }
 
       console.log("📦 Preparing order data...");
+      setLoadingMsg("Saving order...");
       const fd = new FormData();
       fd.append("uid", currentUser?.uid || "");
       fd.append("firstName", form.firstName);
@@ -250,64 +263,82 @@ function CheckoutPage({ selectedCourse }) {
       // Fix: Append items as JSON string
       fd.append("items", JSON.stringify(items));
 
-      // Append courseId and courseTitle for server compatibility
+      // Append courseId and courseTitle for server compatibility (safely)
       if (items.length > 0) {
-        fd.append("courseId", items[0].id);
-        fd.append("courseTitle", items[0].title);
+        fd.append("courseId", items[0].id || items[0]._id || "");
+        fd.append("courseTitle", items[0].title || "");
       }
       
       // Append amount as string
       fd.append("amount", String(total));
 
       console.log("📡 Submitting order to backend...");
-      const response = await apiFetch("/api/orders", {
-        method: "POST",
-        body: fd,
-      });
-
-      console.log("📥 Backend response received:", response.status);
       
-      // Handle non-200 responses
-      if (!response.ok) {
-        const text = await response.text();
-        console.error("❌ Order submission failed with status:", response.status, text);
-        try {
-          const json = JSON.parse(text);
-          setServerMsg({ text: json.message || `Server error: ${response.status}`, isError: true });
-        } catch (e) {
-          setServerMsg({ text: `Order submission failed: ${response.status}`, isError: true });
-        }
-        setLoading(false);
-        return;
-      }
+      // Add a timeout for the backend request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-      const res = await response.json();
-      console.log("✅ Order response data:", res);
-
-      if (res.success) {
-        setServerMsg({ text: "Order placed successfully! Redirecting to dashboard...", isError: false });
-        
-        // Clear cart and form
-        if (clearCart) clearCart();
-        setForm({
-            firstName: "",
-            lastName: "",
-            city: "",
-            phone: "",
-            email: "",
-            notes: "",
-            password: "",
-            confirmPassword: "",
+      try {
+        const response = await apiFetch("/api/orders", {
+          method: "POST",
+          body: fd,
+          signal: controller.signal
         });
-        setScreenshot(null);
-        setPreviewUrl("");
 
-        // Redirect after a short delay so they can see the message
-        setTimeout(() => {
-          navigate("/student-dashboard");
-        }, 2000);
-      } else {
-        setServerMsg({ text: res.message || "Order failed to place. Please try again.", isError: true });
+        clearTimeout(timeoutId);
+
+        console.log("📥 Backend response received:", response.status);
+        
+        // Handle non-200 responses
+        if (!response.ok) {
+          const text = await response.text();
+          console.error("❌ Order submission failed with status:", response.status, text);
+          try {
+            const json = JSON.parse(text);
+            setServerMsg({ text: json.message || `Server error: ${response.status}`, isError: true });
+          } catch (e) {
+            setServerMsg({ text: `Order submission failed: ${response.status}`, isError: true });
+          }
+          setLoading(false);
+          return;
+        }
+
+        const res = await response.json();
+        console.log("✅ Order response data:", res);
+
+        if (res.success) {
+          setLoadingMsg("Order placed!");
+          setServerMsg({ text: "Order placed successfully! Redirecting to dashboard...", isError: false });
+          
+          // Clear cart and form
+          if (clearCart) clearCart();
+          setForm({
+              firstName: "",
+              lastName: "",
+              city: "",
+              phone: "",
+              email: "",
+              notes: "",
+              password: "",
+              confirmPassword: "",
+          });
+          setScreenshot(null);
+          setPreviewUrl("");
+
+          // Redirect after a short delay so they can see the message
+          setTimeout(() => {
+            navigate("/student-dashboard");
+          }, 2000);
+        } else {
+          setServerMsg({ text: res.message || "Order failed to place. Please try again.", isError: true });
+        }
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          console.error("❌ Request timed out");
+          setServerMsg({ text: "Order submission timed out. The server is taking too long to respond. Please check your dashboard in a few minutes to see if the order was placed.", isError: true });
+        } else {
+          throw err;
+        }
       }
 
     } catch (error) {
@@ -315,6 +346,7 @@ function CheckoutPage({ selectedCourse }) {
       setServerMsg({ text: error.message || "An unexpected error occurred. Please check your connection or try again.", isError: true });
     } finally {
       setLoading(false);
+      setLoadingMsg("");
     }
   };
 
@@ -472,7 +504,15 @@ function CheckoutPage({ selectedCourse }) {
 
             <div>
               <button type="submit" disabled={loading} className="spark-submit-btn cursor-pointer">
-                {loading ? "Processing..." : "Place order"}
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {loadingMsg || "Processing..."}
+                  </span>
+                ) : "Place order"}
               </button>
             </div>
           </div>
