@@ -46,6 +46,8 @@ import OnsiteCourses from "./pages/OnsiteCourses.jsx";
 import AdminGallery from "./pages/AdminGallery.jsx";
 import AdminCoupons from "./pages/AdminCoupons.jsx";
 
+import { Navigate } from "react-router-dom";
+
 const router = createBrowserRouter([
   {
     path: "/admin",
@@ -76,11 +78,14 @@ const router = createBrowserRouter([
     path: "/student",
     element: <StudentProtectedRoute />,
     children: [
+      { index: true, element: <Navigate to="/student/dashboard" replace /> },
       { path: "dashboard", element: <StudentDashboard /> },
       { path: "profile", element: <StudentProfile /> },
       { path: "course/:courseId", element: <StudentCoursePlayer /> },
     ]
   },
+  // Fallback for legacy student dashboard path
+  { path: "/student-dashboard", element: <Navigate to="/student/dashboard" replace /> },
   {
     path: "/",
     element: <App />,

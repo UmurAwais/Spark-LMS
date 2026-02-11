@@ -309,7 +309,7 @@ function CheckoutPage({ selectedCourse }) {
 
           // Redirect after a short delay so they can see the message
           setTimeout(() => {
-            navigate("/student-dashboard");
+            navigate("/student/dashboard");
           }, 2000);
         } else {
           setServerMsg({ text: res.message || "Order failed to place. Please try again.", isError: true });
