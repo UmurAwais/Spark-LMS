@@ -25,6 +25,15 @@ export function useImageUrl(imagePath) {
         return;
       }
 
+      // Special handling for legacy local paths that don't exist on Vercel
+      if (imagePath.startsWith('/uploads/') && !window.location.hostname.includes('localhost')) {
+         // If we are on production but have a local path, it will likely 404.
+         // We can fallback to a placeholder or prefix with local dev URL if available, 
+         // but best is to just show a placeholder until they re-upload.
+         setImageUrl(`https://via.placeholder.com/150?text=Please+Update`);
+         return;
+      }
+
       // Wait for API URL to be resolved
       const apiUrl = await API_URL_PROMISE;
 
