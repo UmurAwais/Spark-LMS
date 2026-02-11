@@ -349,28 +349,38 @@ export default function AdminOrders(){
             {/* Modal Body */}
             <div className="p-6 overflow-auto max-h-[calc(90vh-80px)]">
               <div className="flex items-center justify-center bg-gray-100 rounded-md p-4">
-                <img
-                  src={selectedScreenshot}
-                  alt="Payment Screenshot"
-                  className="max-w-full h-auto rounded-md shadow-lg"
-                  onError={(e) => {
-                    console.error('Failed to load image:', selectedScreenshot);
-                    e.target.style.display = 'none';
-                    e.target.nextElementSibling.style.display = 'block';
-                  }}
-                />
-                <div style={{ display: 'none' }} className="text-center p-8">
-                  <p className="text-red-600 font-semibold mb-2">❌ Failed to load image</p>
-                  <p className="text-sm text-gray-600 mb-4">The screenshot could not be loaded from:</p>
-                  <code className="block bg-gray-200 p-3 rounded text-xs break-all">{selectedScreenshot}</code>
-                  <p className="text-xs text-gray-500 mt-4">Please check if the file exists on the server.</p>
-                </div>
+                {(() => {
+                  const imageUrl = selectedScreenshot.startsWith('http') 
+                    ? selectedScreenshot 
+                    : `${config.apiUrl}${selectedScreenshot}`;
+                  
+                  return (
+                    <>
+                      <img
+                        src={imageUrl}
+                        alt="Payment Screenshot"
+                        className="max-w-full h-auto rounded-md shadow-lg"
+                        onError={(e) => {
+                          console.error('Failed to load image:', imageUrl);
+                          e.target.style.display = 'none';
+                          e.target.nextElementSibling.style.display = 'block';
+                        }}
+                      />
+                      <div style={{ display: 'none' }} className="text-center p-8">
+                        <p className="text-red-600 font-semibold mb-2">❌ Failed to load image</p>
+                        <p className="text-sm text-gray-600 mb-4">The screenshot could not be loaded from:</p>
+                        <code className="block bg-gray-200 p-3 rounded text-xs break-all">{imageUrl}</code>
+                        <p className="text-xs text-gray-500 mt-4">Please check if the file exists on the server.</p>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
               
               {/* Download/Open Link */}
               <div className="mt-4 flex items-center justify-center gap-3">
                 <a
-                  href={selectedScreenshot}
+                  href={selectedScreenshot.startsWith('http') ? selectedScreenshot : `${config.apiUrl}${selectedScreenshot}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white rounded-md font-medium transition-colors cursor-pointer"
@@ -380,7 +390,10 @@ export default function AdminOrders(){
                 </a>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(selectedScreenshot);
+                    const fullUrl = selectedScreenshot.startsWith('http') 
+                      ? selectedScreenshot 
+                      : `${config.apiUrl}${selectedScreenshot}`;
+                    navigator.clipboard.writeText(fullUrl);
                     alert('URL copied to clipboard!');
                   }}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium transition-colors cursor-pointer"

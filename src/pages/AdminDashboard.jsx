@@ -611,20 +611,29 @@ export default function AdminDashboard() {
             {/* Modal Body */}
             <div className="p-6 overflow-auto max-h-[calc(90vh-80px)]">
               <div className="flex items-center justify-center bg-gray-100 rounded-md p-4">
-                <img
-                  src={selectedScreenshot}
-                  alt="Payment Screenshot"
-                  className="max-w-full h-auto rounded-md shadow-lg"
-                  onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
-                  }}
-                />
+                {(() => {
+                  const imageUrl = selectedScreenshot.startsWith('http') 
+                    ? selectedScreenshot 
+                    : `${config.apiUrl}${selectedScreenshot}`;
+                  
+                  return (
+                    <img
+                      src={imageUrl}
+                      alt="Payment Screenshot"
+                      className="max-w-full h-auto rounded-md shadow-lg"
+                      onError={(e) => {
+                        console.error('Failed to load image:', imageUrl);
+                        e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
+                      }}
+                    />
+                  );
+                })()}
               </div>
               
               {/* Download/Open Link */}
               <div className="mt-4 flex items-center justify-center gap-3">
                 <a
-                  href={selectedScreenshot}
+                  href={selectedScreenshot.startsWith('http') ? selectedScreenshot : `${config.apiUrl}${selectedScreenshot}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-[#0d9c06] hover:bg-[#0b7e05] text-white rounded-md font-medium transition-colors cursor-pointer"
