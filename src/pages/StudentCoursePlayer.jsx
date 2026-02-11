@@ -499,7 +499,7 @@ export default function StudentCoursePlayer() {
                   <video
                     src={(() => {
                         let url = currentLecture.videoUrl;
-                        if (url.includes('localhost:4001') || url.includes('localhost:4000') || url.includes('localhost:3000')) {
+                        if (url.includes('/uploads/')) {
                             const path = url.split('/uploads/')[1];
                             if (path) url = `/uploads/${path}`;
                         }
@@ -523,8 +523,8 @@ export default function StudentCoursePlayer() {
                         let url = currentLecture.videoUrl;
                         if (!url) return '';
                         
-                        // Fix legacy localhost URLs
-                        if (url.includes('localhost:4001') || url.includes('localhost:4000') || url.includes('localhost:3000')) {
+                        // Fix legacy local URLs
+                        if (url.includes('/uploads/')) {
                           const path = url.split('/uploads/')[1];
                           if (path) url = `/uploads/${path}`;
                         }

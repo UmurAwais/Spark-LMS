@@ -6,6 +6,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "@/firebaseConfig.js";
+import { apiFetch } from "../config";
 
 import {
   User,
@@ -54,7 +55,7 @@ function RegisterForm() {
 
       // Store reference number in database
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4001'}/api/users/register`, {
+        const response = await apiFetch('/api/users/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
