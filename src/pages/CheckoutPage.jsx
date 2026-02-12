@@ -254,6 +254,11 @@ function CheckoutPage({ selectedCourse }) {
       // Append amount as string
       fd.append("amount", String(total));
 
+      // Append coupon if applied
+      if (appliedCoupon) {
+        fd.append("couponCode", appliedCoupon.code);
+      }
+
       console.log("📡 Submitting order to backend...");
       
       // Add a timeout for the backend request

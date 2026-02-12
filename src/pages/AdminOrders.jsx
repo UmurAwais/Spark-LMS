@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { TrendingUp, DollarSign, ShoppingCart, Users, Calendar, ArrowUpRight, ArrowDownRight, Image, X, CheckCircle, Trash2 } from "lucide-react";
+import { TrendingUp, DollarSign, ShoppingCart, Users, Calendar, ArrowUpRight, ArrowDownRight, Image, X, CheckCircle, Trash2, Filter, Ticket, ShoppingBag } from "lucide-react";
 import { apiFetch, config } from "../config";
 import { AdminTableSkeleton } from "../components/SkeletonLoaders";
 
@@ -15,15 +15,29 @@ export default function AdminOrders(){
     lastMonthOrders: 0,
     courseBreakdown: {}
   });
+  const [filter, setFilter] = useState('all'); // all, coupon, regular
+  const [displayOrders, setDisplayOrders] = useState([]);
   const [selectedScreenshot, setSelectedScreenshot] = useState(null);
 
   const [statusModal, setStatusModal] = useState({ show: false, order: null, newStatus: '' });
 
   useEffect(()=>{
     fetchOrders();
-    const interval = setInterval(fetchOrders, 5000);
+    const interval = setInterval(fetchOrders, 30000); // Poll less frequently
     return () => clearInterval(interval);
   },[]);
+
+  // Update filtered orders and analytics when orders or filter change
+  useEffect(() => {
+    let filtered = [...orders];
+    if (filter === 'coupon') {
+      filtered = filtered.filter(o => o.couponCode);
+    } else if (filter === 'regular') {
+      filtered = filtered.filter(o => !o.couponCode);
+    }
+    setDisplayOrders(filtered);
+    calculateAnalytics(filtered);
+  }, [orders, filter]);
 
   async function fetchOrders(){
     try{
@@ -40,7 +54,7 @@ export default function AdminOrders(){
           return dateB - dateA;
         });
         setOrders(sortedOrders);
-        calculateAnalytics(sortedOrders);
+        // analytics will be updated by the useEffect hook
       }
     }catch(e){
       console.error("Error fetching orders:", e);
@@ -158,12 +172,51 @@ export default function AdminOrders(){
 
   return (
     <AdminLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-          <ShoppingCart className="text-[#0d9c06]" />
-          Orders Analytics
-        </h1>
-        <p className="text-gray-600">Track and analyze your student enrollments and revenue</p>
+      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+            <ShoppingCart className="text-[#0d9c06]" />
+            Orders Management
+          </h1>
+          <p className="text-gray-600">Track and analyze your student enrollments and revenue</p>
+        </div>
+
+        {/* Filter Bar */}
+        <div className="flex bg-white rounded-lg border border-gray-200 p-1 shadow-sm">
+          <button 
+            onClick={() => setFilter('all')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition-all cursor-pointer ${
+              filter === 'all' 
+                ? 'bg-[#0d9c06] text-white shadow-md' 
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            <Filter size={16} />
+            All Orders
+          </button>
+          <button 
+            onClick={() => setFilter('coupon')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition-all cursor-pointer ${
+              filter === 'coupon' 
+                ? 'bg-[#5022C3] text-white shadow-md' 
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            <Ticket size={16} />
+            Coupon Orders
+          </button>
+          <button 
+            onClick={() => setFilter('regular')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition-all cursor-pointer ${
+              filter === 'regular' 
+                ? 'bg-[#1c1d1f] text-white shadow-md' 
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            <ShoppingBag size={16} />
+            Regular Orders
+          </button>
+        </div>
       </div>
 
       {/* Analytics Cards */}
@@ -268,16 +321,17 @@ export default function AdminOrders(){
                 <th className="p-4">Date</th>
                 <th className="p-4">Amount</th>
                 <th className="p-4">Payment SS</th>
+                <th className="p-4">Coupon</th>
                 <th className="p-4">Access</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {orders.length === 0 ? (
+              {displayOrders.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="p-8 text-center text-gray-500">No orders found.</td>
+                  <td colSpan="8" className="p-8 text-center text-gray-500">No {filter !== 'all' ? filter : ''} orders found.</td>
                 </tr>
               ) : (
-                orders.slice(0, 10).map((o) => (
+                displayOrders.map((o) => (
                   <tr key={o._id} className="hover:bg-gray-50 transition-colors">
                     <td className="p-4">
                       <div className="font-medium text-[14px] text-gray-900">{o.firstName} {o.lastName}</div>
@@ -306,6 +360,16 @@ export default function AdminOrders(){
                         </button>
                       ) : (
                         <span className="text-xs text-gray-400">No screenshot</span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      {o.couponCode ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-50 text-purple-700 rounded text-[10px] font-bold border border-purple-100">
+                          <Ticket size={10} />
+                          {o.couponCode}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-gray-400 font-medium">None</span>
                       )}
                     </td>
                     <td className="p-4">
