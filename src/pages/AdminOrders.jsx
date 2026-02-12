@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { TrendingUp, DollarSign, ShoppingCart, Users, Calendar, ArrowUpRight, ArrowDownRight, Image, X, CheckCircle } from "lucide-react";
+import { TrendingUp, DollarSign, ShoppingCart, Users, Calendar, ArrowUpRight, ArrowDownRight, Image, X, CheckCircle, Trash2 } from "lucide-react";
 import { apiFetch, config } from "../config";
 import { AdminTableSkeleton } from "../components/SkeletonLoaders";
 
@@ -75,6 +75,28 @@ export default function AdminOrders(){
     } catch (err) {
       console.error("Error updating status:", err);
       alert("Error updating status");
+    }
+  }
+
+  async function handleDeleteOrder(id) {
+    if (!window.confirm("🗑️ Are you sure you want to delete this order? This action cannot be undone.")) return;
+
+    try {
+      const res = await apiFetch(`/api/admin/orders/${id}`, {
+        method: 'DELETE',
+        headers: { "x-admin-token": localStorage.getItem("admin_token") }
+      });
+      const data = await res.json();
+
+      if (data.ok) {
+        // Refresh orders
+        fetchOrders();
+      } else {
+        alert("Failed to delete order: " + data.message);
+      }
+    } catch (err) {
+      console.error("Error deleting order:", err);
+      alert("Error deleting order");
     }
   }
 
@@ -310,6 +332,14 @@ export default function AdminOrders(){
                             Revoke
                           </button>
                         )}
+
+                        <button
+                          onClick={() => handleDeleteOrder(o._id)}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors cursor-pointer group"
+                          title="Delete Order"
+                        >
+                          <Trash2 size={18} className="group-hover:scale-110 transition-transform" />
+                        </button>
                       </div>
                     </td>
                   </tr>
