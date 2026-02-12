@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import ReactPlayer from 'react-player';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   PlayCircle, 
@@ -158,18 +159,7 @@ export default function StudentCoursePlayer() {
   };
 
   const isSectionLocked = (sectionIndex) => {
-    if (sectionIndex === 0) return false;
-    
-    // Check previous sections
-    for (let i = 0; i < sectionIndex; i++) {
-        const prevSection = course.lectures[i];
-        if (prevSection.quiz && prevSection.quiz.length > 0) {
-            const quizKey = `quiz-${prevSection.id}`;
-            if (!completedLectures[quizKey]) {
-                return true;
-            }
-        }
-    }
+    // Section locking disabled as per user request - return false ALWAYS
     return false;
   };
 
@@ -492,107 +482,72 @@ export default function StudentCoursePlayer() {
           {/* Video Player Container with Padding and Rounded Corners */}
           <div className="w-full bg-white py-6 px-6">
             <div className="max-w-6xl mx-auto aspect-video bg-black rounded-md overflow-hidden shadow-lg">
-              {currentLecture ? (
-                currentLecture.videoUrl && 
-                (currentLecture.videoUrl.endsWith('.mp4') || currentLecture.videoUrl.includes('/uploads/videos/')) && 
-                !currentLecture.videoUrl.includes('drive.google.com') ? (
-                  <video
-                    src={(() => {
-                        let url = currentLecture.videoUrl;
-                        if (url.includes('/uploads/')) {
-                            const path = url.split('/uploads/')[1];
-                            if (path) url = `/uploads/${path}`;
-                        }
-                        return url.startsWith('http') ? url : `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
-                    })()}
-                    className="w-full h-full"
-                    controls
-                    autoPlay
-                    onEnded={() => {
-                        if (!completedLectures[currentLecture.id]) {
-                            handleMarkComplete();
-                        }
-                    }}
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-                ) : (
-                  <div className="relative w-full h-full flex flex-col bg-black">
-                    <iframe 
+              {currentLecture && currentLecture.videoUrl ? (
+                <div key={currentLecture.id} className="relative w-full h-full bg-black group">
+                  {currentLecture.videoUrl.includes('google.com') ? (
+                    /* Native Iframe for Google Drive - More stable than ReactPlayer for GDrive specifically */
+                    <iframe
                       src={(() => {
-                        let url = currentLecture.videoUrl;
-                        if (!url) return '';
-                        
-                        // Fix legacy local URLs
-                        if (url.includes('/uploads/')) {
-                          const path = url.split('/uploads/')[1];
-                          if (path) url = `/uploads/${path}`;
+                        const url = currentLecture.videoUrl;
+                        let fileId = '';
+                        const patterns = [/\/d\/([a-zA-Z0-9_-]+)/, /[?&]id=([a-zA-Z0-9_-]+)/, /\/file\/d\/([a-zA-Z0-9_-]+)/];
+                        for (let pattern of patterns) {
+                          const match = url.match(pattern);
+                          if (match && match[1]) { fileId = match[1]; break; }
                         }
-                        
-                        // Handle YouTube
-                        if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                          let videoId = '';
-                          if (url.includes('youtube.com/watch')) {
-                            const urlParams = new URLSearchParams(new URL(url).search);
-                            videoId = urlParams.get('v');
-                          } else if (url.includes('youtu.be/')) {
-                            videoId = url.split('youtu.be/')[1].split('?')[0];
-                          } else if (url.includes('youtube.com/embed/')) {
-                            videoId = url.split('youtube.com/embed/')[1].split('?')[0];
-                          } else if (url.includes('youtube.com/shorts/')) {
-                            videoId = url.split('youtube.com/shorts/')[1].split('?')[0];
-                          }
-                          if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-                        }
-                        
-                        // Handle Vimeo
-                        if (url.includes('vimeo.com')) {
-                          const vimeoIdMatch = url.match(/vimeo\.com\/(?:video\/|)(\d+)/);
-                          if (vimeoIdMatch && vimeoIdMatch[1]) return `https://player.vimeo.com/video/${vimeoIdMatch[1]}?autoplay=1`;
-                        }
-                        
-                        // Handle Google Drive
-                        if (url.includes('google.com')) {
-                          let fileId = '';
-                          const patterns = [
-                            /\/d\/([a-zA-Z0-9_-]+)/,
-                            /[?&]id=([a-zA-Z0-9_-]+)/,
-                            /\/file\/d\/([a-zA-Z0-9_-]+)/,
-                            /file\/d\/([a-zA-Z0-9_-]+)/
-                          ];
-                          
-                          for (let pattern of patterns) {
-                            const match = url.match(pattern);
-                            if (match && match[1]) {
-                              fileId = match[1];
-                              break;
-                            }
-                          }
-                          
-                          if (fileId) {
-                            // Using standard preview but with explicit embedded flag
-                            return `https://drive.google.com/file/d/${fileId}/preview?embedded=true`;
-                          }
-                        }
-                        
-                        return url.startsWith('http') ? url : `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
-                      })()} 
-                      title={currentLecture.title}
+                        return fileId ? `https://drive.google.com/file/d/${fileId}/preview?usp=sharing` : url;
+                      })()}
                       className="w-full h-full border-0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allow="autoplay; fullscreen; picture-in-picture; encrypted-media;"
                       allowFullScreen
-                    ></iframe>
-                    
-                    {/* Guidance Overlay for Drive Videos */}
-                    {currentLecture.videoUrl.includes('google.com') && (
-                      <div className="absolute bottom-4 right-4 z-10 opacity-0 hover:opacity-100 transition-opacity">
-                        <div className="bg-black/80 text-white text-[10px] px-2 py-1 rounded border border-white/20">
-                          Video not loading? Click "Open in new window" below.
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
+                      title={currentLecture.title}
+                    />
+                  ) : (
+                    /* ReactPlayer for YouTube, Vimeo, and Local Files */
+                    <ReactPlayer
+                      url={(() => {
+                          let url = currentLecture.videoUrl;
+                          if (!url) return '';
+                          
+                          // Handle local uploads with safety check
+                          if (url.includes('/uploads/')) {
+                              const path = url.split('/uploads/')[1];
+                              const safeApiUrl = API_URL || '';
+                              const base = safeApiUrl.endsWith('/') ? safeApiUrl.slice(0, -1) : safeApiUrl;
+                              return `${base}/uploads/${path}`;
+                          }
+                          
+                          return url;
+                      })()}
+                      width="100%"
+                      height="100%"
+                      controls
+                      playing={true}
+                      onEnded={() => {
+                          if (!completedLectures[currentLecture.id]) {
+                              handleMarkComplete();
+                          }
+                      }}
+                      config={{
+                        file: {
+                          attributes: {
+                            controlsList: 'nodownload',
+                            playsInline: true
+                          }
+                        }
+                      }}
+                    />
+                  )}
+
+                  {/* Troubleshooting Overlay for Drive */}
+                  {currentLecture.videoUrl.includes('google.com') && (
+                    <div className="absolute top-4 right-4 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                       <p className="text-white text-[10px] bg-black/60 px-2 py-1 rounded border border-white/20">
+                        Drive Viewer Mode
+                       </p>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 p-8">
                   <p className="text-lg mb-2">Select a lecture to start watching</p>
