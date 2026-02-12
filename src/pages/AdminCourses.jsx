@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { Plus, X, Loader, Trash2, Check, Star, FileVideo, FileImage, FileText, Search, BookOpen, Edit, Save, ChevronDown, ChevronUp, PlayCircle, Layers, CheckCircle, AlertTriangle, HelpCircle, GripVertical } from "lucide-react";
+import { Plus, X, Loader, Trash2, Check, Star, FileVideo, FileImage, FileText, Search, BookOpen, Edit, Save, ChevronDown, ChevronUp, PlayCircle, Layers, CheckCircle, AlertTriangle, HelpCircle } from "lucide-react";
 import { initialCourses } from "../data/initialCourses";
 import { onlineCourses as initialOnlineCourses } from "../data/onlineCourses";
 import { apiFetch, config } from "../config";
@@ -230,74 +230,6 @@ export default function AdminCourses() {
     }));
   }
 
-  // Drag and Drop State & Handlers
-  const [draggedItem, setDraggedItem] = useState(null);
-
-  function handleDragStart(e, type, index, sectionIndex = null) {
-    e.stopPropagation();
-    // For Firefox, dataTransfer.setData is required
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', JSON.stringify({ type, index, sectionIndex }));
-    
-    setDraggedItem({ type, index, sectionIndex });
-  }
-
-  function handleDragOver(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  }
-
-  function handleDrop(e, type, targetIndex, targetSectionIndex = null) {
-    e.preventDefault();
-    if (!draggedItem) return;
-
-    // Reorder Sections
-    if (draggedItem.type === 'section' && type === 'section') {
-       if (draggedItem.index === targetIndex) return;
-       
-       const newSections = [...curriculumSections];
-       const [moved] = newSections.splice(draggedItem.index, 1);
-       newSections.splice(targetIndex, 0, moved);
-       setCurriculumSections(newSections);
-    }
-
-    // Reorder Lectures
-    if (draggedItem.type === 'lecture' && type === 'lecture') {
-       // Allow moving between sections or within same section
-       // Scenario 1: Same Section
-       if (draggedItem.sectionIndex === targetSectionIndex) {
-         if (draggedItem.index === targetIndex) return;
-         
-         const newSections = [...curriculumSections];
-         const section = newSections[draggedItem.sectionIndex];
-         const newLectures = [...section.lectures];
-         
-         const [moved] = newLectures.splice(draggedItem.index, 1);
-         newLectures.splice(targetIndex, 0, moved);
-         
-         newSections[draggedItem.sectionIndex] = { ...section, lectures: newLectures };
-         setCurriculumSections(newSections);
-       } 
-       // Scenario 2: Different Section (Advanced, optional but good)
-       else {
-         const newSections = [...curriculumSections];
-         const sourceSection = newSections[draggedItem.sectionIndex];
-         const targetSection = newSections[targetSectionIndex];
-         
-         const sourceLectures = [...sourceSection.lectures];
-         const targetLectures = [...targetSection.lectures];
-         
-         const [moved] = sourceLectures.splice(draggedItem.index, 1);
-         targetLectures.splice(targetIndex, 0, moved);
-         
-         newSections[draggedItem.sectionIndex] = { ...sourceSection, lectures: sourceLectures };
-         newSections[targetSectionIndex] = { ...targetSection, lectures: targetLectures };
-         setCurriculumSections(newSections);
-       }
-    }
-    
-    setDraggedItem(null);
-  }
 
   async function saveCurriculum() {
     try {
@@ -1434,18 +1366,10 @@ export default function AdminCourses() {
                   {curriculumSections.map((section, sIdx) => (
                     <div 
                       key={section.id} 
-                      className={`bg-white border border-gray-200 rounded-md overflow-hidden transition-all ${draggedItem?.type === 'section' && draggedItem?.index === sIdx ? 'opacity-50 ring-2 ring-[#0d9c06] border-[#0d9c06]' : ''}`}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, 'section', sIdx)}
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, 'section', sIdx)}
-                      onDragEnd={() => setDraggedItem(null)}
+                      className="bg-white border border-gray-200 rounded-md overflow-hidden transition-all"
                     >
                       <div className="bg-gray-100 p-4 border-b border-gray-200">
                         <div className="flex items-start justify-between gap-2">
-                          <div className="mt-8 text-gray-400 cursor-move hover:text-gray-600" title="Drag to reorder section">
-                             <GripVertical size={20} />
-                          </div>
                           <div className="flex-1">
                              <label className="block text-xs font-semibold text-gray-700 mb-1">Section Name</label>
                              <input
@@ -1465,19 +1389,19 @@ export default function AdminCourses() {
                               <Trash2 size={18} />
                             </button>
                           </div>
-                          <div className="mt-4 pt-3 border-t border-gray-200 flex justify-end">
-                            <button
-                              onClick={() => openQuizModal(section.id)}
-                              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
-                                section.quiz && section.quiz.length > 0 
-                                  ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' 
-                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                              }`}
-                            >
-                              <HelpCircle size={14} />
-                              {section.quiz && section.quiz.length > 0 ? `Edit Quiz (${section.quiz.length})` : 'Add Quiz'}
-                            </button>
-                          </div>
+                        </div>
+                        <div className="mt-4 pt-3 border-t border-gray-200 flex justify-end">
+                          <button
+                            onClick={() => openQuizModal(section.id)}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                              section.quiz && section.quiz.length > 0 
+                                ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' 
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                          >
+                            <HelpCircle size={14} />
+                            {section.quiz && section.quiz.length > 0 ? `Edit Quiz (${section.quiz.length})` : 'Add Quiz'}
+                          </button>
                         </div>
                       </div>
                       
@@ -1485,21 +1409,13 @@ export default function AdminCourses() {
                         {section.lectures.map((lecture, lIdx) => (
                           <div 
                             key={lecture.id} 
-                            className={`bg-white border border-gray-200 rounded-md overflow-hidden group hover:border-gray-300 transition-colors ${draggedItem?.type === 'lecture' && draggedItem?.index === lIdx && draggedItem?.sectionIndex === sIdx ? 'opacity-50 ring-2 ring-[#0d9c06]' : ''}`}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, 'lecture', lIdx, sIdx)}
-                            onDragOver={handleDragOver}
-                            onDrop={(e) => handleDrop(e, 'lecture', lIdx, sIdx)}
-                            onDragEnd={() => setDraggedItem(null)}
+                            className="bg-white border border-gray-200 rounded-md overflow-hidden group hover:border-gray-300 transition-colors"
                           >
                             {/* Lecture Header / Summary */}
                             <div className="flex items-center gap-3 p-3 bg-white cursor-pointer hover:bg-gray-50" onClick={() => {
                                 const el = document.getElementById(`lecture-content-${lecture.id}`);
                                 if (el) el.classList.toggle('hidden');
                             }}>
-                              <div className="text-gray-300 group-hover:text-gray-600 cursor-move" title="Drag to reorder lecture" onClick={(e) => e.stopPropagation()}>
-                                <GripVertical size={16} />
-                              </div>
                               <div className="text-gray-400 group-hover:text-gray-600">
                                 <PlayCircle size={16} />
                               </div>
@@ -1858,6 +1774,7 @@ export default function AdminCourses() {
              </div>
           </div>
         )}
+
         
         {/* Success Modal */}
         {showSuccessModal && (
