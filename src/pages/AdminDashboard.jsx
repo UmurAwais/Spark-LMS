@@ -89,7 +89,9 @@ export default function AdminDashboard() {
               amount = parseInt(cleanAmount) || 0;
             }
             
-            totalRevenue += amount;
+            if (order.status === 'Approved') {
+              totalRevenue += amount;
+            }
             
             if (order.email) uniqueStudents.add(order.email);
 
@@ -239,7 +241,7 @@ export default function AdminDashboard() {
     // Fill with data
     orders.forEach(order => {
         const orderDate = new Date(order.createdAt);
-        if (!isNaN(orderDate.getTime()) && orderDate >= startDate && orderDate <= now) {
+        if (!isNaN(orderDate.getTime()) && orderDate >= startDate && orderDate <= now && order.status === 'Approved') {
             const dateKey = orderDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
              // Parse amount
             let amount = 0;

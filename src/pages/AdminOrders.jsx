@@ -93,7 +93,10 @@ export default function AdminOrders(){
       // Calculate revenue (extract number from amount string like "Rs. 13,000")
       const amountStr = String(order.amount || "0");
       const numericAmount = parseInt(amountStr.replace(/[^0-9]/g, '')) || 0;
-      totalRevenue += numericAmount;
+      
+      if (order.status === 'Approved') {
+        totalRevenue += numericAmount;
+      }
 
       // Count pending orders
       if (order.status === 'Pending' || !order.status) {
