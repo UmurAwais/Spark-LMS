@@ -13,7 +13,8 @@ import {
   LayoutDashboard,
   ChevronDown,
   Image,
-  X
+  X,
+  Trash2
 } from "lucide-react";
 import { 
   AreaChart, 
@@ -46,93 +47,110 @@ export default function AdminDashboard() {
   const [showProTip, setShowProTip] = useState(true);
   const [selectedScreenshot, setSelectedScreenshot] = useState(null);
 
-  useEffect(() => {
-    async function fetchMetrics() {
+  const fetchMetrics = async () => {
+    try {
+      const res = await apiFetch('/api/orders', {
+        headers: { "x-admin-token": localStorage.getItem("admin_token") }
+      });
+      const data = await res.json();
+
+      // Fetch courses count
+      let courseCount = 0;
       try {
-        const res = await apiFetch('/api/orders', {
-          headers: { "x-admin-token": localStorage.getItem("admin_token") }
-        });
-        const data = await res.json();
-
-        // Fetch courses count
-        let courseCount = 0;
-        try {
-          const courseRes = await apiFetch('/api/courses');
-          const courseData = await courseRes.json();
-          if (Array.isArray(courseData)) {
-            courseCount = courseData.length;
-          } else if (courseData.courses && Array.isArray(courseData.courses)) {
-            courseCount = courseData.courses.length;
-          }
-        } catch (e) {
-          console.error("Error fetching courses:", e);
-        }
-        
-        if (data.ok && data.orders) {
-          setAllOrders(data.orders);
-          
-          let totalRevenue = 0;
-          let uniqueStudents = new Set();
-          const now = new Date();
-          const currentMonth = now.getMonth();
-          const currentYear = now.getFullYear();
-          let thisMonthCount = 0;
-          let lastMonthCount = 0;
-          
-          data.orders.forEach((order) => {
-            // Robust amount parsing
-            let amount = 0;
-            if (order.amount) {
-              const amountStr = String(order.amount);
-              // Remove non-numeric chars except decimal point if needed (though we use integers here)
-              const cleanAmount = amountStr.replace(/[^0-9]/g, '');
-              amount = parseInt(cleanAmount) || 0;
-            }
-            
-            if (order.status === 'Approved') {
-              totalRevenue += amount;
-            }
-            
-            if (order.email) uniqueStudents.add(order.email);
-
-            // Count orders by month
-            const orderDate = new Date(order.createdAt);
-            if (!isNaN(orderDate.getTime())) {
-              if (orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear) {
-                thisMonthCount++;
-              }
-              if (orderDate.getMonth() === currentMonth - 1 && orderDate.getFullYear() === currentYear) {
-                lastMonthCount++;
-              }
-            }
-          });
-
-          setMetrics({
-            revenue: totalRevenue,
-            students: uniqueStudents.size,
-            courses: courseCount, 
-            orders: data.orders.length,
-            thisMonth: thisMonthCount,
-            lastMonth: lastMonthCount
-          });
-
-          // Get recent 5 orders
-          const sortedOrders = [...data.orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-          setRecentOrders(sortedOrders.slice(0, 5));
+        const courseRes = await apiFetch('/api/courses');
+        const courseData = await courseRes.json();
+        if (Array.isArray(courseData)) {
+          courseCount = courseData.length;
+        } else if (courseData.courses && Array.isArray(courseData.courses)) {
+          courseCount = courseData.courses.length;
         }
       } catch (e) {
-        console.error("Error fetching metrics:", e);
+        console.error("Error fetching courses:", e);
       }
+      
+      if (data.ok && data.orders) {
+        setAllOrders(data.orders);
+        
+        let totalRevenue = 0;
+        let uniqueStudents = new Set();
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        let thisMonthCount = 0;
+        let lastMonthCount = 0;
+        
+        data.orders.forEach((order) => {
+          // Robust amount parsing
+          let amount = 0;
+          if (order.amount) {
+            const amountStr = String(order.amount);
+            // Remove non-numeric chars except decimal point if needed (though we use integers here)
+            const cleanAmount = amountStr.replace(/[^0-9]/g, '');
+            amount = parseInt(cleanAmount) || 0;
+          }
+          
+          if (order.status === 'Approved') {
+            totalRevenue += amount;
+          }
+          
+          if (order.email) uniqueStudents.add(order.email);
+
+          // Count orders by month
+          const orderDate = new Date(order.createdAt);
+          if (!isNaN(orderDate.getTime())) {
+            if (orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear) {
+              thisMonthCount++;
+            }
+            if (orderDate.getMonth() === currentMonth - 1 && orderDate.getFullYear() === currentYear) {
+              lastMonthCount++;
+            }
+          }
+        });
+
+        setMetrics({
+          revenue: totalRevenue,
+          students: uniqueStudents.size,
+          courses: courseCount, 
+          orders: data.orders.length,
+          thisMonth: thisMonthCount,
+          lastMonth: lastMonthCount
+        });
+
+        // Get recent 5 orders
+        const sortedOrders = [...data.orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setRecentOrders(sortedOrders.slice(0, 5));
+      }
+    } catch (e) {
+      console.error("Error fetching metrics:", e);
     }
-    
-    // Initial fetch
+  };
+
+  useEffect(() => {
     fetchMetrics();
-
-    // Poll every 5 seconds
     const intervalId = setInterval(fetchMetrics, 5000);
-
     return () => clearInterval(intervalId);
   }, []);
+
+  async function handleDeleteOrder(id) {
+    if (!window.confirm("🗑️ Are you sure you want to delete this order?")) return;
+
+    try {
+      const res = await apiFetch(`/api/admin/orders/${id}`, {
+        method: 'DELETE',
+        headers: { "x-admin-token": localStorage.getItem("admin_token") }
+      });
+      const data = await res.json();
+
+      if (data.ok) {
+        fetchMetrics();
+      } else {
+        alert("Failed to delete order: " + data.message);
+      }
+    } catch (err) {
+      console.error("Error deleting order:", err);
+      alert("Error deleting order");
+    }
+  }
 
   // Update chart data when timeRange or allOrders changes
   useEffect(() => {
@@ -492,6 +510,7 @@ export default function AdminDashboard() {
                     <th className="p-4 text-left">Amount</th>
                     <th className="p-4 text-left">Payment SS</th>
                     <th className="p-4 text-left">Date</th>
+                    <th className="p-4 text-left">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -528,6 +547,15 @@ export default function AdminDashboard() {
                       </td>
                       <td className="p-4 text-sm text-gray-600">
                         {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
+                      </td>
+                      <td className="p-4">
+                        <button
+                          onClick={() => handleDeleteOrder(order._id || order.id)}
+                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors cursor-pointer group"
+                          title="Delete Order"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </td>
                     </tr>
                   ))}
