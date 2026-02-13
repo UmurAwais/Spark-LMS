@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield, Volume2, VolumeX, Image as ImageIcon, Ticket } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield, Volume2, VolumeX, Image as ImageIcon, Ticket, CheckCircle, Trash2, ArrowRight } from 'lucide-react';
 import Logo from '../assets/Spark.png';
 import { apiFetch, config } from '../config';
 import { useNotifications } from '../context/NotificationContext';
@@ -283,7 +283,7 @@ export default function AdminLayout({ children }) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-10">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-50">
           <div className="flex items-center gap-4 flex-1">
              <h2 className="text-xl font-semibold text-gray-800">
                {getPageTitle(location.pathname)}
@@ -306,59 +306,111 @@ export default function AdminLayout({ children }) {
             <div className="relative" ref={notifRef}>
               <button 
                 onClick={handleNotificationClick}
-                className="text-gray-600 hover:text-[#0d9c06] hover:bg-[#daffd8] py-2 px-2 rounded-md transition-all ease-in-out duration-300 hover:py-2 hover:px-2 cursor-pointer relative"
+                className="text-gray-600 hover:text-[#0d9c06] hover:bg-[#daffd8] py-2 px-2 rounded-md transition-all ease-in-out duration-300 hover:py-2 hover:px-2 cursor-pointer relative group"
               >
-                <Bell size={20} />
+                <Bell size={20} className="group-hover:rotate-12 transition-transform duration-300" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-2 right-2 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white transform translate-x-1/2 -translate-y-1/2"></span>
+                  <span className="absolute top-2 right-2 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white transform translate-x-1/2 -translate-y-1/2 animate-pulse"></span>
                 )}
               </button>
 
               {/* Notification Dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 overflow-hidden z-50">
-                  <div className="p-3 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                    <h3 className="font-semibold text-gray-700">Notifications</h3>
+                <div className="absolute right-0 mt-3 w-[400px] bg-white/90 backdrop-blur-2xl rounded-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] border border-white/50 ring-1 ring-black/5 overflow-hidden z-[100] transform transition-all origin-top-right animate-in fade-in zoom-in-95 duration-200">
+                  {/* Dropdown Header */}
+                  <div className="p-4 border-b border-gray-100/50 flex items-center justify-between bg-linear-to-b from-gray-50/80 to-transparent">
+                    <div className="flex items-center gap-3">
+                       <h3 className="font-bold text-gray-800 tracking-tight">Notifications</h3>
+                       {unreadCount > 0 && (
+                         <div className="flex items-center gap-1.5 bg-[#0d9c06]/10 text-[#0d9c06] px-2.5 py-0.5 rounded-full ring-1 ring-[#0d9c06]/20">
+                           <span className="relative flex h-2 w-2">
+                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0d9c06] opacity-75"></span>
+                             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0d9c06]"></span>
+                           </span>
+                           <span className="text-[11px] font-bold uppercase tracking-wider">{unreadCount} New</span>
+                         </div>
+                       )}
+                    </div>
                     {notifications.length > 0 && (
-                      <button onClick={clearAll} className="text-xs text-red-500 hover:text-red-700 font-medium cursor-pointer">
+                      <button 
+                        onClick={clearAll} 
+                        className="text-xs text-gray-400 hover:text-red-500 flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-red-50 transition-all font-medium cursor-pointer"
+                      >
+                        <Trash2 size={12} />
                         Clear All
                       </button>
                     )}
                   </div>
-                  <div className="max-h-96 overflow-y-auto">
+                  
+                  {/* Notifications List */}
+                  <div className="max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent hover:scrollbar-thumb-gray-300 scroll-smooth">
                     {notifications.length === 0 ? (
-                      <div className="p-8 text-center text-gray-500 text-sm">
-                        No notifications
+                      <div className="flex flex-col items-center justify-center py-16 text-center text-gray-500">
+                        <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 ring-8 ring-gray-50/50">
+                           <CheckCircle size={28} className="text-gray-300" />
+                        </div>
+                        <p className="text-base font-semibold text-gray-900">All caught up!</p>
+                        <p className="text-xs text-gray-500 mt-1">No new notifications to show.</p>
                       </div>
                     ) : (
-                      notifications.map(notif => (
-                        <div 
-                          key={notif.id} 
-                          onClick={() => {
-                            if (notif.link) {
-                              navigate(notif.link);
-                              setShowNotifications(false);
-                            }
-                          }}
-                          className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer ${!notif.read ? 'bg-blue-50/50' : ''}`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${
-                              notif.type === 'order' ? 'bg-green-500' : 
-                              notif.type === 'error' ? 'bg-red-500' : 
-                              'bg-blue-500'
-                            }`} />
-                            <div>
-                              <p className="text-sm font-semibold text-gray-800">{notif.title}</p>
-                              <p className="text-xs text-gray-600 mt-1">{notif.message}</p>
-                              <p className="text-[10px] text-gray-400 mt-2">
-                                {new Date(notif.time).toLocaleTimeString()} • {new Date(notif.time).toLocaleDateString()}
+                      <div className="divide-y divide-gray-50">
+                        {notifications.map(notif => (
+                          <div 
+                            key={notif.id} 
+                            onClick={() => {
+                              if (notif.link) {
+                                navigate(notif.link);
+                                setShowNotifications(false);
+                              }
+                            }}
+                            className={`p-4 hover:bg-gray-50/80 transition-all duration-200 cursor-pointer group relative flex gap-4 ${!notif.read ? 'bg-blue-50/40' : 'bg-transparent'}`}
+                          >
+                            {!notif.read && (
+                               <div className="absolute left-0 top-3 bottom-3 w-1 bg-[#0d9c06] rounded-r-md shadow-[0_0_10px_rgba(13,156,6,0.3)]" />
+                            )}
+                            
+                            {/* Icon Container */}
+                            <div className={`mt-1 h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-white/50 ${
+                                notif.type === 'order' ? 'bg-linear-to-br from-green-100 to-green-50 text-green-600 ring-1 ring-green-100' : 
+                                notif.type === 'error' ? 'bg-linear-to-br from-red-100 to-red-50 text-red-600 ring-1 ring-red-100' : 
+                                'bg-linear-to-br from-blue-100 to-blue-50 text-blue-600 ring-1 ring-blue-100'
+                              }`}>
+                                {notif.type === 'order' ? <ShoppingCart size={18} className="drop-shadow-sm" /> : 
+                                 notif.type === 'error' ? <Shield size={18} className="drop-shadow-sm" /> : 
+                                 <Activity size={18} className="drop-shadow-sm" />}
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0 pt-0.5 group-hover:translate-x-1 transition-transform duration-300">
+                              <p className={`text-sm font-semibold tracking-tight ${!notif.read ? 'text-gray-900' : 'text-gray-700'} truncate group-hover:text-[#0d9c06] transition-colors`}>
+                                {notif.title}
                               </p>
+                              <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
+                                {notif.message}
+                              </p>
+                              <div className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mt-2.5 flex items-center gap-2">
+                                <span>{new Date(notif.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                <span className="h-1 w-1 rounded-full bg-gray-300"></span>
+                                <span>{new Date(notif.time).toLocaleDateString()}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))
+                        ))}
+                      </div>
                     )}
+                  </div>
+                  
+                  {/* Dropdown Footer (Optional actions) */}
+                  <div className="p-2 border-t border-gray-100/50 bg-gray-50/30 text-center">
+                    <button 
+                      onClick={() => {
+                        navigate('/admin/activity');
+                        setShowNotifications(false);
+                      }}
+                      className="text-xs font-semibold text-gray-500 hover:text-[#0d9c06] transition-colors w-full py-1 cursor-pointer flex items-center justify-center gap-1"
+                    >
+                      View All Activity <ArrowRight size={12} />
+                    </button>
                   </div>
                 </div>
               )}
