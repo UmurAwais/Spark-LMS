@@ -1,8 +1,90 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { TrendingUp, DollarSign, ShoppingCart, Users, Calendar, ArrowUpRight, ArrowDownRight, Image, X, CheckCircle, Trash2, Filter, Ticket, ShoppingBag } from "lucide-react";
+import { 
+  TrendingUp, 
+  DollarSign, 
+  ShoppingCart, 
+  Users, 
+  Calendar, 
+  ArrowUpRight, 
+  ArrowDownRight, 
+  Image, 
+  X, 
+  CheckCircle, 
+  Trash2, 
+  Filter, 
+  Ticket, 
+  ShoppingBag 
+} from "lucide-react";
+import { 
+  AreaChart, 
+  Area, 
+  ResponsiveContainer 
+} from 'recharts';
 import { apiFetch, config } from "../config";
 import { AdminTableSkeleton } from "../components/SkeletonLoaders";
+
+const MetricCard = ({ title, value, label, icon, color, growth, data }) => {
+  const colors = {
+    green: { bg: "bg-emerald-50/50", icon: "bg-emerald-500", text: "text-emerald-700", border: "border-emerald-100", chart: "#10b981" },
+    blue: { bg: "bg-blue-50/50", icon: "bg-blue-500", text: "text-blue-700", border: "border-blue-100", chart: "#3b82f6" },
+    amber: { bg: "bg-amber-50/50", icon: "bg-amber-500", text: "text-amber-700", border: "border-amber-100", chart: "#f59e0b" },
+    indigo: { bg: "bg-indigo-50/50", icon: "bg-indigo-500", text: "text-indigo-700", border: "border-indigo-100", chart: "#6366f1" }
+  };
+
+  const theme = colors[color] || colors.green;
+
+  return (
+    <div className="relative group bg-white p-6 rounded-md border border-gray-100 shadow-xs hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 overflow-hidden font-sora">
+      {/* Decorative Gradient Glow */}
+      <div className={`absolute -right-10 -top-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 ${theme.icon}`}></div>
+      
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-6">
+          <div className={`w-12 h-12 rounded-2xl ${theme.icon} text-white flex items-center justify-center shadow-lg shadow-gray-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+            {icon}
+          </div>
+          {growth !== undefined && (
+            <div className={`flex items-center gap-1.5 text-[11px] font-black py-1 px-3 rounded-full border ${growth >= 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+              <TrendingUp size={12} className={growth < 0 ? "rotate-180" : ""} />
+              <span>{Math.abs(growth)}%</span>
+            </div>
+          )}
+        </div>
+        
+        <div className="space-y-1">
+          <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest">{title}</h3>
+          <div className="flex items-baseline gap-2">
+            <p className="text-3xl font-black text-gray-900 tracking-tighter">{value}</p>
+          </div>
+          <p className="text-xs text-gray-500 font-bold tracking-tight opacity-70">{label}</p>
+        </div>
+
+        {/* Activity Sparkline */}
+        <div className="h-10 mt-6 w-full opacity-40 group-hover:opacity-100 transition-opacity duration-500">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data || [{v:10}, {v:15}, {v:12}, {v:18}, {v:14}, {v:22}, {v:20}]}>
+              <defs>
+                <linearGradient id={`sparkChart-${color}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={theme.chart} stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor={theme.chart} stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <Area 
+                type="monotone" 
+                dataKey={data ? "amount" : "v"} 
+                stroke={theme.chart} 
+                strokeWidth={2} 
+                fill={`url(#sparkChart-${color})`} 
+                isAnimationActive={true}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function AdminOrders(){
   const [orders, setOrders] = useState([]);
@@ -221,62 +303,39 @@ export default function AdminOrders(){
 
       {/* Analytics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Total Orders */}
-        <div className="bg-linear-to-br from-[#0d9c06] to-[#0b7e05] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
-              <ShoppingCart size={24} />
-            </div>
-            <TrendingUp size={20} className="opacity-80" />
-          </div>
-          <h3 className="text-sm font-medium opacity-90 mb-1">Total Orders</h3>
-          <p className="text-3xl font-bold">{analytics.totalOrders}</p>
-          <p className="text-xs mt-2 opacity-80">All time enrollments</p>
-        </div>
-
-        {/* Total Revenue */}
-        <div className="bg-linear-to-br from-[#5022C3] to-[#3d1a99] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
-              <DollarSign size={24} />
-            </div>
-            <TrendingUp size={20} className="opacity-80" />
-          </div>
-          <h3 className="text-sm font-medium opacity-90 mb-1">Total Revenue</h3>
-          <p className="text-3xl font-bold">Rs. {analytics.totalRevenue.toLocaleString()}</p>
-          <p className="text-xs mt-2 opacity-80">Total earnings</p>
-        </div>
-
-        {/* Pending Orders */}
-        <div className="bg-linear-to-br from-[#f4c150] to-[#d4a840] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
-              <Calendar size={24} />
-            </div>
-          </div>
-          <h3 className="text-sm font-medium opacity-90 mb-1">Pending Orders</h3>
-          <p className="text-3xl font-bold">{analytics.pendingOrders}</p>
-          <p className="text-xs mt-2 opacity-80">Needs approval</p>
-        </div>
-
-        {/* This Month */}
-        <div className="bg-linear-to-br from-[#1c1d1f] to-[#2d2e30] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
-              <Users size={24} />
-            </div>
-            {growthRate >= 0 ? (
-              <ArrowUpRight size={20} className="text-green-400" />
-            ) : (
-              <ArrowDownRight size={20} className="text-red-400" />
-            )}
-          </div>
-          <h3 className="text-sm font-medium opacity-90 mb-1">This Month</h3>
-          <p className="text-3xl font-bold">{analytics.thisMonthOrders}</p>
-          <p className={`text-xs mt-2 flex items-center gap-1 ${growthRate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-            {growthRate >= 0 ? '↑' : '↓'} {Math.abs(growthRate)}% from last month
-          </p>
-        </div>
+        <MetricCard
+          title="Total Orders"
+          value={analytics.totalOrders}
+          label="All time enrollments"
+          icon={<ShoppingCart size={24} />}
+          color="green"
+          data={orders.slice(-7).map((o, i) => ({ v: i + 5 }))}
+        />
+        <MetricCard
+          title="Total Revenue"
+          value={`Rs. ${analytics.totalRevenue.toLocaleString()}`}
+          label="Total earnings"
+          icon={<DollarSign size={24} />}
+          color="blue"
+          data={orders.slice(-30).filter(o => o.status === 'Approved').map(o => ({ v: parseInt(String(o.amount || 0).replace(/[^0-9]/g, '')) }))}
+        />
+        <MetricCard
+          title="Pending Orders"
+          value={analytics.pendingOrders}
+          label="Needs approval"
+          icon={<Calendar size={24} />}
+          color="amber"
+          data={orders.filter(o => o.status === 'Pending').slice(-10).map((_, i) => ({ v: 10 - i }))}
+        />
+        <MetricCard
+          title="Orders This Month"
+          value={analytics.thisMonthOrders}
+          label="New enrollments"
+          icon={<Users size={24} />}
+          color="indigo"
+          growth={growthRate}
+          data={orders.slice(-15).map((_, i) => ({ v: Math.sin(i) * 10 + 20 }))}
+        />
       </div>
 
       {/* Course Breakdown */}

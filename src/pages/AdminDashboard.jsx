@@ -28,6 +28,68 @@ import {
 import { apiFetch, config } from "../config";
 import { AdminDashboardSkeleton } from "../components/SkeletonLoaders";
 
+const MetricCard = ({ title, value, label, icon, color, growth, data }) => {
+  const colors = {
+    green: { bg: "bg-emerald-50/50", icon: "bg-emerald-500", text: "text-emerald-700", border: "border-emerald-100", chart: "#10b981" },
+    blue: { bg: "bg-blue-50/50", icon: "bg-blue-500", text: "text-blue-700", border: "border-blue-100", chart: "#3b82f6" },
+    amber: { bg: "bg-amber-50/50", icon: "bg-amber-500", text: "text-amber-700", border: "border-amber-100", chart: "#f59e0b" },
+    indigo: { bg: "bg-indigo-50/50", icon: "bg-indigo-500", text: "text-indigo-700", border: "border-indigo-100", chart: "#6366f1" }
+  };
+
+  const theme = colors[color] || colors.green;
+
+  return (
+    <div className="relative group bg-white p-6 rounded-md border border-gray-100 shadow-xs hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 overflow-hidden font-sora">
+      {/* Decorative Gradient Glow */}
+      <div className={`absolute -right-10 -top-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 ${theme.icon}`}></div>
+      
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-6">
+          <div className={`w-12 h-12 rounded-2xl ${theme.icon} text-white flex items-center justify-center shadow-lg shadow-gray-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+            {icon}
+          </div>
+          {growth !== undefined && (
+            <div className={`flex items-center gap-1.5 text-[11px] font-black py-1 px-3 rounded-full border ${growth >= 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+              <TrendingUp size={12} className={growth < 0 ? "rotate-180" : ""} />
+              <span>{Math.abs(growth)}%</span>
+            </div>
+          )}
+        </div>
+        
+        <div className="space-y-1">
+          <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">{title}</h3>
+          <div className="flex items-baseline gap-2">
+            <p className="text-3xl font-black text-gray-900 tracking-tighter">{value}</p>
+          </div>
+          <p className="text-xs text-gray-500 font-bold tracking-tight opacity-70">{label}</p>
+        </div>
+
+        {/* Activity Sparkline */}
+        <div className="h-10 mt-6 w-full opacity-40 group-hover:opacity-100 transition-opacity duration-500">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data || [{v:10}, {v:15}, {v:12}, {v:18}, {v:14}, {v:22}, {v:20}]}>
+              <defs>
+                <linearGradient id={`sparkChart-${color}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={theme.chart} stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor={theme.chart} stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <Area 
+                type="monotone" 
+                dataKey={data ? "amount" : "v"} 
+                stroke={theme.chart} 
+                strokeWidth={2} 
+                fill={`url(#sparkChart-${color})`} 
+                isAnimationActive={true}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function AdminDashboard() {
   const [metrics, setMetrics] = useState({
     revenue: 0,
@@ -304,67 +366,39 @@ export default function AdminDashboard() {
       </div>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Total Revenue */}
-        <div className="bg-linear-to-br from-[#0d9c06] to-[#0b7e05] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
-              <DollarSign size={24} />
-            </div>
-            <TrendingUp size={20} className="opacity-80" />
-          </div>
-          <h3 className="text-sm font-medium opacity-90 mb-1">Total Revenue</h3>
-          <p className="text-3xl font-bold">
-            Rs. {metrics.revenue.toLocaleString()}
-          </p>
-          <p className="text-xs mt-2 opacity-80">Lifetime earnings</p>
-        </div>
-
-        {/* Total Students */}
-        <div className="bg-linear-to-br from-[#5022C3] to-[#3d1a99] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
-              <Users size={24} />
-            </div>
-            <TrendingUp size={20} className="opacity-80" />
-          </div>
-          <h3 className="text-sm font-medium opacity-90 mb-1">Total Students</h3>
-          <p className="text-3xl font-bold">
-            {metrics.students}
-          </p>
-          <p className="text-xs mt-2 opacity-80">Unique enrollments</p>
-        </div>
-
-        {/* Total Courses */}
-        <div className="bg-linear-to-br from-[#f4c150] to-[#d4a840] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
-              <BookOpen size={24} />
-            </div>
-          </div>
-          <h3 className="text-sm font-medium opacity-90 mb-1">Active Courses</h3>
-          <p className="text-3xl font-bold">{metrics.courses}</p>
-          <p className="text-xs mt-2 opacity-80">Published courses</p>
-        </div>
-
-        {/* This Month */}
-        <div className="bg-linear-to-br from-[#1c1d1f] to-[#2d2e30] text-white rounded-md shadow-lg p-6 transform hover:scale-102 transition-transform">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-white/20 rounded-md backdrop-blur-sm">
-              <ShoppingCart size={24} />
-            </div>
-            {growthRate >= 0 ? (
-              <ArrowUpRight size={20} className="text-green-400" />
-            ) : (
-              <ArrowUpRight size={20} className="text-red-400 rotate-90" />
-            )}
-          </div>
-          <h3 className="text-sm font-medium opacity-90 mb-1">This Month</h3>
-          <p className="text-3xl font-bold">{metrics.thisMonth}</p>
-          <p className={`text-xs mt-2 flex items-center gap-1 ${growthRate >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-            {growthRate >= 0 ? '↑' : '↓'} {Math.abs(growthRate)}% from last month
-          </p>
-        </div>
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 relative">
+        <MetricCard
+          title="Total Revenue"
+          value={`Rs. ${metrics.revenue.toLocaleString()}`}
+          label="Lifetime earnings"
+          icon={<DollarSign size={24} />}
+          color="green"
+          data={chartData.slice(-7)}
+        />
+        <MetricCard
+          title="Total Students"
+          value={metrics.students}
+          label="Unique enrollments"
+          icon={<Users size={24} />}
+          color="blue"
+        />
+        <MetricCard
+          title="Active Courses"
+          value={metrics.courses}
+          label="Published courses"
+          icon={<BookOpen size={24} />}
+          color="amber"
+        />
+        <MetricCard
+          title="Orders This Month"
+          value={metrics.thisMonth}
+          label="From all sources"
+          icon={<ShoppingCart size={24} />}
+          color="indigo"
+          growth={growthRate}
+          data={chartData.slice(-30)}
+        />
       </div>
 
       {/* Pro Tip Section - Udemy Style */}
