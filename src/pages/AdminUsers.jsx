@@ -374,10 +374,11 @@ Spark Trainings Team`;
 
   // Export functions
   function exportToCSV() {
-    const headers = ['Name', 'Email', 'Reference Number', 'UID', 'Created', 'Last Sign In', 'Status', 'Email Verified'];
+    const headers = ['Name', 'Email', 'Phone', 'Reference Number', 'UID', 'Created', 'Last Sign In', 'Status', 'Email Verified'];
     const csvData = filteredUsers.map(user => [
       user.displayName || 'No name',
       user.email || 'N/A',
+      user.phone || '',
       user.referenceNumber || 'Not assigned',
       user.uid || 'N/A',
       user.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'N/A',
@@ -405,6 +406,7 @@ Spark Trainings Team`;
     const jsonData = filteredUsers.map(user => ({
       name: user.displayName || 'No name',
       email: user.email || 'N/A',
+      phone: user.phone || '',
       referenceNumber: user.referenceNumber || 'Not assigned',
       uid: user.uid || 'N/A',
       created: user.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'N/A',
@@ -533,6 +535,7 @@ Spark Trainings Team`;
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-semibold">
                 <th className="p-4">User</th>
+                <th className="p-4">Phone</th>
                 <th className="p-4">Reference Number</th>
                 <th className="p-4">UID</th>
                 <th className="p-4">Created</th>
@@ -567,6 +570,9 @@ Spark Trainings Team`;
                           <div className="text-xs text-gray-500">{user.email}</div>
                         </div>
                       </div>
+                    </td>
+                    <td className="p-4 text-sm text-gray-600">
+                      {user.phone || <span className="text-gray-400 italic">Not set</span>}
                     </td>
                     <td className="p-4">
                       {user.referenceNumber ? (

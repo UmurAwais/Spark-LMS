@@ -15,11 +15,13 @@ import {
   Sparkles,
   Award,
   TrendingUp,
-  Clock
+  Clock,
+  ShieldCheck,
+  Lock
 } from "lucide-react";
 import { auth, storage } from "../firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { updateProfile } from "firebase/auth";
+import { updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { apiFetch, config, API_URL_PROMISE } from "../config";
 import { useImageUrl } from "../hooks/useImageUrl";
 
@@ -37,6 +39,17 @@ export default function StudentProfile() {
     phone: '',
     photoURL: ''
   });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
 
   useEffect(() => {
     const currentUser = auth.currentUser;
@@ -48,10 +61,28 @@ export default function StudentProfile() {
         photoURL: currentUser.photoURL || ''
       });
       fetchEnrolledCourses(currentUser.email);
+      fetchUserProfile(currentUser.uid);
     } else {
       navigate('/login');
     }
   }, [navigate]);
+
+  async function fetchUserProfile(uid) {
+    try {
+      const res = await apiFetch(`/api/student/profile/${uid}`);
+      const data = await res.json();
+      if (data.ok && data.user) {
+        setProfileData(prev => ({
+          ...prev,
+          displayName: data.user.displayName || prev.displayName,
+          phone: data.user.phone || prev.phone,
+          photoURL: data.user.profilePicture || prev.photoURL
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching profile from backend:', error);
+    }
+  }
 
   async function fetchEnrolledCourses(email) {
     try {
@@ -141,9 +172,24 @@ export default function StudentProfile() {
     if (!user) return;
 
     try {
+      // 1. Update Firebase Auth (for local display and auth consistency)
       await updateProfile(user, {
         displayName: profileData.displayName
       });
+
+      // 2. Update Backend Database (for persistence and admin dashboard)
+      const res = await apiFetch('/api/student/update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid: user.uid,
+          displayName: profileData.displayName,
+          phone: profileData.phone
+        })
+      });
+
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.message || "Failed to update backend");
 
       setUser({ ...user, displayName: profileData.displayName });
       setIsEditing(false);
@@ -152,7 +198,52 @@ export default function StudentProfile() {
       setTimeout(() => setShowSuccessPopup(false), 3000);
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile. Please try again.');
+      alert(error.message || 'Failed to update profile. Please try again.');
+    }
+  };
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError('Password should be at least 6 characters');
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      const credential = EmailAuthProvider.credential(user.email, passwordData.currentPassword);
+      await reauthenticateWithCredential(auth.currentUser, credential);
+      await updatePassword(auth.currentUser, passwordData.newPassword);
+      
+      setPasswordSuccess('Password updated successfully!');
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+      setShowPasswordSection(false);
+      
+      setShowSuccessPopup(true);
+      setTimeout(() => setShowSuccessPopup(false), 3000);
+    } catch (error) {
+      console.error('Error updating password:', error);
+      if (error.code === 'auth/wrong-password') {
+        setPasswordError('Incorrect current password');
+      } else if (error.code === 'auth/too-many-requests') {
+        setPasswordError('Too many failed attempts. Please try again later.');
+      } else {
+        setPasswordError('Failed to update password: ' + error.message);
+      }
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -337,11 +428,9 @@ export default function StudentProfile() {
                     <button
                       onClick={() => {
                         setIsEditing(false);
-                        setProfileData({
-                          displayName: user?.displayName || '',
-                          phone: user?.phoneNumber || '',
-                          photoURL: user?.photoURL || ''
-                        });
+                        // We don't want to reset to 'user' because user object only has Firebase details.
+                        // We should refetch or just hide editing. If we want to reset, we'd need to cache the backend data.
+                        // For now, let's just turn off editing.
                       }}
                       className="flex items-center gap-2 text-gray-600 hover:text-gray-800 font-medium transition-colors px-4 py-2.5 hover:bg-gray-100 rounded-md"
                     >
@@ -404,7 +493,7 @@ export default function StudentProfile() {
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0d9c06] focus:border-transparent transition-all"
                     />
                   ) : (
-                    <p className="text-gray-900 px-4 py-3 bg-gray-50 rounded-md font-medium">{user?.phoneNumber || 'Not set'}</p>
+                    <p className="text-gray-900 px-4 py-3 bg-gray-50 rounded-md font-medium">{profileData.phone || 'Not set'}</p>
                   )}
                 </div>
 
@@ -426,6 +515,127 @@ export default function StudentProfile() {
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Security & Password */}
+            <div className="bg-white/90 backdrop-blur-md rounded-md border-2 border-gray-200 shadow-2xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-linear-to-br from-[#5022C3] to-[#3f1bac] rounded-md">
+                    <ShieldCheck className="text-white" size={24} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Security & Password</h3>
+                </div>
+                {!showPasswordSection ? (
+                  <button
+                    onClick={() => setShowPasswordSection(true)}
+                    className="text-sm font-bold text-[#5022C3] hover:text-[#3f1bac] transition-colors flex items-center gap-2 cursor-pointer"
+                  >
+                    <Lock size={16} />
+                    Change Password
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setShowPasswordSection(false);
+                      setPasswordError('');
+                      setPasswordSuccess('');
+                    }}
+                    className="text-sm font-bold text-gray-500 hover:text-gray-700 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+
+              {showPasswordSection ? (
+                <form onSubmit={handleUpdatePassword} className="space-y-4 animate-in fade-in duration-300">
+                  {passwordError && (
+                    <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-md flex items-center gap-2">
+                      <X size={16} />
+                      {passwordError}
+                    </div>
+                  )}
+                  {passwordSuccess && (
+                    <div className="p-3 bg-green-50 border border-green-200 text-green-600 text-sm rounded-md flex items-center gap-2">
+                      <Check size={16} />
+                      {passwordSuccess}
+                    </div>
+                  )}
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Current Password</label>
+                      <div className="relative">
+                        <input
+                          type={showCurrentPassword ? "text" : "password"}
+                          value={passwordData.currentPassword}
+                          onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
+                          required
+                          placeholder="••••••••"
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5022C3] focus:border-transparent transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          {showCurrentPassword ? <X size={18} /> : <Lock size={18} />}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">New Password</label>
+                      <input
+                        type="password"
+                        value={passwordData.newPassword}
+                        onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                        required
+                        placeholder="••••••••"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5022C3] focus:border-transparent transition-all"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirm New Password</label>
+                      <input
+                        type="password"
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                        required
+                        placeholder="••••••••"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5022C3] focus:border-transparent transition-all"
+                      />
+                    </div>
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    disabled={passwordLoading}
+                    className="w-full bg-linear-to-r from-[#5022C3] to-[#3f1bac] text-white font-bold py-3 rounded-md shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {passwordLoading ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <Save size={18} />
+                        Update Password
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <div className="bg-gray-50 rounded-md p-4 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center border border-gray-200 shadow-sm">
+                    <Lock className="text-[#5022C3]" size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-sm">Security Policy</h4>
+                    <p className="text-xs text-gray-600">Password should be at least 6 characters. Use special characters for better security.</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Enrolled Courses */}
