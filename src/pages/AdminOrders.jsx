@@ -26,10 +26,10 @@ import { AdminTableSkeleton } from "../components/SkeletonLoaders";
 
 const MetricCard = ({ title, value, label, icon, color, growth, data }) => {
   const colors = {
-    green: { bg: "bg-emerald-50/50", icon: "bg-emerald-500", text: "text-emerald-700", border: "border-emerald-100", chart: "#10b981" },
-    blue: { bg: "bg-blue-50/50", icon: "bg-blue-500", text: "text-blue-700", border: "border-blue-100", chart: "#3b82f6" },
-    amber: { bg: "bg-amber-50/50", icon: "bg-amber-500", text: "text-amber-700", border: "border-amber-100", chart: "#f59e0b" },
-    indigo: { bg: "bg-indigo-50/50", icon: "bg-indigo-500", text: "text-indigo-700", border: "border-indigo-100", chart: "#6366f1" }
+    green: { bg: "bg-[#0d9c06]/10", icon: "bg-[#0d9c06]", text: "text-[#0d9c06]", border: "border-[#0d9c06]/20", chart: "#0d9c06" },
+    blue: { bg: "bg-[#5022C3]/10", icon: "bg-[#5022C3]", text: "text-[#5022C3]", border: "border-[#5022C3]/20", chart: "#5022C3" },
+    amber: { bg: "bg-[#f4c150]/10", icon: "bg-[#f4c150]", text: "text-[#f4c150]", border: "border-[#f4c150]/20", chart: "#f4c150" },
+    indigo: { bg: "bg-[#1c1d1f]/10", icon: "bg-[#1c1d1f]", text: "text-[#1c1d1f]", border: "border-[#1c1d1f]/20", chart: "#1c1d1f" }
   };
 
   const theme = colors[color] || colors.green;
