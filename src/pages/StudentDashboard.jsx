@@ -284,13 +284,13 @@ export default function StudentDashboard() {
             <div className="flex p-1 bg-gray-100 rounded-2xl w-fit">
               <button 
                 onClick={() => setActiveTab('in_progress')}
-                className={`px-6 py-2.5 text-xs font-black rounded-xl transition-all ${activeTab === 'in_progress' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'}`}
+                className={`px-6 py-2.5 text-xs font-black rounded-xl transition-all cursor-pointer ${activeTab === 'in_progress' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'}`}
               >
                 STILL STUDYING
               </button>
               <button 
                 onClick={() => setActiveTab('completed')}
-                className={`px-6 py-2.5 text-xs font-black rounded-xl transition-all ${activeTab === 'completed' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'}`}
+                className={`px-6 py-2.5 text-xs font-black rounded-xl transition-all cursor-pointer ${activeTab === 'completed' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'}`}
               >
                 ARCHIVED
               </button>
@@ -418,9 +418,9 @@ export default function StudentDashboard() {
         </div>
         <p className="text-[10px] text-gray-300 font-bold uppercase tracking-[0.2em]">Crafted with excellence for modern learners</p>
         <div className="flex items-center gap-8">
-           <a href="#" className="text-[10px] font-black text-gray-400 hover:text-black transition-colors">SUPPORT</a>
-           <a href="#" className="text-[10px] font-black text-gray-400 hover:text-black transition-colors">LEGAL</a>
-           <a href="#" className="text-[10px] font-black text-gray-400 hover:text-black transition-colors">STATUS</a>
+           <a href="#" className="text-[10px] font-black text-gray-400 hover:text-black transition-colors cursor-pointer">SUPPORT</a>
+           <a href="#" className="text-[10px] font-black text-gray-400 hover:text-black transition-colors cursor-pointer">LEGAL</a>
+           <a href="#" className="text-[10px] font-black text-gray-400 hover:text-black transition-colors cursor-pointer">STATUS</a>
         </div>
       </footer>
     </div>
