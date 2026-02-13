@@ -63,7 +63,7 @@ const SearchBar = ({ autoFocus = false }) => {
   };
 
   return (
-    <div className="relative w-full md:w-[465px]" ref={searchRef}>
+    <div className="relative w-full md:w-[419px]" ref={searchRef}>
       <form
         onSubmit={handleSubmit}
         className="
