@@ -16,7 +16,8 @@ import {
   ShieldCheck,
   HelpCircle,
   Lock,
-  AlertCircle
+  AlertCircle,
+  Award
 } from 'lucide-react';
 import { apiFetch, API_URL } from '../config';
 import { auth } from '../firebaseConfig';
@@ -419,7 +420,7 @@ export default function StudentCoursePlayer() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0f1113] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0d9c06]"></div>
       </div>
     );
@@ -433,66 +434,60 @@ export default function StudentCoursePlayer() {
   const platformLogos = getPlatformLogos(course);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
-      {/* Header */}
-      <header className="bg-white text-gray-900 h-16 flex items-center justify-between px-6 sticky top-0 z-50 shadow-sm border-b border-gray-200">
-        <div className="flex items-center gap-4">
-          <Link to="/student/dashboard" className="hover:text-[#0d9c06] transition-colors p-2 rounded-full hover:bg-gray-100 cursor-pointer">
-            <ArrowLeft size={20} />
+    <div className="flex flex-col h-screen bg-[#0f1113] text-gray-100 font-sans overflow-hidden">
+      {/* Header - Immersive Dark */}
+      <header className="h-16 shrink-0 bg-[#0f1113]/90 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 lg:px-6 z-50 sticky top-0">
+        <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+          <Link 
+            to="/student/dashboard" 
+            className="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-full transition-all duration-300 group shrink-0"
+            title="Back to Dashboard"
+          >
+            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           </Link>
           
-          {/* Platform Logos - Coursera + Meta Style */}
-          <div className="flex items-center gap-2 pl-4">
+          <div className="h-6 w-px bg-white/10 hidden md:block shrink-0"></div>
+
+          <h1 className="text-sm rounded-md font-medium text-gray-200 truncate pr-4">
+            {course.title}
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-4 shrink-0">
+           {/* Platform Logos */}
+          <div className="hidden md:flex items-center gap-3">
             {platformLogos.map((platform, index) => (
-              <React.Fragment key={platform.name}>
-                {platform.logo ? (
-                  <img 
-                    src={platform.logo} 
-                    alt={platform.name}
-                    className="h-6 object-contain"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <img 
-                    src={SparkLogo} 
-                    alt="Spark Trainings"
-                    className="h-12 object-contain"
-                  />
-                )}
-                {index < platformLogos.length - 1 && (
-                  <div className="h-8 border-l border-gray-300 mx-3"></div>
-                )}
-              </React.Fragment>
+              platform.logo && (
+                <img 
+                  key={index}
+                  src={platform.logo} 
+                  alt={platform.name}
+                  className="h-5 opacity-70 hover:opacity-100 transition-opacity"
+                />
+              )
             ))}
           </div>
-          
-          <div className="hidden md:flex border-l border-gray-300 pl-4 h-8 items-center">
-            <h1 className="text-base md:text-lg font-bold truncate max-w-[200px] md:max-w-md text-gray-800">
-              {course.title}
-            </h1>
-          </div>
+
+          <button 
+            className="lg:hidden p-2 text-gray-400 hover:text-white transition-colors"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
-        <button 
-          className="lg:hidden p-2 hover:bg-gray-100 rounded-full text-gray-700 cursor-pointer"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        >
-          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
       </header>
 
-      <div className="flex flex-col lg:flex-row relative">
-        {/* Main Content (Video) */}
-        <main className="flex-1 bg-white flex flex-col min-w-0">
-          {/* Video Player Container - Clean Background */}
-          <div className="w-full bg-[#f8fafc] py-4 sm:py-10 px-0 sm:px-8 border-b border-gray-100">
-            <div className="max-w-5xl mx-auto">
-              <div className="relative aspect-video bg-[#1a1c1e] sm:rounded-3xl overflow-hidden shadow-2xl sm:border-2 border-white/5 group">
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Main Content Area */}
+        <main className="flex-1 flex flex-col min-w-0 bg-[#0f1113] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-[#0d9c06]/50 scroll-smooth pb-20 lg:pb-0">
+          
+          {/* Video Player Container - Theater Mode */}
+          <div className="w-full bg-[#050607] relative group py-0 lg:py-8">
+            <div className="max-w-6xl mx-auto px-0 lg:px-6">
+              <div className="aspect-video w-full bg-black relative overflow-hidden shadow-2xl lg:rounded-2xl lg:ring-1 lg:ring-white/10 lg:shadow-[0_0_50px_rgba(0,0,0,0.5)]">
                 {currentLecture && currentLecture.videoUrl ? (
-                  <div key={currentLecture.id} className="relative w-full h-full bg-black">
+                  <>
                     {currentLecture.videoUrl.includes('google.com') ? (
-                      /* Native Iframe for Google Drive - Instant Load */
                       <iframe
                         src={(() => {
                           const url = currentLecture.videoUrl;
@@ -505,18 +500,17 @@ export default function StudentCoursePlayer() {
                           return fileId ? `https://drive.google.com/file/d/${fileId}/preview?usp=sharing` : url;
                         })()}
                         className="w-full h-full border-0"
-                        allow="autoplay; fullscreen; picture-in-picture; encrypted-media;"
+                        allow="autoplay; fullscreen; picture-in-picture"
                         allowFullScreen
                         title={currentLecture.title}
                       />
                     ) : (currentLecture.videoUrl.includes('youtube.com') || currentLecture.videoUrl.includes('youtu.be') || currentLecture.videoUrl.includes('vimeo.com')) ? (
-                      /* ReactPlayer for YouTube and Vimeo - Instant Load */
                       <ReactPlayer
                         url={currentLecture.videoUrl}
                         width="100%"
                         height="100%"
                         controls
-                        playing={true}
+                        playing={isPlaying}
                         onEnded={() => {
                             if (!completedLectures[currentLecture.id]) {
                                 handleMarkComplete();
@@ -524,7 +518,6 @@ export default function StudentCoursePlayer() {
                         }}
                       />
                     ) : (
-                      /* Custom VideoPlayer for Direct Files */
                       <VideoPlayer 
                         videoUrl={currentLecture.videoUrl}
                         title={currentLecture.title}
@@ -535,432 +528,463 @@ export default function StudentCoursePlayer() {
                         }}
                       />
                     )}
-
-                    {/* Minimal Drive Overlay */}
-                    {currentLecture.videoUrl.includes('google.com') && (
-                      <div className="absolute top-2 right-2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                         <p className="text-white text-[8px] sm:text-[10px] bg-black/40 px-2 py-1 rounded-full backdrop-blur-sm">
-                          Drive Mode
-                         </p>
-                      </div>
-                    )}
-                  </div>
+                  </>
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 bg-black">
-                    <PlayCircle size={40} className="text-white/20 mb-4 animate-pulse" />
-                    <p className="text-sm font-medium text-white/40">Select a lecture to start</p>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500 bg-[#0a0a0a]">
+                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4 animate-pulse">
+                      <PlayCircle size={40} className="text-white/20" />
+                    </div>
+                    <p className="text-sm font-medium text-white/40">Select a lecture to start watching</p>
                   </div>
                 )}
               </div>
             </div>
           </div>
-          
-          <div className="max-w-5xl mx-auto w-full px-4 md:px-8 mt-6 sm:mt-10">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 mb-8">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="bg-[#0d9c06]/10 text-[#0d9c06] text-[8px] sm:text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Now Playing</span>
-                  <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[#0d9c06] rounded-full animate-pulse"></div>
+
+          {/* Controls & Info */}
+          <div className="max-w-[1400px] mx-auto w-full px-4 md:px-6 py-6 lg:py-12">
+            
+            {/* Top Bar: Navigation & Action (Desktop Only) */}
+            <div className="hidden lg:flex flex-row items-center justify-between gap-6 mb-10 pb-8 border-b border-white/5">
+              
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-2">
+                   <span className="text-[#0d9c06] text-xs font-bold tracking-widest uppercase bg-[#0d9c06]/10 px-2 py-0.5 rounded border border-[#0d9c06]/20">
+                     Now Playing
+                   </span>
                 </div>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight">
+                <h2 className="text-3xl font-bold text-white tracking-tight">
                   {currentLecture?.title}
                 </h2>
-                {currentLecture?.videoUrl?.includes('google.com') && (
-                   <a 
-                    href={currentLecture.videoUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-[9px] sm:text-xs text-[#0d9c06] bg-[#0d9c06]/5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-[#0d9c06]/10 transition-colors mt-2 sm:mt-3 font-semibold border border-[#0d9c06]/10"
-                  >
-                    <PlayCircle size={12} className="sm:hidden" />
-                    <PlayCircle size={16} className="hidden sm:block" />
-                    Watch on Drive (Standard Player)
-                  </a>
-                )}
               </div>
-              <button
-                onClick={handleMarkComplete}
-                className={`flex items-center justify-center gap-2 px-6 py-2.5 sm:px-8 sm:py-3 rounded-full text-xs sm:text-base font-bold transition-all shadow-[0_10px_15px_-3px_rgba(13,156,6,0.2)] hover:shadow-xl transform hover:-translate-y-0.5 sm:hover:-translate-y-1 whitespace-nowrap min-w-[140px] md:min-w-[200px] ${
-                  completedLectures[currentLecture?.id]
-                    ? 'bg-white text-green-700 border border-green-200 shadow-none'
-                    : 'bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white'
-                }`}
-              >
-                {completedLectures[currentLecture?.id] ? (
-                  <>
-                    <CheckCircle size={18} className="sm:hidden" />
-                    <CheckCircle size={22} className="hidden sm:block" />
-                    Completed
-                  </>
-                ) : (
-                  <>
-                    <div className="w-3.5 h-3.5 sm:w-5 sm:h-5 rounded-full border border-white/40 flex items-center justify-center">
-                      <div className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-white opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </div>
-                    Mark as Complete
-                  </>
-                )}
-              </button>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => prevLecture && handleLectureClick(prevLecture)}
+                  disabled={!prevLecture}
+                  className={`h-11 px-4 rounded-lg font-medium flex items-center gap-2 transition-all ${
+                    prevLecture 
+                      ? 'bg-white/5 text-white hover:bg-white/10 hover:scale-105' 
+                      : 'bg-transparent text-gray-600 cursor-not-allowed'
+                  }`}
+                  title="Previous Lecture"
+                >
+                  <ChevronLeft size={18} />
+                  <span>Previous</span>
+                </button>
+
+                <button
+                  onClick={() => nextLecture && handleLectureClick(nextLecture)}
+                  disabled={!nextLecture}
+                  className={`h-11 px-6 rounded-lg font-medium flex items-center gap-2 transition-all ${
+                    nextLecture 
+                      ? 'bg-white text-black hover:bg-gray-200 hover:scale-105 shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
+                      : 'bg-white/5 text-gray-500 cursor-not-allowed'
+                  }`}
+                  title="Next Lecture"
+                >
+                  <span>Next</span>
+                  <ChevronRight size={18} />
+                </button>
+
+                <div className="w-px h-8 bg-white/10 mx-2"></div>
+
+                <button
+                  onClick={handleMarkComplete}
+                  className={`h-11 px-6 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg transform active:scale-95 ${
+                    completedLectures[currentLecture?.id]
+                      ? 'bg-green-500/10 text-green-500 border border-green-500/50'
+                      : 'bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white hover:shadow-[#0d9c06]/20'
+                  }`}
+                >
+                  {completedLectures[currentLecture?.id] ? (
+                    <>
+                      <CheckCircle size={18} />
+                      <span>Completed</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-4 h-4 rounded-full border-2 border-white/30 mr-1"></div>
+                      <span>Mark Complete</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
-            {/* Navigation Buttons - More Professional Mobile Layout */}
-            <div className="flex items-center justify-between mb-8 border-b border-gray-100 pb-8 gap-3">
-              <button
-                onClick={() => prevLecture && handleLectureClick(prevLecture)}
-                disabled={!prevLecture}
-                className={`flex-1 sm:flex-none flex items-center justify-center sm:justify-start gap-1 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${
-                  prevLecture 
-                    ? 'text-gray-700 hover:bg-gray-100 border border-gray-300 hover:border-gray-400' 
-                    : 'text-gray-300 cursor-not-allowed border border-gray-100'
-                }`}
-              >
-                <ChevronLeft size={16} className="sm:hidden" />
-                <ChevronLeft size={18} className="hidden sm:block" />
-                Prev
-                <span className="hidden sm:inline ml-1">Lecture</span>
-              </button>
-
-              <button
-                onClick={() => nextLecture && handleLectureClick(nextLecture)}
-                disabled={!nextLecture}
-                className={`flex-1 sm:flex-none flex items-center justify-center sm:justify-start gap-1 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${
-                  nextLecture 
-                    ? 'bg-white text-[#0d9c06] border border-[#0d9c06] hover:bg-green-50 shadow-sm' 
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                }`}
-              >
-                Next
-                <span className="hidden sm:inline mx-1">Lecture</span>
-                <ChevronRight size={16} className="sm:hidden" />
-                <ChevronRight size={18} className="hidden sm:block" />
-              </button>
-            </div>
-
-            {/* Resources for this Lesson */}
-            {currentLecture?.resources && currentLecture.resources.length > 0 && (
-              <div className="mb-8 p-6 bg-white border border-gray-200 rounded-md shadow-sm">
-                <div className="flex items-center gap-2 mb-4">
-                  <FileText className="text-[#0d9c06]" size={20} />
-                  <h3 className="font-bold text-gray-900">Resources for this Lesson</h3>
+             {/* Mobile Title */}
+             <div className="lg:hidden mb-6">
+                <div className="flex items-center gap-2 mb-2">
+                   <span className="text-[#0d9c06] text-[10px] font-bold tracking-widest uppercase bg-[#0d9c06]/10 px-2 py-0.5 rounded border border-[#0d9c06]/20">
+                     Now Playing
+                   </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {currentLecture.resources.map((res, i) => (
-                    <a 
-                      key={i}
-                      href={res.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 bg-gray-50 border border-transparent rounded-md hover:border-[#0d9c06] hover:bg-white transition-all group shadow-sm"
-                    >
-                      <div className="p-2 bg-green-100 text-[#0d9c06] rounded-md group-hover:bg-[#0d9c06] group-hover:text-white transition-colors">
-                        <Download size={18} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{res.title}</p>
-                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">Download File</p>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
+                <h2 className="text-xl font-bold text-white tracking-tight leading-snug">
+                  {currentLecture?.title}
+                </h2>
+             </div>
 
-            {/* End of Section Quiz Prompt */}
-             {(() => {
-                // Find current section
-                const sectionIndex = course.lectures.findIndex(sec => 
-                    sec.lectures && sec.lectures.some(l => l.id === currentLecture?.id)
-                );
-                
-                if (sectionIndex !== -1) {
-                    const section = course.lectures[sectionIndex];
-                    const isLastLecture = section.lectures[section.lectures.length - 1].id === currentLecture?.id;
-                    
-                    if (isLastLecture && section.quiz && section.quiz.length > 0) {
-                        const quizKey = `quiz-${section.id}`;
-                        const isPassed = completedLectures[quizKey];
-                        
-                        return (
-                            <div className="bg-green-50 border border-green-200 rounded-md p-6 mb-8 text-center">
-                                <div className="w-16 h-16 bg-green-100 text-[#0d9c06] rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <HelpCircle size={32} />
+            {/* Description & Resources Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+               {/* Lecture Details */}
+               <div className="lg:col-span-2 space-y-8">
+                 <div>
+                   <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">
+                     About this Class
+                   </h3>
+                   <div className="prose prose-invert prose-p:text-gray-400 prose-a:text-[#0d9c06] max-w-none leading-relaxed text-sm md:text-base">
+                     <p>{currentLecture?.description || "No description provided for this lecture."}</p>
+                   </div>
+                 </div>
+
+                 {/* Lecture Resources */}
+                 {currentLecture?.resources && currentLecture.resources.length > 0 && (
+                   <div className="bg-[#161b22] rounded-xl p-5 border border-white/5">
+                     <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                       <Download size={16} className="text-[#0d9c06]" />
+                       Downloadable Resources
+                     </h3>
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                       {currentLecture.resources.map((res, i) => (
+                         <a 
+                           key={i}
+                           href={res.url} 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 hover:scale-[1.02] transition-all group border border-transparent hover:border-[#0d9c06]/30"
+                         >
+                           <div className="p-2 bg-[#0d9c06]/20 text-[#0d9c06] rounded-md">
+                             <FileText size={18} />
+                           </div>
+                           <div className="flex-1 min-w-0">
+                             <p className="text-sm font-medium text-gray-200 truncate group-hover:text-white transition-colors">{res.title}</p>
+                             <span className="text-[10px] text-gray-500 uppercase tracking-wider">Download</span>
+                           </div>
+                           <Download size={16} className="text-gray-500 group-hover:text-white transition-colors" />
+                         </a>
+                       ))}
+                     </div>
+                   </div>
+                 )}
+
+                 {/* Section Quiz Prompt */}
+                 {(() => {
+                    const sectionIndex = course.lectures.findIndex(sec => 
+                        sec.lectures && sec.lectures.some(l => l.id === currentLecture?.id)
+                    );
+                    if (sectionIndex !== -1) {
+                        const section = course.lectures[sectionIndex];
+                        const isLastLecture = section.lectures[section.lectures.length - 1].id === currentLecture?.id;
+                        if (isLastLecture && section.quiz && section.quiz.length > 0) {
+                            const quizKey = `quiz-${section.id}`;
+                            const isPassed = completedLectures[quizKey];
+                            return (
+                                <div className="mt-8 bg-linear-to-br from-[#0d9c06]/10 to-transparent border border-[#0d9c06]/20 rounded-2xl p-6 md:p-8 relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500">
+                                       <HelpCircle size={100} className="text-[#0d9c06]" />
+                                    </div>
+                                    <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                                       <div className="w-16 h-16 rounded-full bg-[#0d9c06] flex items-center justify-center text-white shadow-lg shadow-[#0d9c06]/30 shrink-0">
+                                          {isPassed ? <CheckCircle size={32} /> : <HelpCircle size={32} />}
+                                       </div>
+                                       <div className="flex-1">
+                                          <h3 className="text-xl font-bold text-white mb-2">
+                                             {isPassed ? "Section Quiz Completed" : "Ready for a Quiz?"}
+                                          </h3>
+                                          <p className="text-gray-400 text-sm mb-4 max-w-lg">
+                                             {isPassed 
+                                                 ? "Great job! You've mastered this section. Feel free to review or continue to the next topic." 
+                                                 : "Test your knowledge to unlock the next section. You need 55% to pass."}
+                                          </p>
+                                          <button
+                                              onClick={() => handleStartQuiz(section)}
+                                              className="px-6 py-2.5 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors shadow-lg active:scale-95"
+                                          >
+                                              {isPassed ? "Retake Quiz" : "Start Quiz"}
+                                          </button>
+                                       </div>
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                    {isPassed ? "Section Quiz Completed!" : "Ready for a Challenge?"}
-                                </h3>
-                                <p className="text-gray-600 mb-6 max-w-lg mx-auto">
-                                    {isPassed 
-                                        ? "You've already passed this section's quiz. You can retake it to improve your score." 
-                                        : "Complete the quiz to verify your understanding and unlock the next section. You need 55% to pass."}
-                                </p>
-                                <button
-                                    onClick={() => handleStartQuiz(section)}
-                                    className="px-8 py-3 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] shadow-md transition-all cursor-pointer"
-                                >
-                                    {isPassed ? "Retake Quiz" : "Start Quiz"}
-                                </button>
-                            </div>
-                        );
+                            );
+                        }
                     }
-                }
-                return null;
-            })()}
-            
-            <div className="prose max-w-none">
-              <h3 className="font-bold text-lg mb-4 text-gray-900">About this lecture</h3>
-              <p className="text-gray-700 leading-relaxed">
-                {currentLecture?.description || "No description available for this lecture."}
-              </p>
+                    return null;
+                 })()}
+               </div>
+
+               {/* Right Column: Other Info */}
+               <div className="space-y-6">
+                 {/* Course Resources Card */}
+                 {course.resources && course.resources.length > 0 && (
+                   <div className="bg-[#161b22] rounded-xl p-5 border border-white/5 lg:sticky lg:top-8">
+                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Course Files</h3>
+                     <div className="space-y-3">
+                       {course.resources.map((res, i) => (
+                         <a 
+                           key={i}
+                           href={res.url} 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           className="flex items-center gap-3 p-3 rounded-lg bg-black/20 hover:bg-[#0d9c06]/10 border border-white/5 hover:border-[#0d9c06]/30 transition-all group"
+                         >
+                            <FileText size={16} className="text-gray-500 group-hover:text-[#0d9c06]" />
+                            <span className="text-sm text-gray-300 group-hover:text-white truncate flex-1">{res.title}</span>
+                            <Download size={14} className="text-gray-600 group-hover:text-white" />
+                         </a>
+                       ))}
+                     </div>
+                   </div>
+                 )}
+               </div>
             </div>
           </div>
         </main>
+        
+        {/* Mobile Fixed Bottom Navigation Bar */}
+        <div className="lg:hidden fixed bottom-6 left-4 right-4 h-16 bg-[#161b22]/90 backdrop-blur-xl border border-white/10 rounded-full flex items-center justify-between px-2 z-50 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+            <button
+                onClick={() => prevLecture && handleLectureClick(prevLecture)}
+                disabled={!prevLecture}
+                className={`p-3 rounded-full transition-colors ${!prevLecture ? 'text-gray-600 cursor-not-allowed' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+            >
+                <ChevronLeft size={24} />
+            </button>
 
-        {/* Sidebar (Course Content) */}
+            <button
+                onClick={handleMarkComplete}
+                className={`flex-1 mx-2 h-10 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+                    completedLectures[currentLecture?.id]
+                      ? 'bg-green-500/10 text-green-500 border border-green-500/30'
+                      : 'bg-[#0d9c06] text-white shadow-lg shadow-[#0d9c06]/30'
+                  }`}
+            >
+               {completedLectures[currentLecture?.id] ? (
+                  <>
+                    <CheckCircle size={16} />
+                    <span>Done</span>
+                  </>
+               ) : (
+                  <span>Mark Complete</span>
+               )}
+            </button>
+
+            <button
+                onClick={() => nextLecture && handleLectureClick(nextLecture)}
+                 disabled={!nextLecture}
+                 className={`p-3 rounded-full transition-colors ${!nextLecture ? 'text-gray-600 cursor-not-allowed' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+            >
+                <ChevronRight size={24} />
+            </button>
+        </div>
+
+        {/* Sidebar - Drawer Style on Mobile */}
+        <div 
+           className={`
+             fixed inset-0 bg-black/80 z-40 lg:hidden transition-opacity duration-300
+             ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+           `}
+           onClick={() => setSidebarOpen(false)}
+        />
+        
         <aside 
           className={`
-            lg:sticky lg:top-16 w-full lg:w-96 bg-white border-l border-gray-200 z-40 lg:z-30 shadow-xl lg:shadow-none
-            ${sidebarOpen ? 'block' : 'hidden lg:block'}
-            flex flex-col
+            fixed inset-y-0 right-0 w-[85vw] max-w-sm lg:w-96 bg-[#161b22] border-l border-white/5 z-50 transform transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] shadow-2xl lg:relative lg:translate-x-0 flex flex-col
+            ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
           `}
-          style={{ height: 'calc(100vh - 64px)' }}
         >
-          {/* Sidebar Header with Progress */}
-          <div className="p-4 border-b border-gray-200 bg-white">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-gray-700">Course Progress</span>
-              <span className="text-sm font-bold text-[#0d9c06]">{progress}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-              <div 
-                className="bg-[#0d9c06] h-2 rounded-full transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-            
-            {progress >= 100 && (
-              <button
-                onClick={() => setShowCertificateModal(true)}
-                className="w-full py-2 bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white rounded-md font-bold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer animate-pulse"
-              >
-                <ShieldCheck size={18} />
-                Collect Your Certificate
-              </button>
-            )}
+          {/* Mobile Sidebar Header */}
+          <div className="flex items-center justify-between p-4 border-b border-white/5 lg:hidden">
+            <span className="text-white font-bold">Course Content</span>
+            <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
+              <X size={20} />
+            </button>
           </div>
+
           {/* Sidebar Tabs */}
-          <div className="flex border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab('curriculum')}
-              className={`flex-1 py-4 text-sm font-semibold text-center transition-colors cursor-pointer ${
-                activeTab === 'curriculum' 
-                  ? 'text-[#0d9c06] border-b-2 border-[#0d9c06] bg-green-50/50' 
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              Curriculum
-            </button>
-            <button
-              onClick={() => setActiveTab('resources')}
-              className={`flex-1 py-4 text-sm font-semibold text-center transition-colors cursor-pointer ${
-                activeTab === 'resources' 
-                  ? 'text-[#0d9c06] border-b-2 border-[#0d9c06] bg-green-50/50' 
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              Resources
-            </button>
+          <div className="flex border-b border-white/5">
+             <button 
+               onClick={() => setActiveTab('curriculum')}
+               className={`flex-1 py-4 text-sm font-medium transition-colors relative ${activeTab === 'curriculum' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}`}
+             >
+               Curriculum
+               {activeTab === 'curriculum' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0d9c06] shadow-[0_-2px_8px_rgba(13,156,6,0.5)]"></div>}
+             </button>
+             <button 
+               onClick={() => setActiveTab('resources')}
+               className={`flex-1 py-4 text-sm font-medium transition-colors relative ${activeTab === 'resources' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}`}
+             >
+               Resources
+               {activeTab === 'resources' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0d9c06] shadow-[0_-2px_8px_rgba(13,156,6,0.5)]"></div>}
+             </button>
           </div>
-          
-          <div className="flex-1 overflow-y-auto bg-gray-50">
-            {activeTab === 'curriculum' ? (
-              <div className="pb-20">
-                {course.lectures?.map((section, idx) => (
-                  section.lectures ? (
-                    <div key={section.id || idx} className="border-b border-gray-200 bg-white mb-2 last:mb-0">
-                      <button 
-                        onClick={() => toggleSection(section.id)}
-                        className="w-full px-4 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="text-left">
-                          <h4 className="font-bold text-sm text-gray-900">{section.title}</h4>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {section.lectures.length} lectures
-                          </p>
-                        </div>
-                        {expandedSections[section.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                      </button>
-                      
-                      {expandedSections[section.id] && (
-                        <div className="bg-gray-50/50">
-                          {section.lectures.map((lecture) => (
-                            <button
-                              key={lecture.id}
-                              onClick={() => handleLectureClick(lecture, idx)}
-                              className={`w-full px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-gray-100 transition-all text-left border-l-[3px] ${
-                                currentLecture?.id === lecture.id 
-                                  ? 'border-[#0d9c06] bg-green-50/60' 
-                                  : 'border-transparent'
-                              }`}
-                            >
-                              <div className="mt-0.5">
-                                {isSectionLocked(idx) ? (
-                                    <Lock size={16} className="text-gray-400" />
-                                ) : currentLecture?.id === lecture.id ? (
-                                   <PlayCircle size={16} className="text-[#0d9c06]" />
-                                ) : (
-                                   <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${completedLectures[lecture.id] ? 'bg-[#0d9c06] border-[#0d9c06]' : 'border-gray-400'}`}>
-                                     {completedLectures[lecture.id] && <CheckCircle size={10} className="text-white" />}
-                                   </div>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className={`text-sm truncate ${currentLecture?.id === lecture.id ? 'font-semibold text-[#0d9c06]' : 'text-gray-700'}`}>
-                                  {lecture.title}
-                                </p>
-                                <span className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                                  {isSectionLocked(idx) ? <Lock size={10} /> : <PlayCircle size={10} />}
-                                  {lecture.duration}
-                                </span>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <button
-                      key={section.id}
-                      onClick={() => handleLectureClick(section, idx)}
-                      className={`w-full px-4 py-3 flex items-start gap-3 hover:bg-gray-50 transition-all text-left border-l-[3px] border-b border-gray-100 bg-white ${
-                        currentLecture?.id === section.id 
-                          ? 'border-l-[#0d9c06] bg-green-50/60' 
-                          : 'border-l-transparent'
-                      }`}
-                    >
-                      <div className="mt-0.5">
-                        <PlayCircle size={16} className={currentLecture?.id === section.id ? "text-[#0d9c06]" : "text-gray-400"} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm truncate ${currentLecture?.id === section.id ? 'font-semibold text-[#0d9c06]' : 'text-gray-700'}`}>
-                          {section.title}
-                        </p>
-                      </div>
-                    </button>
-                  )
-                ))}
-              </div>
-            ) : (
-              <div className="p-4 space-y-4">
-                {/* Course-level resources (from course.includes) */}
-                {course.resources && course.resources.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Course Resources</h4>
-                    {course.resources.map((res, i) => (
-                      <a 
-                        key={i}
-                        href={res.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-md hover:border-[#0d9c06] hover:shadow-sm transition-all group"
-                      >
-                        <div className="p-2 bg-blue-50 text-blue-600 rounded-md group-hover:bg-[#0d9c06] group-hover:text-white transition-colors">
-                          <FileText size={18} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{res.title}</p>
-                          <p className="text-[10px] text-gray-500">Course Resource</p>
-                        </div>
-                        <Download size={16} className="text-gray-400 group-hover:text-[#0d9c06]" />
-                      </a>
-                    ))}
-                  </div>
-                )}
 
-                {/* Hint about lecture resources */}
-                {currentLecture?.resources && currentLecture.resources.length > 0 && (
-                  <div className="p-3 bg-green-50 border border-green-100 rounded-md">
-                    <p className="text-[10px] text-green-700 font-bold mb-1 uppercase">Tip</p>
-                    <p className="text-xs text-green-600">
-                      Looking for lesson files? Check the section directly below the video player!
-                    </p>
-                  </div>
-                )}
+          {/* Progress Area */}
+          <div className="p-6 border-b border-white/5 bg-[#1c2128]">
+             <div className="flex justify-between items-end mb-2">
+                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Your Progress</span>
+                <span className="text-sm font-bold text-[#0d9c06]">{progress}%</span>
+             </div>
+             <div className="w-full bg-black/40 rounded-full h-1.5 overflow-hidden">
+                <div 
+                  className="bg-[#0d9c06] h-full rounded-full shadow-[0_0_10px_rgba(13,156,6,0.5)] transition-all duration-500 ease-out"
+                  style={{ width: `${progress}%` }}
+                ></div>
+             </div>
+             {progress >= 100 && (
+                <button
+                  onClick={() => setShowCertificateModal(true)}
+                  className="mt-4 w-full py-2 bg-[#0d9c06]/10 text-[#0d9c06] border border-[#0d9c06]/20 rounded-lg text-xs font-bold uppercase tracking-wide hover:bg-[#0d9c06] hover:text-white transition-all flex items-center justify-center gap-2"
+                >
+                  <Award size={14} />
+                  Get Certificate
+                </button>
+             )}
+          </div>
 
-                {(!course.resources || course.resources.length === 0) && (!currentLecture?.resources || currentLecture.resources.length === 0) && (
-                  <div className="py-12 text-center">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Download className="text-gray-300" size={32} />
-                    </div>
-                    <h3 className="text-gray-900 font-bold mb-1">No Resources Yet</h3>
-                    <p className="text-gray-500 text-xs px-6">
-                      There are no downloadable resources available for this course.
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
+          {/* List Content */}
+          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
+             {activeTab === 'curriculum' ? (
+                <div className="divide-y divide-white/5">
+                   {course.lectures?.map((section, idx) => (
+                      <div key={section.id || idx} className="bg-[#161b22]">
+                         {section.lectures ? (
+                            <>
+                               <button 
+                                  onClick={() => toggleSection(section.id)}
+                                  className="w-full px-5 py-4 flex items-center justify-between hover:bg-[#1c2128] transition-colors group"
+                               >
+                                  <div className="text-left flex-1 min-w-0 pr-4">
+                                     <h4 className="text-sm font-semibold text-gray-200 group-hover:text-white transition-colors truncate">{section.title}</h4>
+                                     <p className="text-[11px] text-gray-500 mt-0.5">{section.lectures.length} lessons</p>
+                                  </div>
+                                  <div className={`p-1 rounded-full text-gray-500 transition-transform duration-200 ${expandedSections[section.id] ? 'rotate-180 bg-white/5' : ''}`}>
+                                     <ChevronDown size={14} />
+                                  </div>
+                               </button>
+
+                               {expandedSections[section.id] && (
+                                  <div className="bg-[#0d1117] border-y border-black/20">
+                                     {section.lectures.map((lecture) => {
+                                        const isActive = currentLecture?.id === lecture.id;
+                                        const isCompleted = completedLectures[lecture.id];
+                                        const isLocked = isSectionLocked(idx);
+
+                                        return (
+                                           <button
+                                              key={lecture.id}
+                                              onClick={() => handleLectureClick(lecture, idx)}
+                                              disabled={isLocked}
+                                              className={`w-full flex items-start gap-4 px-5 py-3 hover:bg-[#161b22] transition-colors relative group/item ${isActive ? 'bg-[#1c2128]' : ''}`}
+                                           >
+                                              {isActive && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#0d9c06] shadow-[0_0_8px_#0d9c06]"></div>}
+                                              
+                                              <div className="mt-0.5 shrink-0">
+                                                 {isLocked ? (
+                                                    <Lock size={14} className="text-gray-600" />
+                                                 ) : isCompleted ? (
+                                                    <CheckCircle size={14} className="text-[#0d9c06]" />
+                                                 ) : isActive ? (
+                                                    <div className="w-3.5 h-3.5 rounded-full border-2 border-[#0d9c06] flex items-center justify-center">
+                                                       <div className="w-1.5 h-1.5 rounded-full bg-[#0d9c06] animate-pulse"></div>
+                                                    </div>
+                                                 ) : (
+                                                    <div className="w-3.5 h-3.5 rounded-full border border-gray-600 group-hover/item:border-gray-400"></div>
+                                                 )}
+                                              </div>
+
+                                              <div className="flex-1 min-w-0 text-left">
+                                                 <p className={`text-sm leading-snug mb-1 ${isActive ? 'text-[#0d9c06] font-medium' : isCompleted ? 'text-gray-400' : 'text-gray-300'}`}>
+                                                    {lecture.title}
+                                                 </p>
+                                                 <div className="flex items-center gap-2 text-[10px] text-gray-600">
+                                                    <PlayCircle size={10} />
+                                                    {lecture.duration}
+                                                 </div>
+                                              </div>
+                                           </button>
+                                        );
+                                     })}
+                                  </div>
+                               )}
+                            </>
+                         ) : (
+                            <div className="p-4 text-gray-500 italic text-sm text-center">Empty Section</div>
+                         )}
+                      </div>
+                   ))}
+                </div>
+             ) : (
+                <div className="p-6 text-center">
+                   <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Download size={24} className="text-gray-500" />
+                   </div>
+                   <h3 className="text-gray-300 font-medium mb-2">Resource Library</h3>
+                   <p className="text-sm text-gray-500">
+                      All downloadable files for this course will appear here. You can also find lesson-specific files below the video player.
+                   </p>
+                </div>
+             )}
           </div>
         </aside>
       </div>
+
       {/* Badge Modal */}
       {showBadgeModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-md shadow-2xl max-w-sm w-full p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative overflow-hidden">
-            {/* Confetti/Background Effect */}
-            <div className="absolute inset-0 bg-linear-to-b from-yellow-50 to-white -z-10"></div>
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60] p-4 animate-in fade-in duration-300 backdrop-blur-sm">
+          <div className="bg-[#161b22] border border-white/10 rounded-2xl shadow-2xl max-w-sm w-full p-8 text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-linear-to-b from-[#0d9c06]/10 to-transparent -z-10"></div>
             
-            <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-inner animate-bounce">
-              {showBadgeModal.icon}
+            <div className="w-24 h-24 bg-[#0d9c06]/20 rounded-full flex items-center justify-center mx-auto mb-6 ring-4 ring-[#0d9c06]/30 shadow-[0_0_30px_rgba(13,156,6,0.3)] animate-bounce">
+              <span className="text-4xl">{showBadgeModal.icon}</span>
             </div>
             
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Badge Unlocked!</h2>
-            <h3 className="text-xl font-bold text-[#0d9c06] mb-4">{showBadgeModal.name}</h3>
+            <h2 className="text-2xl font-bold text-white mb-1">Badge Unlocked!</h2>
+            <h3 className="text-lg font-medium text-[#0d9c06] mb-4">{showBadgeModal.name}</h3>
             
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-400 mb-8 text-sm leading-relaxed">
               Congratulations! You've earned this badge for your progress. Keep up the great work!
             </p>
             
             <button
               onClick={() => setShowBadgeModal(null)}
-              className="w-full py-3 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
+              className="w-full py-3 bg-[#0d9c06] text-white rounded-lg font-bold hover:bg-[#0b7e05] shadow-lg shadow-[#0d9c06]/20 transition-all active:scale-95"
             >
-              Awesome!
+              Collect Badge
             </button>
           </div>
         </div>
       )}
 
-      {/* Certificate Modal */}
-      {/* Quiz Modal */}
+      {/* Quiz Modal & Certificate Modal placeholders (Styled similarly to dark theme if needed, but keeping functional logic) */}
       {showQuizModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-md shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60] p-4 animate-in fade-in duration-300 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden text-gray-900">
              {/* Header */}
-             <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                 <h2 className="text-xl font-bold text-gray-900">
                   {quizResult ? "Quiz Result" : "Section Quiz"}
                 </h2>
-                <button onClick={() => setShowQuizModal(false)} className="text-gray-500 hover:text-gray-700">
+                <button onClick={() => setShowQuizModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
                   <X size={24} />
                 </button>
              </div>
              
              {/* Content */}
-             <div className="flex-1 overflow-y-auto p-6">
+             <div className="flex-1 overflow-y-auto p-6 md:p-8">
                 {quizResult ? (
-                   <div className="text-center py-8">
-                      <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${quizResult.passed ? 'bg-green-100 text-[#0d9c06]' : 'bg-red-100 text-red-600'}`}>
-                         {quizResult.passed ? <ShieldCheck size={48} /> : <AlertCircle size={48} />}
+                   <div className="text-center py-4">
+                      <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${quizResult.passed ? 'bg-green-100 text-[#0d9c06] ring-8 ring-green-50' : 'bg-red-100 text-red-600 ring-8 ring-red-50'}`}>
+                         {quizResult.passed ? <ShieldCheck size={40} /> : <AlertCircle size={40} />}
                       </div>
-                      <h3 className="text-2xl font-bold mb-2">{quizResult.passed ? "Congratulations!" : "Keep Trying!"}</h3>
-                      <p className="text-gray-600 mb-6">You scored <span className="font-bold text-gray-900">{quizResult.score}%</span> ({quizResult.correct} / {quizResult.total} correct).</p>
+                      <h3 className="text-2xl font-bold mb-2">{quizResult.passed ? "Excellent Job!" : "Keep Trying!"}</h3>
+                      <p className="text-gray-600 mb-8">You scored <span className="font-bold text-gray-900">{quizResult.score}%</span> ({quizResult.correct} / {quizResult.total} correct).</p>
                       
                       {quizResult.passed ? (
-                         <div className="p-4 bg-green-50 rounded-md border border-green-200 text-green-800 text-sm">
+                         <div className="p-4 bg-green-50 rounded-lg border border-green-200 text-green-800 text-sm mb-6 max-w-md mx-auto">
                             You have passed this section! The next section is now unlocked.
                          </div>
                       ) : (
-                         <div className="p-4 bg-red-50 rounded-md border border-red-200 text-red-800 text-sm">
+                         <div className="p-4 bg-red-50 rounded-lg border border-red-200 text-red-800 text-sm mb-6 max-w-md mx-auto">
                             You need 55% to pass. Please review the material and try again.
                          </div>
                       )}
@@ -969,14 +993,14 @@ export default function StudentCoursePlayer() {
                          {!quizResult.passed && (
                             <button 
                                onClick={() => { setQuizResult(null); setQuizAnswers({}); }}
-                               className="px-6 py-2 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] transition-colors cursor-pointer"
+                               className="px-6 py-2.5 bg-[#0d9c06] text-white rounded-lg font-bold hover:bg-[#0b7e05] transition-colors shadow-lg hover:shadow-xl"
                             >
                                Try Again
                             </button>
                          )}
                          <button 
                             onClick={() => setShowQuizModal(false)}
-                            className="px-6 py-2 bg-gray-200 text-gray-800 rounded-md font-bold hover:bg-gray-300 transition-colors cursor-pointer"
+                            className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-bold hover:bg-gray-200 transition-colors"
                          >
                             Close
                          </button>
@@ -985,15 +1009,15 @@ export default function StudentCoursePlayer() {
                 ) : (
                    <div className="space-y-8">
                       {currentQuiz.questions.map((q, idx) => (
-                         <div key={idx} className="bg-gray-50 p-6 rounded-md border border-gray-200">
-                            <p className="font-semibold text-gray-900 mb-4 flex gap-3">
-                               <span className="text-[#0d9c06]">{idx + 1}.</span>
+                         <div key={idx} className="bg-white p-0 rounded-lg">
+                            <p className="font-semibold text-lg text-gray-900 mb-6 flex gap-3">
+                               <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-500 text-sm shrink-0 font-bold">{idx + 1}</span>
                                {q.question}
                             </p>
-                            <div className="space-y-3 pl-6">
+                            <div className="space-y-3 pl-11">
                                {q.options.map((opt, optIdx) => (
-                                  <label key={optIdx} className="flex items-center gap-3 cursor-pointer group">
-                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${quizAnswers[idx] === opt ? 'border-[#0d9c06] bg-white' : 'border-gray-400 group-hover:border-gray-500'}`}>
+                                  <label key={optIdx} className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer group ${quizAnswers[idx] === opt ? 'border-[#0d9c06] bg-[#0d9c06]/5' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}>
+                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ${quizAnswers[idx] === opt ? 'border-[#0d9c06] bg-white' : 'border-gray-300 group-hover:border-gray-400'}`}>
                                         {quizAnswers[idx] === opt && <div className="w-2.5 h-2.5 rounded-full bg-[#0d9c06]" />}
                                      </div>
                                      <input 
@@ -1017,11 +1041,11 @@ export default function StudentCoursePlayer() {
              
              {/* Footer */}
              {!quizResult && (
-                <div className="p-6 border-t border-gray-200 bg-gray-50 flex justify-end">
+                <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end">
                    <button 
                       onClick={handleQuizSubmit}
                       disabled={Object.keys(quizAnswers).length < currentQuiz.questions.length}
-                      className="px-8 py-3 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
+                      className="px-8 py-3 bg-[#0d9c06] text-white rounded-lg font-bold hover:bg-[#0b7e05] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                    >
                       Submit Answers
                    </button>
@@ -1033,20 +1057,24 @@ export default function StudentCoursePlayer() {
 
       {/* Certificate Modal */}
       {showCertificateModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-md shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col relative overflow-hidden">
-            <div className="absolute top-4 right-4 z-10">
-              <button 
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60] p-4 animate-in fade-in duration-300 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] flex flex-col relative overflow-hidden">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <ShieldCheck className="text-[#0d9c06]" />
+                  Your Certificate
+               </h2>
+               <button 
                 onClick={() => setShowCertificateModal(false)}
-                className="bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors cursor-pointer"
-              >
+                className="bg-gray-100 text-gray-600 p-2 rounded-full hover:bg-gray-200 transition-colors"
+               >
                 <X size={20} />
-              </button>
+               </button>
             </div>
             
-            <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-100">
+            <div className="flex-1 overflow-auto p-8 flex items-center justify-center bg-gray-50">
               {course.certificateTemplate ? (
-                <div className="relative shadow-lg max-w-full">
+                <div className="relative shadow-2xl max-w-full rounded-lg overflow-hidden ring-1 ring-gray-200">
                   <CertificateCanvas 
                     templateUrl={course.certificateTemplate}
                     studentName={auth.currentUser?.displayName || "Student Name"}
@@ -1056,14 +1084,22 @@ export default function StudentCoursePlayer() {
                   />
                 </div>
               ) : (
-                <div className="aspect-video w-full max-w-3xl bg-white rounded-md flex flex-col items-center justify-center text-gray-500 shadow-sm">
-                  <ShieldCheck size={64} className="mb-4 text-gray-300" />
-                  <p>Certificate template not available yet.</p>
+                <div className="aspect-video w-full max-w-3xl bg-white rounded-xl flex flex-col items-center justify-center text-gray-500 shadow-sm border border-gray-200">
+                  <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                     <ShieldCheck size={40} className="text-gray-300" />
+                  </div>
+                  <p className="font-medium">Certificate template is being prepared.</p>
                 </div>
               )}
             </div>
 
-            <div className="p-4 border-t border-gray-200 bg-white flex justify-center">
+            <div className="p-6 border-t border-gray-200 bg-white flex justify-end gap-3">
+              <button 
+                  onClick={() => setShowCertificateModal(false)}
+                  className="px-6 py-2.5 text-gray-600 font-bold hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Close
+              </button>
               <button 
                 onClick={() => {
                   const canvas = document.getElementById('certificate-canvas');
@@ -1074,9 +1110,9 @@ export default function StudentCoursePlayer() {
                     link.click();
                   }
                 }}
-                className={`px-8 py-3 bg-[#0d9c06] text-white rounded-md font-bold hover:bg-[#0b7e05] shadow-lg transition-colors flex items-center gap-2 cursor-pointer ${!course.certificateTemplate ? 'opacity-50 pointer-events-none' : ''}`}
+                className={`px-8 py-2.5 bg-[#0d9c06] text-white rounded-lg font-bold hover:bg-[#0b7e05] shadow-lg shadow-[#0d9c06]/20 transition-all flex items-center gap-2 ${!course.certificateTemplate ? 'opacity-50 pointer-events-none' : ''}`}
               >
-                <Download size={20} />
+                <Download size={18} />
                 Download Certificate
               </button>
             </div>

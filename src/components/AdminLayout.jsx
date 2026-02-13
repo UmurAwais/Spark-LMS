@@ -316,7 +316,7 @@ export default function AdminLayout({ children }) {
 
               {/* Notification Dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-3 w-[400px] bg-white/90 backdrop-blur-2xl rounded-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] border border-white/50 ring-1 ring-black/5 overflow-hidden z-[100] transform transition-all origin-top-right animate-in fade-in zoom-in-95 duration-200">
+                <div className="absolute right-0 mt-3 w-[400px] bg-white/90 backdrop-blur-2xl rounded-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] border border-white/50 ring-1 ring-black/5 overflow-hidden z-100 transform transition-all origin-top-right animate-in fade-in zoom-in-95 duration-200">
                   {/* Dropdown Header */}
                   <div className="p-4 border-b border-gray-100/50 flex items-center justify-between bg-linear-to-b from-gray-50/80 to-transparent">
                     <div className="flex items-center gap-3">
