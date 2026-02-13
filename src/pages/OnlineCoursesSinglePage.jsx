@@ -182,42 +182,54 @@ export default function OnlineCoursePage() {
         {/* LEFT */}
         <div className="flex-1">
           {/* Video Player Section */}
-          <section className="bg-white rounded-md shadow-sm p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Course Preview</h2>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+          <section className="bg-white rounded-3xl shadow-xl border border-gray-100 p-1 sm:p-2 mb-8 overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-2 h-8 bg-[#0d9c06] rounded-full"></div>
+                Course Preview
+              </h2>
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full">
                 <Video size={16} />
                 <span>{lectures.length} lectures</span>
               </div>
             </div>
             
-            {selectedLecture ? (
-              <div className="w-full aspect-video bg-black rounded-md overflow-hidden shadow-lg">
-                {selectedLecture.videoUrl && (selectedLecture.videoUrl.includes('drive.google.com') || selectedLecture.videoUrl.includes('youtube') || selectedLecture.videoUrl.includes('vimeo')) ? (
-                   <iframe 
-                    src={getEmbedUrl(selectedLecture.videoUrl)} 
-                    title={selectedLecture.title}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowFullScreen
-                  ></iframe>
-                ) : (
-                  <VideoPlayer
-                    videoUrl={selectedLecture.videoUrl}
-                    previewUrl={selectedLecture.videoUrl} // Use same URL for preview
-                    title={selectedLecture.title}
-                    isPreview={true}
-                  />
-                )}
-              </div>
-            ) : (
-              <div className="w-full aspect-video bg-linear-to-br from-[#1c1d1f] to-[#2d2e30] rounded-md flex items-center justify-center">
-                <div className="text-center text-white">
-                  <PlayCircle size={64} className="mx-auto mb-4 opacity-50" />
-                  <p className="text-lg font-semibold mb-2">No lectures available</p>
+            <div className="p-2 sm:p-4 pt-0">
+              {selectedLecture ? (
+                <div className="w-full max-w-[900px] mx-auto aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative">
+                  {selectedLecture.videoUrl && (selectedLecture.videoUrl.includes('drive.google.com') || selectedLecture.videoUrl.includes('youtube') || selectedLecture.videoUrl.includes('vimeo')) ? (
+                    <div className="w-full h-full relative group">
+                      <iframe 
+                        src={getEmbedUrl(selectedLecture.videoUrl)} 
+                        title={selectedLecture.title}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowFullScreen
+                      ></iframe>
+                      {/* Premium border overlay for iframes */}
+                      <div className="absolute inset-0 pointer-events-none border border-white/10 rounded-2xl"></div>
+                    </div>
+                  ) : (
+                    <VideoPlayer 
+                      videoUrl={selectedLecture.videoUrl} 
+                      poster={course.image}
+                      title={selectedLecture.title}
+                      isPreview={true}
+                    />
+                  )}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="w-full max-w-[900px] mx-auto aspect-video bg-linear-to-br from-[#1c1d1f] to-[#2d2e30] rounded-2xl flex items-center justify-center">
+                  <div className="text-center text-white">
+                    <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-4">
+                      <PlayCircle size={40} className="text-white/50" />
+                    </div>
+                    <p className="text-lg font-semibold mb-1">No lectures available</p>
+                    <p className="text-sm text-white/40">Select a lecture to start watching</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </section>
 
           {/* Course Curriculum */}

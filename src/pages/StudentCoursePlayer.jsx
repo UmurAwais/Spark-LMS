@@ -21,6 +21,7 @@ import {
 import { apiFetch, API_URL } from '../config';
 import { auth } from '../firebaseConfig';
 import SparkLogo from '../assets/Logo.png';
+import VideoPlayer from '../components/VideoPlayer';
 
 export default function StudentCoursePlayer() {
   const { courseId } = useParams();
@@ -33,6 +34,11 @@ export default function StudentCoursePlayer() {
   const [activeTab, setActiveTab] = useState('curriculum'); // 'curriculum' or 'resources'
   const [completedLectures, setCompletedLectures] = useState({});
   const [showBadgeModal, setShowBadgeModal] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    setIsPlaying(false);
+  }, [currentLecture]);
 
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   
@@ -479,88 +485,84 @@ export default function StudentCoursePlayer() {
       <div className="flex flex-col lg:flex-row relative">
         {/* Main Content (Video) */}
         <main className="flex-1 bg-white flex flex-col min-w-0">
-          {/* Video Player Container with Padding and Rounded Corners */}
-          <div className="w-full bg-white py-6 px-6">
-            <div className="max-w-6xl mx-auto aspect-video bg-black rounded-md overflow-hidden shadow-lg">
-              {currentLecture && currentLecture.videoUrl ? (
-                <div key={currentLecture.id} className="relative w-full h-full bg-black group">
-                  {currentLecture.videoUrl.includes('google.com') ? (
-                    /* Native Iframe for Google Drive - More stable than ReactPlayer for GDrive specifically */
-                    <iframe
-                      src={(() => {
-                        const url = currentLecture.videoUrl;
-                        let fileId = '';
-                        const patterns = [/\/d\/([a-zA-Z0-9_-]+)/, /[?&]id=([a-zA-Z0-9_-]+)/, /\/file\/d\/([a-zA-Z0-9_-]+)/];
-                        for (let pattern of patterns) {
-                          const match = url.match(pattern);
-                          if (match && match[1]) { fileId = match[1]; break; }
-                        }
-                        return fileId ? `https://drive.google.com/file/d/${fileId}/preview?usp=sharing` : url;
-                      })()}
-                      className="w-full h-full border-0"
-                      allow="autoplay; fullscreen; picture-in-picture; encrypted-media;"
-                      allowFullScreen
-                      title={currentLecture.title}
-                    />
-                  ) : (
-                    /* ReactPlayer for YouTube, Vimeo, and Local Files */
-                    <ReactPlayer
-                      url={(() => {
-                          let url = currentLecture.videoUrl;
-                          if (!url) return '';
-                          
-                          // Handle local uploads with safety check
-                          if (url.includes('/uploads/')) {
-                              const path = url.split('/uploads/')[1];
-                              const safeApiUrl = API_URL || '';
-                              const base = safeApiUrl.endsWith('/') ? safeApiUrl.slice(0, -1) : safeApiUrl;
-                              return `${base}/uploads/${path}`;
+          {/* Video Player Container - Clean Background */}
+          <div className="w-full bg-[#f8fafc] py-4 sm:py-10 px-0 sm:px-8 border-b border-gray-100">
+            <div className="max-w-5xl mx-auto">
+              <div className="relative aspect-video bg-[#1a1c1e] sm:rounded-3xl overflow-hidden shadow-2xl sm:border-2 border-white/5 group">
+                {currentLecture && currentLecture.videoUrl ? (
+                  <div key={currentLecture.id} className="relative w-full h-full bg-black">
+                    {currentLecture.videoUrl.includes('google.com') ? (
+                      /* Native Iframe for Google Drive - Instant Load */
+                      <iframe
+                        src={(() => {
+                          const url = currentLecture.videoUrl;
+                          let fileId = '';
+                          const patterns = [/\/d\/([a-zA-Z0-9_-]+)/, /[?&]id=([a-zA-Z0-9_-]+)/, /\/file\/d\/([a-zA-Z0-9_-]+)/];
+                          for (let pattern of patterns) {
+                            const match = url.match(pattern);
+                            if (match && match[1]) { fileId = match[1]; break; }
                           }
-                          
-                          return url;
-                      })()}
-                      width="100%"
-                      height="100%"
-                      controls
-                      playing={true}
-                      onEnded={() => {
+                          return fileId ? `https://drive.google.com/file/d/${fileId}/preview?usp=sharing` : url;
+                        })()}
+                        className="w-full h-full border-0"
+                        allow="autoplay; fullscreen; picture-in-picture; encrypted-media;"
+                        allowFullScreen
+                        title={currentLecture.title}
+                      />
+                    ) : (currentLecture.videoUrl.includes('youtube.com') || currentLecture.videoUrl.includes('youtu.be') || currentLecture.videoUrl.includes('vimeo.com')) ? (
+                      /* ReactPlayer for YouTube and Vimeo - Instant Load */
+                      <ReactPlayer
+                        url={currentLecture.videoUrl}
+                        width="100%"
+                        height="100%"
+                        controls
+                        playing={true}
+                        onEnded={() => {
+                            if (!completedLectures[currentLecture.id]) {
+                                handleMarkComplete();
+                            }
+                        }}
+                      />
+                    ) : (
+                      /* Custom VideoPlayer for Direct Files */
+                      <VideoPlayer 
+                        videoUrl={currentLecture.videoUrl}
+                        title={currentLecture.title}
+                        onEnded={() => {
                           if (!completedLectures[currentLecture.id]) {
                               handleMarkComplete();
                           }
-                      }}
-                      config={{
-                        file: {
-                          attributes: {
-                            controlsList: 'nodownload',
-                            playsInline: true
-                          }
-                        }
-                      }}
-                    />
-                  )}
+                        }}
+                      />
+                    )}
 
-                  {/* Troubleshooting Overlay for Drive */}
-                  {currentLecture.videoUrl.includes('google.com') && (
-                    <div className="absolute top-4 right-4 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-                       <p className="text-white text-[10px] bg-black/60 px-2 py-1 rounded border border-white/20">
-                        Drive Viewer Mode
-                       </p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 p-8">
-                  <p className="text-lg mb-2">Select a lecture to start watching</p>
-                  <p className="text-sm text-gray-400">Choose a lecture from the sidebar</p>
-                </div>
-              )}
+                    {/* Minimal Drive Overlay */}
+                    {currentLecture.videoUrl.includes('google.com') && (
+                      <div className="absolute top-2 right-2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                         <p className="text-white text-[8px] sm:text-[10px] bg-black/40 px-2 py-1 rounded-full backdrop-blur-sm">
+                          Drive Mode
+                         </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 bg-black">
+                    <PlayCircle size={40} className="text-white/20 mb-4 animate-pulse" />
+                    <p className="text-sm font-medium text-white/40">Select a lecture to start</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           
-          <div className="max-w-6xl mx-auto w-full px-4 md:px-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div className="max-w-5xl mx-auto w-full px-4 md:px-8 mt-6 sm:mt-10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 mb-8">
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-[#0d9c06]/10 text-[#0d9c06] text-[8px] sm:text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Now Playing</span>
+                  <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[#0d9c06] rounded-full animate-pulse"></div>
+                </div>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight">
                   {currentLecture?.title}
                 </h2>
                 {currentLecture?.videoUrl?.includes('google.com') && (
@@ -568,61 +570,69 @@ export default function StudentCoursePlayer() {
                     href={currentLecture.videoUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-[#0d9c06] bg-[#0d9c06]/10 px-4 py-2 rounded-lg hover:bg-[#0d9c06]/20 transition-colors mt-3 font-semibold border border-[#0d9c06]/20"
+                    className="inline-flex items-center gap-2 text-[9px] sm:text-xs text-[#0d9c06] bg-[#0d9c06]/5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-[#0d9c06]/10 transition-colors mt-2 sm:mt-3 font-semibold border border-[#0d9c06]/10"
                   >
-                    <PlayCircle size={18} />
-                    Watch Video on Google Drive (Instant Fix)
+                    <PlayCircle size={12} className="sm:hidden" />
+                    <PlayCircle size={16} className="hidden sm:block" />
+                    Watch on Drive (Standard Player)
                   </a>
                 )}
               </div>
               <button
                 onClick={handleMarkComplete}
-                className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-full font-semibold transition-all shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap min-w-[170px] ${
+                className={`flex items-center justify-center gap-2 px-6 py-2.5 sm:px-8 sm:py-3 rounded-full text-xs sm:text-base font-bold transition-all shadow-[0_10px_15px_-3px_rgba(13,156,6,0.2)] hover:shadow-xl transform hover:-translate-y-0.5 sm:hover:-translate-y-1 whitespace-nowrap min-w-[140px] md:min-w-[200px] ${
                   completedLectures[currentLecture?.id]
-                    ? 'bg-green-100 text-green-700 border border-green-200'
-                    : 'bg-[#0d9c06] text-white hover:bg-[#0b7e05]'
+                    ? 'bg-white text-green-700 border border-green-200 shadow-none'
+                    : 'bg-linear-to-r from-[#0d9c06] to-[#0b7e05] text-white'
                 }`}
               >
                 {completedLectures[currentLecture?.id] ? (
                   <>
-                    <CheckCircle size={20} />
+                    <CheckCircle size={18} className="sm:hidden" />
+                    <CheckCircle size={22} className="hidden sm:block" />
                     Completed
                   </>
                 ) : (
                   <>
-                    <div className="w-5 h-5 rounded-full border-2 border-white/80"></div>
+                    <div className="w-3.5 h-3.5 sm:w-5 sm:h-5 rounded-full border border-white/40 flex items-center justify-center">
+                      <div className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-white opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
                     Mark as Complete
                   </>
                 )}
               </button>
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-8">
+            {/* Navigation Buttons - More Professional Mobile Layout */}
+            <div className="flex items-center justify-between mb-8 border-b border-gray-100 pb-8 gap-3">
               <button
                 onClick={() => prevLecture && handleLectureClick(prevLecture)}
                 disabled={!prevLecture}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-md font-medium transition-all ${
+                className={`flex-1 sm:flex-none flex items-center justify-center sm:justify-start gap-1 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${
                   prevLecture 
                     ? 'text-gray-700 hover:bg-gray-100 border border-gray-300 hover:border-gray-400' 
                     : 'text-gray-300 cursor-not-allowed border border-gray-100'
                 }`}
               >
-                <ChevronLeft size={20} />
-                Previous
+                <ChevronLeft size={16} className="sm:hidden" />
+                <ChevronLeft size={18} className="hidden sm:block" />
+                Prev
+                <span className="hidden sm:inline ml-1">Lecture</span>
               </button>
 
               <button
                 onClick={() => nextLecture && handleLectureClick(nextLecture)}
                 disabled={!nextLecture}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-md font-medium transition-all ${
+                className={`flex-1 sm:flex-none flex items-center justify-center sm:justify-start gap-1 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${
                   nextLecture 
-                    ? 'bg-white text-[#0d9c06] border border-[#0d9c06] hover:bg-green-50 shadow-sm hover:shadow-md' 
+                    ? 'bg-white text-[#0d9c06] border border-[#0d9c06] hover:bg-green-50 shadow-sm' 
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                 }`}
               >
-                Next Lecture
-                <ChevronRight size={20} />
+                Next
+                <span className="hidden sm:inline mx-1">Lecture</span>
+                <ChevronRight size={16} className="sm:hidden" />
+                <ChevronRight size={18} className="hidden sm:block" />
               </button>
             </div>
 

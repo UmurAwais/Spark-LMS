@@ -1,14 +1,15 @@
-import React, { useState, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, Settings, SkipBack, SkipForward } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Play, Pause, Volume2, VolumeX, Maximize, Settings, SkipBack, SkipForward, RotateCcw } from 'lucide-react';
 import { API_URL } from '../config';
 
-export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = false }) {
+export default function VideoPlayer({ videoUrl, previewUrl, title, poster, isPreview = false, onEnded, onPlay, onPause }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showControls, setShowControls] = useState(true);
   const [volume, setVolume] = useState(1);
+  const [isHovering, setIsHovering] = useState(false);
   const videoRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
 
@@ -27,7 +28,6 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
       } else {
         videoRef.current.play();
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -59,7 +59,7 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
   };
 
   const handleVolumeChange = (e) => {
-    const newVolume = e.target.value / 100;
+    const newVolume = parseFloat(e.target.value) / 100;
     if (videoRef.current) {
       videoRef.current.volume = newVolume;
       setVolume(newVolume);
@@ -72,7 +72,12 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
       if (document.fullscreenElement) {
         document.exitFullscreen();
       } else {
-        videoRef.current.requestFullscreen();
+        const container = videoRef.current.parentElement;
+        if (container.requestFullscreen) {
+          container.requestFullscreen();
+        } else if (container.webkitRequestFullscreen) {
+          container.webkitRequestFullscreen();
+        }
       }
     }
   };
@@ -104,9 +109,13 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
 
   return (
     <div 
-      className="relative w-full bg-black rounded-md overflow-hidden group"
+      className="relative w-full max-w-[1000px] mx-auto bg-black rounded-lg sm:rounded-2xl overflow-hidden group shadow-2xl border border-white/10"
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => isPlaying && setShowControls(false)}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => {
+        setIsHovering(false);
+        if (isPlaying) setShowControls(false);
+      }}
     >
       {/* Video Element */}
       <video
@@ -114,137 +123,155 @@ export default function VideoPlayer({ videoUrl, previewUrl, title, isPreview = f
         className="w-full aspect-video object-contain"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
-        onEnded={() => setIsPlaying(false)}
+        onPlay={() => {
+          setIsPlaying(true);
+          if (onPlay) onPlay();
+        }}
+        onPause={() => {
+          setIsPlaying(false);
+          if (onPause) onPause();
+        }}
+        onEnded={() => {
+          setIsPlaying(false);
+          if (onEnded) onEnded();
+        }}
         onClick={togglePlay}
         src={videoSource}
+        preload="auto"
+        poster={poster}
+        playsInline
       >
         Your browser does not support the video tag.
       </video>
 
-      {/* Preview Overlay */}
-      {isPreview && (
-        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-black/40 flex items-center justify-center pointer-events-none">
-          <div className="text-center text-white">
-            <div className="bg-[#0d9c06]/90 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-2">
-              Preview Mode
-            </div>
-            <p className="text-xs opacity-80">Enroll to watch full lecture</p>
-          </div>
-        </div>
-      )}
+      {/* Subtle Gradient only */}
+      <div className={`absolute inset-0 bg-linear-to-t from-black/60 via-transparent pointer-events-none transition-opacity duration-300 ${showControls || !isPlaying ? 'opacity-100' : 'opacity-0'}`} />
 
-      {/* Play/Pause Overlay */}
+      {/* Minimal Center Play Button */}
       {!isPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+        <div className="absolute inset-0 flex items-center justify-center z-20">
           <button
             onClick={togglePlay}
-            className="w-20 h-20 bg-[#0d9c06] hover:bg-[#0b7e05] rounded-full flex items-center justify-center transition-all transform hover:scale-110 shadow-2xl cursor-pointer"
+            className="w-16 h-16 sm:w-20 sm:h-20 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-105 cursor-pointer"
           >
-            <Play size={36} className="text-white ml-1" fill="white" />
+            <Play size={32} className="text-white ml-1" fill="currentColor" />
           </button>
         </div>
       )}
 
-      {/* Controls */}
+      {/* Minimal Controls */}
       <div 
-        className={`absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/90 via-black/70 to-transparent p-4 transition-opacity duration-300 ${
+        className={`absolute bottom-2 left-2 right-2 sm:bottom-4 sm:left-4 sm:right-4 z-30 transition-all duration-300 ${
           showControls || !isPlaying ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        {/* Progress Bar */}
-        <div className="mb-3">
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={(currentTime / duration) * 100 || 0}
-            onChange={handleSeek}
-            className="w-full h-1 bg-gray-600 rounded-md appearance-none cursor-pointer slider"
-            style={{
-              background: `linear-gradient(to right, #0d9c06 0%, #0d9c06 ${(currentTime / duration) * 100}%, #4b5563 ${(currentTime / duration) * 100}%, #4b5563 100%)`
-            }}
-          />
-          <div className="flex justify-between text-xs text-white mt-1">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
-        </div>
-
-        {/* Control Buttons */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* Play/Pause */}
-            <button
-              onClick={togglePlay}
-              className="text-white hover:text-[#0d9c06] transition-colors cursor-pointer"
-            >
-              {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-            </button>
-
-            {/* Skip Buttons */}
-            <button
-              onClick={() => skipTime(-10)}
-              className="text-white hover:text-[#0d9c06] transition-colors"
-            >
-              <SkipBack size={20} />
-            </button>
-            <button
-              onClick={() => skipTime(10)}
-              className="text-white hover:text-[#0d9c06] transition-colors"
-            >
-              <SkipForward size={20} />
-            </button>
-
-            {/* Volume */}
-            <div className="flex items-center gap-2 group/volume">
-              <button
-                onClick={toggleMute}
-                className="text-white hover:text-[#0d9c06] transition-colors cursor-pointer"
-              >
-                {isMuted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
-              </button>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={volume * 100}
-                onChange={handleVolumeChange}
-                className="w-0 group-hover/volume:w-20 transition-all duration-300 h-1 bg-gray-600 rounded-md appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #0d9c06 0%, #0d9c06 ${volume * 100}%, #4b5563 ${volume * 100}%, #4b5563 100%)`
-                }}
+        <div className="bg-black/60 backdrop-blur-md rounded-xl p-2 sm:p-3">
+          {/* Progress Bar */}
+          <div className="relative group/progress mb-2 sm:mb-3">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="0.1"
+              value={(currentTime / duration) * 100 || 0}
+              onChange={handleSeek}
+              className="absolute inset-0 w-full h-1 opacity-0 cursor-pointer z-10"
+            />
+            <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-[#0d9c06] relative"
+                style={{ width: `${(currentTime / duration) * 100 || 0}%` }}
               />
             </div>
-
-            {/* Time Display */}
-            <span className="text-white text-sm ml-2">
-              {formatTime(currentTime)} / {formatTime(duration)}
-            </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Settings (placeholder) */}
-            <button className="text-white hover:text-[#0d9c06] transition-colors cursor-pointer">
-              <Settings size={20} />
-            </button>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 sm:gap-5">
+              <button onClick={togglePlay} className="text-white hover:text-[#0d9c06] transition-colors">
+                {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+              </button>
 
-            {/* Fullscreen */}
-            <button
-              onClick={toggleFullscreen}
-              className="text-white hover:text-[#0d9c06] transition-colors cursor-pointer"
-            >
-              <Maximize size={20} />
+              <div className="flex items-center gap-2 group/volume">
+                <button onClick={toggleMute} className="text-white/80 hover:text-white">
+                  {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={volume * 100}
+                  onChange={handleVolumeChange}
+                  className="w-0 group-hover/volume:w-16 transition-all duration-300 h-1 bg-white/20 rounded-full appearance-none cursor-pointer"
+                />
+              </div>
+
+              <div className="text-white/70 text-[10px] sm:text-xs font-medium tabular-nums">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </div>
+            </div>
+
+            <button onClick={toggleFullscreen} className="text-white/80 hover:text-white transition-transform hover:scale-110">
+              <Maximize size={18} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Title Overlay */}
-      {title && showControls && (
-        <div className="absolute top-0 left-0 right-0 bg-linear-to-b from-black/70 to-transparent p-4">
-          <h3 className="text-white font-semibold text-sm">{title}</h3>
+      {/* Header Overlay */}
+      {title && (showControls || !isPlaying) && (
+        <div className="absolute top-0 left-0 right-0 p-3 sm:p-6 flex justify-between items-start z-30 pointer-events-none">
+          <div className="bg-black/20 backdrop-blur-md px-3 py-1 sm:px-4 sm:py-2 rounded-lg sm:rounded-2xl border border-white/10 pointer-events-auto">
+            <h3 className="text-white font-semibold text-[10px] sm:text-sm tracking-wide truncate max-w-[150px] sm:max-w-none">{title}</h3>
+          </div>
+          
+          <button 
+            onClick={() => { if(videoRef.current) videoRef.current.currentTime = 0 }}
+            className="bg-black/20 backdrop-blur-md p-1.5 sm:p-2 rounded-lg sm:rounded-xl border border-white/10 text-white/70 hover:text-white transition-colors pointer-events-auto cursor-pointer"
+            title="Restart Video"
+          >
+            <RotateCcw size={14} className="sm:hidden" />
+            <RotateCcw size={16} className="hidden sm:block" />
+          </button>
         </div>
       )}
+
+      {/* Custom Styles for Slider/Range Inputs */}
+      <style>{`
+        .slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 8px;
+          height: 8px;
+          background: white;
+          border-radius: 50%;
+          cursor: pointer;
+        }
+        
+        @media (min-width: 640px) {
+          .slider::-webkit-slider-thumb {
+            width: 12px;
+            height: 12px;
+          }
+        }
+        
+        input[type='range']::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          height: 8px;
+          width: 8px;
+          border-radius: 50%;
+          background: #ffffff;
+          cursor: pointer;
+        }
+        
+        @media (min-width: 640px) {
+          input[type='range']::-webkit-slider-thumb {
+            height: 12px;
+            width: 12px;
+          }
+        }
+      `}</style>
     </div>
   );
 }
+
+
