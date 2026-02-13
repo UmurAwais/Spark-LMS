@@ -478,8 +478,17 @@ export default function StudentCoursePlayer() {
       </header>
 
       <div className="flex-1 flex overflow-hidden relative">
+        <style>{`
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+          .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        `}</style>
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col min-w-0 bg-[#0f1113] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-[#0d9c06]/50 scroll-smooth pb-20 lg:pb-0">
+        <main className="flex-1 flex flex-col min-w-0 bg-[#0f1113] overflow-y-auto no-scrollbar scroll-smooth pb-20 lg:pb-0">
           
           {/* Video Player Container - Theater Mode */}
           <div className="w-full bg-[#050607] relative group py-0 lg:py-8">
@@ -842,7 +851,7 @@ export default function StudentCoursePlayer() {
           </div>
 
           {/* List Content */}
-          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
+          <div className="flex-1 overflow-y-auto no-scrollbar">
              {activeTab === 'curriculum' ? (
                 <div className="divide-y divide-white/5">
                    {course.lectures?.map((section, idx) => (
