@@ -230,7 +230,33 @@ export default function AdminCourses() {
     }));
   }
 
-
+  async function fetchVideoInfo(sectionId, lectureId, url) {
+    if (!url || (!url.includes('youtube.com') && !url.includes('youtu.be'))) return;
+    
+    addNotification({ type: 'info', title: 'Fetching...', message: 'Fetching YouTube details...' });
+    
+    try {
+      const res = await apiFetch('/api/admin/fetch-video-info', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          "x-admin-token": localStorage.getItem("admin_token")
+        },
+        body: JSON.stringify({ url })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        if (data.title) updateLecture(sectionId, lectureId, 'title', data.title);
+        if (data.duration) updateLecture(sectionId, lectureId, 'duration', data.duration);
+        addNotification({ type: 'success', title: 'Fetched', message: 'Successfully fetched video info' });
+      } else {
+        addNotification({ type: 'error', title: 'Fetch Failed', message: data.message || 'Could not fetch YouTube info.' });
+      }
+    } catch (e) {
+      console.error(e);
+      addNotification({ type: 'error', title: 'Error', message: 'Failed to fetch YouTube details' });
+    }
+  }
 
   // Drag and Drop State & Handlers
   const [draggedItem, setDraggedItem] = useState(null);
@@ -1577,7 +1603,19 @@ export default function AdminCourses() {
                                           <span className="text-gray-400 italic text-xs">No content connected</span>
                                         )}
                                       </div>
+                                      {lecture.videoUrl && (lecture.videoUrl.includes('youtube.com') || lecture.videoUrl.includes('youtu.be')) && (
+                                        <button
+                                          type="button"
+                                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); fetchVideoInfo(section.id, lecture.id, lecture.videoUrl); }}
+                                          className="px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md text-xs font-medium hover:bg-red-100 transition-all flex items-center gap-1 whitespace-nowrap cursor-pointer h-[38px]"
+                                          title="Auto-fetch Youtube Title & Duration"
+                                        >
+                                          <PlayCircle size={14} />
+                                          Fetch Details
+                                        </button>
+                                      )}
                                       <button
+                                        type="button"
                                         onClick={() => openResourcePicker('video', { sectionId: section.id, lectureId: lecture.id })}
                                         className="px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-xs font-medium hover:bg-gray-50 hover:text-[#0d9c06] hover:border-[#0d9c06] transition-all flex items-center gap-1 whitespace-nowrap cursor-pointer h-[38px]"
                                       >
