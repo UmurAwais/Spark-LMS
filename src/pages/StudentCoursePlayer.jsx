@@ -514,17 +514,31 @@ export default function StudentCoursePlayer() {
                         title={currentLecture.title}
                       />
                     ) : (currentLecture.videoUrl.includes('youtube.com') || currentLecture.videoUrl.includes('youtu.be') || currentLecture.videoUrl.includes('vimeo.com')) ? (
-                      <ReactPlayer
-                        url={currentLecture.videoUrl}
-                        width="100%"
-                        height="100%"
-                        controls
-                        playing={isPlaying}
-                        onEnded={() => {
-                            if (!completedLectures[currentLecture.id]) {
-                                handleMarkComplete();
-                            }
-                        }}
+                      <iframe
+                         src={(() => {
+                           const url = currentLecture.videoUrl;
+                           let videoId = '';
+                           if (url.includes('youtube.com/watch')) {
+                               const urlParams = new URL(url);
+                               videoId = urlParams.searchParams.get('v');
+                           } else if (url.includes('youtu.be/')) {
+                               videoId = url.split('youtu.be/')[1].split('?')[0];
+                           } else if (url.includes('vimeo.com')) {
+                               const vimeoIdMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:\w+\/)?|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/);
+                               if (vimeoIdMatch && vimeoIdMatch[1]) {
+                                   return `https://player.vimeo.com/video/${vimeoIdMatch[1]}`;
+                               }
+                           }
+                           
+                           if (videoId) {
+                               return `https://www.youtube.com/embed/${videoId}`;
+                           }
+                           return url;
+                         })()}
+                         className="w-full h-full border-0"
+                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                         allowFullScreen
+                         title={currentLecture.title}
                       />
                     ) : (
                       <VideoPlayer 
