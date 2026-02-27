@@ -198,16 +198,21 @@ export default function OnlineCoursePage() {
               {selectedLecture ? (
                 <div className="w-full max-w-[900px] mx-auto aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative">
                   {selectedLecture.videoUrl && (selectedLecture.videoUrl.includes('drive.google.com') || selectedLecture.videoUrl.includes('youtube') || selectedLecture.videoUrl.includes('vimeo')) ? (
-                    <div className="w-full h-full relative group">
+                    <div className="w-full h-full relative overflow-hidden rounded-2xl">
                       <iframe 
                         src={getEmbedUrl(selectedLecture.videoUrl)} 
                         title={selectedLecture.title}
-                        className="w-full h-full"
+                        style={{
+                          position: 'absolute',
+                          top: '-60px',
+                          left: '0',
+                          width: '100%',
+                          height: 'calc(100% + 60px)',
+                          border: '0'
+                        }}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                         allowFullScreen
                       ></iframe>
-                      {/* Premium border overlay for iframes */}
-                      <div className="absolute inset-0 pointer-events-none border border-white/10 rounded-2xl"></div>
                     </div>
                   ) : (
                     <VideoPlayer 

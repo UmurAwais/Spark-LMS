@@ -497,49 +497,67 @@ export default function StudentCoursePlayer() {
                 {currentLecture && currentLecture.videoUrl ? (
                   <>
                     {currentLecture.videoUrl.includes('google.com') ? (
-                      <iframe
-                        src={(() => {
-                          const url = currentLecture.videoUrl;
-                          let fileId = '';
-                          const patterns = [/\/d\/([a-zA-Z0-9_-]+)/, /[?&]id=([a-zA-Z0-9_-]+)/, /\/file\/d\/([a-zA-Z0-9_-]+)/];
-                          for (let pattern of patterns) {
-                            const match = url.match(pattern);
-                            if (match && match[1]) { fileId = match[1]; break; }
-                          }
-                          return fileId ? `https://drive.google.com/file/d/${fileId}/preview?usp=sharing` : url;
-                        })()}
-                        className="w-full h-full border-0"
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        allowFullScreen
-                        title={currentLecture.title}
-                      />
+                      <div className="w-full h-full relative overflow-hidden rounded-2xl">
+                        <iframe
+                          src={(() => {
+                            const url = currentLecture.videoUrl;
+                            let fileId = '';
+                            const patterns = [/\/d\/([a-zA-Z0-9_-]+)/, /[?&]id=([a-zA-Z0-9_-]+)/, /\/file\/d\/([a-zA-Z0-9_-]+)/];
+                            for (let pattern of patterns) {
+                              const match = url.match(pattern);
+                              if (match && match[1]) { fileId = match[1]; break; }
+                            }
+                            return fileId ? `https://drive.google.com/file/d/${fileId}/preview?usp=sharing` : url;
+                          })()}
+                          style={{
+                            position: 'absolute',
+                            top: '-60px',
+                            left: '0',
+                            width: '100%',
+                            height: 'calc(100% + 60px)',
+                            border: '0'
+                          }}
+                          allow="autoplay; fullscreen"
+                          allowFullScreen
+                          title={currentLecture.title}
+                        />
+                      </div>
                     ) : (currentLecture.videoUrl.includes('youtube.com') || currentLecture.videoUrl.includes('youtu.be') || currentLecture.videoUrl.includes('vimeo.com')) ? (
-                      <iframe
-                         src={(() => {
-                           const url = currentLecture.videoUrl;
-                           let videoId = '';
-                           if (url.includes('youtube.com/watch')) {
-                               const urlParams = new URL(url);
-                               videoId = urlParams.searchParams.get('v');
-                           } else if (url.includes('youtu.be/')) {
-                               videoId = url.split('youtu.be/')[1].split('?')[0];
-                           } else if (url.includes('vimeo.com')) {
-                               const vimeoIdMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:\w+\/)?|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/);
-                               if (vimeoIdMatch && vimeoIdMatch[1]) {
-                                   return `https://player.vimeo.com/video/${vimeoIdMatch[1]}`;
-                               }
-                           }
-                           
-                           if (videoId) {
-                               return `https://www.youtube.com/embed/${videoId}`;
-                           }
-                           return url;
-                         })()}
-                         className="w-full h-full border-0"
-                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                         allowFullScreen
-                         title={currentLecture.title}
-                      />
+                      <div className="w-full h-full relative overflow-hidden rounded-2xl">
+                        <iframe
+                           src={(() => {
+                             const url = currentLecture.videoUrl;
+                             let videoId = '';
+                             if (url.includes('youtube.com/watch')) {
+                                 const urlParams = new URL(url);
+                                 videoId = urlParams.searchParams.get('v');
+                             } else if (url.includes('youtu.be/')) {
+                                 videoId = url.split('youtu.be/')[1].split('?')[0];
+                             } else if (url.includes('vimeo.com')) {
+                                 const vimeoIdMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:\w+\/)?|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/);
+                                 if (vimeoIdMatch && vimeoIdMatch[1]) {
+                                     return `https://player.vimeo.com/video/${vimeoIdMatch[1]}?autoplay=0&title=0&byline=0&portrait=0`;
+                                 }
+                             }
+                             
+                             if (videoId) {
+                                 return `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&iv_load_policy=3&showinfo=0`;
+                             }
+                             return url;
+                           })()}
+                           style={{
+                            position: 'absolute',
+                            top: '-60px',
+                            left: '0',
+                            width: '100%',
+                            height: 'calc(100% + 60px)',
+                            border: '0'
+                          }}
+                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                           allowFullScreen
+                           title={currentLecture.title}
+                        />
+                      </div>
                     ) : (
                       <VideoPlayer 
                         videoUrl={currentLecture.videoUrl}

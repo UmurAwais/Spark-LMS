@@ -288,11 +288,18 @@ const SingleCoursePage = () => {
               <h3 className="font-semibold">{player.lecture.title}</h3>
               <button onClick={() => setPlayer({ open: false, lecture: null })} className="px-2 py-1 bg-gray-200 rounded">Close</button>
             </div>
-            <div className="aspect-video">
+            <div className="aspect-video relative overflow-hidden rounded-lg">
               <iframe
                 title={player.lecture.title}
                 src={`https://drive.google.com/file/d/${player.lecture.driveFileId}/preview`}
-                className="w-full h-full"
+                style={{
+                  position: 'absolute',
+                  top: '-60px',
+                  left: '0',
+                  width: '100%',
+                  height: 'calc(100% + 60px)',
+                  border: '0'
+                }}
                 allow="autoplay; encrypted-media"
               />
             </div>
