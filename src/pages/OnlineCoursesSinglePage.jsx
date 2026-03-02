@@ -1,7 +1,7 @@
 // src/pages/OnlineCoursePage.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Star, Globe, CheckCircle, PlayCircle, Lock, Video } from "lucide-react";
+import { Star, Globe, CheckCircle, PlayCircle, Lock, Video, ChevronDown, ChevronUp } from "lucide-react";
 import { apiFetch, API_URL } from "../config";
 import VideoPlayer from "../components/VideoPlayer";
 import SEO from "../components/SEO";
@@ -15,6 +15,14 @@ export default function OnlineCoursePage() {
   const [loading, setLoading] = useState(true);
   const [lectures, setLectures] = useState([]);
   const [selectedLecture, setSelectedLecture] = useState(null);
+  const [expandedSections, setExpandedSections] = useState({});
+
+  const toggleSection = (sectionId) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
 
   useEffect(() => {
     async function fetchCourse() {
@@ -54,6 +62,13 @@ export default function OnlineCoursePage() {
           }
           
           setLectures(allLectures);
+          
+          // Auto-expand first section
+          if (foundCourse.lectures && foundCourse.lectures.length > 0 && foundCourse.lectures[0].id) {
+            setExpandedSections({ [foundCourse.lectures[0].id]: true });
+          } else if (foundCourse.lectures && foundCourse.lectures.length > 0) {
+             setExpandedSections({ 0: true });
+          }
           
           // Set first lecture as preview automatically if available
           if (allLectures.length > 0) {
@@ -240,49 +255,124 @@ export default function OnlineCoursePage() {
           {/* Course Curriculum */}
           <section className="bg-white rounded-md shadow-sm p-6 mb-6">
             <h2 className="text-xl font-bold mb-4">Course Curriculum</h2>
-            <div className="space-y-2">
-              {lectures.map((lecture, index) => {
-                const isPreview = index === 0; // Only first lecture is preview
-                return (
-                  <div
-                    key={lecture.id}
-                    onClick={() => handleLectureClick(lecture, index)}
-                    className={`flex items-center justify-between p-4 rounded-md border transition-all ${
-                      isPreview
-                        ? 'border-[#0d9c06]/30 bg-[#0d9c06]/5 hover:bg-[#0d9c06]/10 cursor-pointer hover:border-[#0d9c06]'
-                        : 'border-gray-200 bg-gray-50 cursor-not-allowed'
-                    } ${selectedLecture?.id === lecture.id ? 'ring-2 ring-[#0d9c06]' : ''}`}
-                  >
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        isPreview ? 'bg-[#0d9c06] text-white' : 'bg-gray-300 text-gray-600'
-                      }`}>
-                        {isPreview ? (
-                          <PlayCircle size={16} fill="white" />
-                        ) : (
-                          <Lock size={16} />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-900 text-sm">
-                          {index + 1}. {lecture.title}
-                        </h3>
-                        {isPreview && (
-                          <span className="text-xs text-[#0d9c06] font-semibold">Preview Available</span>
-                        )}
-                      </div>
-                    </div>
-                    <span className="text-sm text-gray-600">{lecture.duration || "10:00"}</span>
-                  </div>
-                );
-              })}
-              {lectures.length === 0 && (
-                <p className="text-gray-500 text-center py-4">No lectures added yet.</p>
+            <div className="space-y-3">
+              {course.lectures && course.lectures.length > 0 ? (
+                course.lectures.map((item, sIdx) => {
+                   const isSection = item.lectures && Array.isArray(item.lectures);
+                   const sectionId = item.id || sIdx;
+                   const isExpanded = expandedSections[sectionId];
+
+                   if (isSection) {
+                     return (
+                       <div key={sectionId} className="border border-gray-100 rounded-lg overflow-hidden">
+                         <button 
+                           onClick={() => toggleSection(sectionId)}
+                           className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+                         >
+                           <div className="flex items-center gap-3">
+                             {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                             <h3 className="font-bold text-gray-800 text-sm sm:text-base">
+                               {item.title}
+                             </h3>
+                           </div>
+                           <span className="text-xs text-gray-500 font-medium">
+                             {item.lectures.length} lectures
+                           </span>
+                         </button>
+                         
+                         {isExpanded && (
+                           <div className="divide-y divide-gray-50 bg-white">
+                             {item.lectures.map((lecture, lIdx) => {
+                               // Find global index for preview logic
+                               const globalIndex = lectures.findIndex(l => l.id === lecture.id);
+                               const isPreview = globalIndex === 0 || lecture.isPreview;
+                               const isSelected = selectedLecture?.id === lecture.id;
+
+                               return (
+                                 <div
+                                   key={lecture.id || lIdx}
+                                   onClick={() => handleLectureClick(lecture, globalIndex)}
+                                   className={`flex items-center justify-between p-4 pl-10 transition-all ${
+                                     isPreview
+                                       ? 'hover:bg-[#0d9c06]/5 cursor-pointer'
+                                       : 'bg-gray-50/30 cursor-not-allowed opacity-80'
+                                   } ${isSelected ? 'bg-[#0d9c06]/10 ring-1 ring-inset ring-[#0d9c06]/30' : ''}`}
+                                 >
+                                   <div className="flex items-center gap-3 flex-1 overflow-hidden">
+                                     <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center ${
+                                       isPreview ? 'bg-[#0d9c06]/10 text-[#0d9c06]' : 'bg-gray-200 text-gray-400'
+                                     }`}>
+                                       {isPreview ? <PlayCircle size={14} /> : <Lock size={14} />}
+                                     </div>
+                                     <div className="flex-1 truncate">
+                                       <h4 className={`text-sm ${isSelected ? 'font-bold text-[#0d9c06]' : 'text-gray-700'}`}>
+                                         {lecture.title}
+                                       </h4>
+                                       {isPreview && !isSelected && (
+                                         <span className="text-[10px] text-[#0d9c06] font-bold uppercase tracking-wider">Preview Available</span>
+                                       )}
+                                       {isSelected && (
+                                         <span className="text-[10px] text-[#0d9c06] font-bold uppercase tracking-wider">Currently Watching</span>
+                                       )}
+                                     </div>
+                                   </div>
+                                   <span className="text-xs text-gray-500 tabular-nums ml-4">{lecture.duration || "10:00"}</span>
+                                 </div>
+                               );
+                             })}
+                           </div>
+                         )}
+                       </div>
+                     );
+                   } else {
+                     // Standalone lecture
+                     const globalIndex = lectures.findIndex(l => l.id === item.id);
+                     const isPreview = globalIndex === 0 || item.isPreview;
+                     const isSelected = selectedLecture?.id === item.id;
+
+                     return (
+                       <div
+                         key={item.id}
+                         onClick={() => handleLectureClick(item, globalIndex)}
+                         className={`flex items-center justify-between p-4 rounded-lg border transition-all ${
+                           isPreview
+                             ? 'border-gray-200 hover:border-[#0d9c06] hover:bg-[#0d9c06]/5 cursor-pointer'
+                             : 'border-gray-100 bg-gray-50 cursor-not-allowed opacity-75'
+                         } ${isSelected ? 'ring-2 ring-[#0d9c06] bg-[#0d9c06]/5' : ''}`}
+                       >
+                         <div className="flex items-center gap-3 flex-1">
+                           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                             isPreview ? 'bg-[#0d9c06] text-white shadow-sm' : 'bg-gray-200 text-gray-500'
+                           }`}>
+                             {isPreview ? <PlayCircle size={16} fill="currentColor" /> : <Lock size={16} />}
+                           </div>
+                           <div className="flex-1">
+                             <h3 className={`font-semibold text-sm ${isSelected ? 'text-[#0d9c06]' : 'text-gray-900'}`}>
+                               {item.title}
+                             </h3>
+                             {isPreview && (
+                               <span className="text-[10px] text-[#0d9c06] font-bold uppercase tracking-wider">Preview Available</span>
+                             )}
+                           </div>
+                         </div>
+                         <span className="text-xs text-gray-500 font-medium">{item.duration || "10:00"}</span>
+                       </div>
+                     );
+                   }
+                })
+              ) : (
+                <div className="text-center py-10 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                   <p className="text-gray-500">No curriculum items available yet.</p>
+                </div>
               )}
             </div>
-            <div className="mt-4 p-4 bg-[#5022C3]/10 border border-[#5022C3]/30 rounded-md">
-              <p className="text-sm text-gray-700">
-                <strong className="text-[#5022C3]">Note:</strong> Enroll in the course to unlock all {lectures.length} lectures and get lifetime access to the content.
+            
+            <div className="mt-6 p-4 bg-[#5022C3]/5 border border-[#5022C3]/10 rounded-xl flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-[#5022C3]/10 flex items-center justify-center shrink-0 mt-0.5">
+                 <Lock size={12} className="text-[#5022C3]" />
+              </div>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                <strong className="text-[#5022C3]">Unlock Course:</strong> Enroll now to get full lifetime access to all {lectures.length} lectures, downloadable resources, and start your learning journey.
               </p>
             </div>
           </section>

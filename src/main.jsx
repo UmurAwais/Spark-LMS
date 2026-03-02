@@ -45,10 +45,16 @@ import OnlineCourses from "./pages/OnlineCourses.jsx";
 import OnsiteCourses from "./pages/OnsiteCourses.jsx";
 import AdminGallery from "./pages/AdminGallery.jsx";
 import AdminCoupons from "./pages/AdminCoupons.jsx";
+import AdminLiveClass from "./pages/AdminLiveClass.jsx";
+import LiveClassRoom from "./pages/LiveClassRoom.jsx";
 
 import { Navigate } from "react-router-dom";
 
 const router = createBrowserRouter([
+  {
+    path: "/live-room",
+    element: <LiveClassRoom />, // Independent of layout for best SDK compatibility
+  },
   {
     path: "/admin",
     children: [
@@ -59,6 +65,7 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <AdminDashboard /> },
           { path: "courses", element: <AdminCourses /> },
+          { path: "live", element: <AdminLiveClass /> },
           { path: "drive", element: <AdminDrive /> },
           { path: "orders", element: <AdminOrders /> },
           { path: "users", element: <AdminUsers /> },

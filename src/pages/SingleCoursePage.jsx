@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Star, Globe, CheckCircle, CalendarDays, ArrowRight } from "lucide-react";
+import { Star, Globe, CheckCircle, CalendarDays, ArrowRight, ChevronDown, ChevronUp, PlayCircle, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { initialCourses as aiCourses } from "../data/initialCourses"; // Fallback data
 import { db } from "../firebaseConfig";
@@ -24,6 +24,14 @@ const SingleCoursePage = () => {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [player, setPlayer] = useState({ open: false, lecture: null });
+  const [expandedSections, setExpandedSections] = useState({});
+
+  const toggleSection = (sectionId) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
 
   useEffect(() => {
     async function load() {
@@ -176,30 +184,99 @@ const SingleCoursePage = () => {
             </div>
           </section>
 
-          {/* CURRICULUM / LECTURES */}
           <section className="bg-white rounded-md shadow-sm p-6 mb-6">
-            <h2 className="text-xl font-bold mb-3">Curriculum</h2>
+            <h2 className="text-xl font-bold mb-4">Curriculum</h2>
             {Array.isArray(course.lectures) && course.lectures.length > 0 ? (
-              <div className="space-y-2">
-                {course.lectures.map((lec) => (
-                  <div key={lec.id} className="flex items-center justify-between p-2 border rounded">
-                    <div>
-                      <div className="font-semibold">{lec.title}</div>
-                      <div className="text-xs text-gray-600">{lec.preview ? 'Preview' : 'Locked'}</div>
-                    </div>
-                    <div>
-                      <button
-                        onClick={() => setPlayer({ open: true, lecture: lec })}
-                        className="px-3 py-1 rounded bg-[#0d9c06] text-white"
-                      >
-                        Play
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              <div className="space-y-3">
+                {course.lectures.map((item, sIdx) => {
+                  const isSection = item.lectures && Array.isArray(item.lectures);
+                  const sectionId = item.id || sIdx;
+                  const isExpanded = expandedSections[sectionId];
+
+                  if (isSection) {
+                    return (
+                      <div key={sectionId} className="border border-gray-100 rounded-lg overflow-hidden">
+                        <button 
+                          onClick={() => toggleSection(sectionId)}
+                          className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                            <h3 className="font-bold text-gray-800 text-sm">
+                              {item.title}
+                            </h3>
+                          </div>
+                          <span className="text-xs text-gray-500 font-medium">
+                            {item.lectures.length} lessons
+                          </span>
+                        </button>
+                        
+                        {isExpanded && (
+                          <div className="divide-y divide-gray-50 bg-white">
+                            {item.lectures.map((lecture, lIdx) => (
+                              <div
+                                key={lecture.id || lIdx}
+                                className="flex items-center justify-between p-3 pl-10"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                                    lecture.preview ? 'bg-[#0d9c06]/10 text-[#0d9c06]' : 'bg-gray-100 text-gray-400'
+                                  }`}>
+                                    {lecture.preview ? <PlayCircle size={14} /> : <Lock size={14} />}
+                                  </div>
+                                  <div>
+                                    <div className="text-sm font-medium text-gray-700">{lecture.title}</div>
+                                    <div className="text-[10px] text-gray-500 uppercase tracking-wider">
+                                      {lecture.preview ? 'Free Preview' : 'Enroll to unlock'}
+                                    </div>
+                                  </div>
+                                </div>
+                                {lecture.preview && (
+                                  <button
+                                    onClick={() => setPlayer({ open: true, lecture })}
+                                    className="px-4 py-1.5 rounded-lg bg-[#0d9c06] text-white text-xs font-bold hover:bg-[#0b7e05] transition-colors"
+                                  >
+                                    Play
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  } else {
+                    // Standalone lecture
+                    return (
+                      <div key={item.id || sIdx} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg bg-gray-50/30">
+                        <div className="flex items-center gap-3">
+                           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                             item.preview ? 'bg-[#0d9c06]/10 text-[#0d9c06]' : 'bg-gray-100 text-gray-400'
+                           }`}>
+                             {item.preview ? <PlayCircle size={16} /> : <Lock size={16} />}
+                           </div>
+                           <div>
+                             <div className="font-semibold text-sm text-gray-800">{item.title}</div>
+                             <div className="text-xs text-gray-600">{item.preview ? 'Free Preview' : 'Locked'}</div>
+                           </div>
+                        </div>
+                        {item.preview && (
+                          <button
+                            onClick={() => setPlayer({ open: true, lecture: item })}
+                            className="px-4 py-1.5 rounded-lg bg-[#0d9c06] text-white text-xs font-bold hover:bg-[#0b7e05] transition-colors"
+                          >
+                            Play
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }
+                })}
               </div>
             ) : (
-              <div className="text-sm text-gray-600">No lectures yet.</div>
+              <div className="text-sm text-gray-600 italic py-4 text-center bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                No lectures added yet.
+              </div>
             )}
           </section>
 

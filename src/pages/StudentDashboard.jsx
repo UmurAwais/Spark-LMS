@@ -16,7 +16,9 @@ import {
   Zap,
   Home as HomeIcon,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  Video,
+  Radio
 } from "lucide-react";
 import { 
   AreaChart, 
@@ -74,6 +76,7 @@ export default function StudentDashboard() {
     totalHoursLearned: 0
   });
   const [activeTab, setActiveTab] = useState('in_progress');
+  const [liveClass, setLiveClass] = useState(null);
 
   const filteredCourses = enrolledCourses.filter(course => {
     const progress = course.progress || 0;
@@ -87,6 +90,25 @@ export default function StudentDashboard() {
       fetchBadges(user.email);
     }
   }, [user]);
+
+  // Poll for Live Class status
+  useEffect(() => {
+    const checkLiveStatus = async () => {
+      try {
+        const res = await apiFetch('/api/live/status');
+        const data = await res.json();
+        if (data.ok) {
+          setLiveClass(data.liveClass);
+        }
+      } catch (err) {
+        console.error('Error polling live status:', err);
+      }
+    };
+
+    checkLiveStatus(); // Interal check
+    const interval = setInterval(checkLiveStatus, 15000); // Check every 15s
+    return () => clearInterval(interval);
+  }, []);
 
   async function fetchEnrolledCourses(email) {
     try {
@@ -210,6 +232,39 @@ export default function StudentDashboard() {
           </div>
         )}
       </nav>
+
+      {/* Live Class Notification Banner */}
+      {liveClass && liveClass.isActive && (
+        <div className="bg-[#1c1d1f] border-b border-white/5 px-6 py-4 animate-in slide-in-from-top duration-500 overflow-hidden relative group">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+             <div className="flex items-center gap-5">
+                <div className="relative">
+                  <div className="w-14 h-14 bg-[#0d9c06] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#0d9c06]/20 relative z-10">
+                    <Video size={28} />
+                  </div>
+                  <div className="absolute inset-0 bg-[#0d9c06] rounded-2xl animate-ping opacity-20"></div>
+                </div>
+                <div className="text-left">
+                   <div className="flex items-center gap-2 mb-1">
+                      <span className="flex h-2 w-2 rounded-full bg-rose-500 animate-pulse"></span>
+                      <p className="text-[10px] font-black text-[#0d9c06] uppercase tracking-[0.2em]">Live Session Active</p>
+                   </div>
+                   <h3 className="text-lg font-black text-white italic tracking-tight leading-none uppercase">{liveClass.topic || 'Premium Learning Session'}</h3>
+                </div>
+             </div>
+             
+             <Link 
+               to={`/live-room?id=${liveClass.meetingId}&pwd=${liveClass.passcode}&name=${encodeURIComponent(user?.displayName || 'Student')}&role=0&topic=${encodeURIComponent(liveClass.topic)}`}
+               className="w-full md:w-auto px-8 py-4 bg-[#0d9c06] hover:bg-white hover:text-black text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-[#0d9c06]/10 flex items-center justify-center gap-3 group/btn"
+             >
+               <Radio className="group-hover/btn:rotate-12 transition-transform" size={18} />
+               Join Live Class Now
+             </Link>
+          </div>
+          {/* Decorative background element */}
+          <div className="absolute -right-20 -top-20 w-64 h-64 bg-[#0d9c06]/5 rounded-full blur-3xl pointer-events-none group-hover:bg-[#0d9c06]/10 transition-colors"></div>
+        </div>
+      )}
 
       <main className="max-w-7xl mx-auto px-6 py-10">
         

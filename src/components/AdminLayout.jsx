@@ -17,6 +17,7 @@ const MENU_ITEMS = [
   
   // Content Management
   { to: "/admin/courses", icon: <BookOpen size={20} />, label: "Courses", permission: "view_courses" },
+  { to: "/admin/live", icon: <Activity size={20} />, label: "Live Classes", permission: "view_dashboard" },
   { to: "/admin/certificates", icon: <ShieldCheck size={20} />, label: "Certificates", permission: "view_certificates" },
   { to: "/admin/badges", icon: <Award size={20} />, label: "Badges", permission: "view_badges" },
   
