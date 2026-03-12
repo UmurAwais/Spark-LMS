@@ -97,7 +97,7 @@ export default function SparkotChat() {
     } catch (err) {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
+        content: `I'm sorry, I'm having trouble connecting: **${err.message}**. Please make sure the backend is running and you are not on the live site.`,
         isError: true,
         time: new Date().toISOString()
       }]);
