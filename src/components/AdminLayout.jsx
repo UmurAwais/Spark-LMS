@@ -6,6 +6,7 @@ import { apiFetch, config } from '../config';
 import { useNotifications } from '../context/NotificationContext';
 import AdminSearchBar from './AdminSearchBar';
 import { useImageUrl } from '../hooks/useImageUrl';
+import SparkotChat from './SparkotChat';
 
 // Simple notification sound (short beep)
 const NOTIFICATION_SOUND = "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..."; // Placeholder, will use a real one below
@@ -470,6 +471,9 @@ export default function AdminLayout({ children }) {
             <p>&copy; {new Date().getFullYear()} Spark Trainings. All rights reserved.</p>
           </footer>
         </main>
+        
+        {/* Sparkot AI Chat */}
+        <SparkotChat />
       </div>
     </div>
   );
