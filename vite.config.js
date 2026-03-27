@@ -15,17 +15,20 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
+      devOptions: {
+        enabled: true
+      },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        id: '/admin',
+        id: '/',
         name: 'Spark LMS Admin',
         short_name: 'Spark Admin',
         description: 'Premium Admin Dashboard for Spark Trainings LMS',
-        start_url: '/admin',
-        scope: '/admin',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
         theme_color: '#0d9c06',
         background_color: '#ffffff',
-        display: 'standalone',
         orientation: 'portrait',
         icons: [
           {
