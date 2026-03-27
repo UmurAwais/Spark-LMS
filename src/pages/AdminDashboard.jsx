@@ -39,17 +39,17 @@ const MetricCard = ({ title, value, label, icon, color, growth, data }) => {
   const theme = colors[color] || colors.green;
 
   return (
-    <div className="relative group bg-white p-6 rounded-md border border-gray-100 shadow-xs hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 overflow-hidden font-sora">
+    <div className="relative group bg-white p-4 md:p-6 rounded-md border border-gray-100 shadow-xs hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 overflow-hidden font-sora">
       {/* Decorative Gradient Glow */}
       <div className={`absolute -right-10 -top-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 ${theme.icon}`}></div>
       
       <div className="relative z-10">
-        <div className="flex items-center justify-between mb-6">
-          <div className={`w-12 h-12 rounded-2xl ${theme.icon} text-white flex items-center justify-center shadow-lg shadow-gray-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-            {icon}
+        <div className="flex items-center justify-between mb-4 md:mb-6">
+          <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl ${theme.icon} text-white flex items-center justify-center shadow-lg shadow-gray-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+            {React.cloneElement(icon, { size: icon.props.size > 20 ? 20 : icon.props.size, className: 'md:w-6 md:h-6' })}
           </div>
           {growth !== undefined && (
-            <div className={`flex items-center gap-1.5 text-[11px] font-black py-1 px-3 rounded-full border ${growth >= 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+            <div className={`flex items-center gap-1.5 text-[10px] md:text-[11px] font-black py-1 px-2 md:px-3 rounded-full border ${growth >= 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
               <TrendingUp size={12} className={growth < 0 ? "rotate-180" : ""} />
               <span>{Math.abs(growth)}%</span>
             </div>
@@ -57,15 +57,15 @@ const MetricCard = ({ title, value, label, icon, color, growth, data }) => {
         </div>
         
         <div className="space-y-1">
-          <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">{title}</h3>
+          <h3 className="text-[10px] md:text-[11px] font-black text-gray-400 uppercase tracking-widest">{title}</h3>
           <div className="flex items-baseline gap-2">
-            <p className="text-3xl font-black text-gray-900 tracking-tighter">{value}</p>
+            <p className="text-2xl md:text-3xl font-black text-gray-900 tracking-tighter">{value}</p>
           </div>
-          <p className="text-xs text-gray-500 font-bold tracking-tight opacity-70">{label}</p>
+          <p className="text-[10px] md:text-xs text-gray-500 font-bold tracking-tight opacity-70">{label}</p>
         </div>
 
         {/* Activity Sparkline */}
-        <div className="h-10 mt-6 w-full opacity-40 group-hover:opacity-100 transition-opacity duration-500">
+        <div className="h-10 mt-4 md:mt-6 w-full opacity-40 group-hover:opacity-100 transition-opacity duration-500">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data || [{v:10}, {v:15}, {v:12}, {v:18}, {v:14}, {v:22}, {v:20}]}>
               <defs>
@@ -357,12 +357,12 @@ export default function AdminDashboard() {
   return (
     <AdminLayout>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-          <LayoutDashboard className="text-[#0d9c06]" />
-          Dashboard Overview
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2 md:gap-3">
+          <LayoutDashboard className="text-[#0d9c06] shrink-0" size={24} />
+          <span className="truncate">Dashboard Overview</span>
         </h1>
-        <p className="text-gray-600">Welcome back! Here's what's happening with your courses.</p>
+        <p className="text-sm md:text-base text-gray-600">Welcome back! Here's what's happening with your courses.</p>
       </div>
 
       {/* Metrics Grid */}
@@ -403,7 +403,7 @@ export default function AdminDashboard() {
 
       {/* Pro Tip Section - Udemy Style */}
       {showProTip && (
-        <div className="bg-linear-to-br from-[#0d9c06]/10 to-[#0d9c06]/5 border border-[#0d9c06]/30 rounded-md p-6 mb-8 relative">
+        <div className="bg-linear-to-br from-[#0d9c06]/10 to-[#0d9c06]/5 border border-[#0d9c06]/30 rounded-md p-4 md:p-6 mb-8 relative">
           {/* Close Button */}
           <button
             onClick={() => setShowProTip(false)}
@@ -415,9 +415,9 @@ export default function AdminDashboard() {
             </svg>
           </button>
 
-          <div className="flex items-start gap-4 pr-8">
-            <div className="p-3 bg-[#0d9c06] rounded-md shrink-0">
-              <currentTip.icon size={24} className="text-white" />
+          <div className="flex items-start gap-3 md:gap-4 pr-8">
+            <div className="p-2 md:p-3 bg-[#0d9c06] rounded-md shrink-0">
+              <currentTip.icon size={20} className="text-white md:w-6 md:h-6" />
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-bold text-gray-800 mb-2">{currentTip.title}</h3>

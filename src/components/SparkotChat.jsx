@@ -154,8 +154,8 @@ export default function SparkotChat() {
 
   return (
     <div 
-      className={`fixed right-6 bottom-6 w-[380px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col transition-all duration-300 z-50 overflow-hidden ${
-        isMinimized ? 'h-16' : 'h-[600px] max-h-[80vh]'
+      className={`fixed right-4 bottom-4 md:right-6 md:bottom-6 w-[calc(100vw-2rem)] sm:w-[380px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col transition-all duration-300 z-50 overflow-hidden ${
+        isMinimized ? 'h-16' : 'h-[500px] sm:h-[600px] max-h-[85vh]'
       }`}
       ref={chatRef}
     >

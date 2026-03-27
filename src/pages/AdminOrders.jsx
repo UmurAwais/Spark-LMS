@@ -35,17 +35,17 @@ const MetricCard = ({ title, value, label, icon, color, growth, data }) => {
   const theme = colors[color] || colors.green;
 
   return (
-    <div className="relative group bg-white p-6 rounded-md border border-gray-100 shadow-xs hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 overflow-hidden font-sora">
+    <div className="relative group bg-white p-4 md:p-6 rounded-md border border-gray-100 shadow-xs hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 overflow-hidden font-sora">
       {/* Decorative Gradient Glow */}
       <div className={`absolute -right-10 -top-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 ${theme.icon}`}></div>
       
       <div className="relative z-10">
-        <div className="flex items-center justify-between mb-6">
-          <div className={`w-12 h-12 rounded-2xl ${theme.icon} text-white flex items-center justify-center shadow-lg shadow-gray-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-            {icon}
+        <div className="flex items-center justify-between mb-4 md:mb-6">
+          <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl ${theme.icon} text-white flex items-center justify-center shadow-lg shadow-gray-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+            {React.cloneElement(icon, { size: icon.props.size > 20 ? 20 : icon.props.size, className: 'md:w-6 md:h-6' })}
           </div>
           {growth !== undefined && (
-            <div className={`flex items-center gap-1.5 text-[11px] font-black py-1 px-3 rounded-full border ${growth >= 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+            <div className={`flex items-center gap-1.5 text-[10px] md:text-[11px] font-black py-1 px-2 md:px-3 rounded-full border ${growth >= 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
               <TrendingUp size={12} className={growth < 0 ? "rotate-180" : ""} />
               <span>{Math.abs(growth)}%</span>
             </div>
@@ -53,15 +53,15 @@ const MetricCard = ({ title, value, label, icon, color, growth, data }) => {
         </div>
         
         <div className="space-y-1">
-          <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest">{title}</h3>
+          <h3 className="text-[10px] md:text-[11px] font-black text-gray-400 uppercase tracking-widest">{title}</h3>
           <div className="flex items-baseline gap-2">
-            <p className="text-3xl font-black text-gray-900 tracking-tighter">{value}</p>
+            <p className="text-2xl md:text-3xl font-black text-gray-900 tracking-tighter">{value}</p>
           </div>
-          <p className="text-xs text-gray-500 font-bold tracking-tight opacity-70">{label}</p>
+          <p className="text-[10px] md:text-xs text-gray-500 font-bold tracking-tight opacity-70">{label}</p>
         </div>
 
         {/* Activity Sparkline */}
-        <div className="h-10 mt-6 w-full opacity-40 group-hover:opacity-100 transition-opacity duration-500">
+        <div className="h-10 mt-4 md:mt-6 w-full opacity-40 group-hover:opacity-100 transition-opacity duration-500">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data || [{v:10}, {v:15}, {v:12}, {v:18}, {v:14}, {v:22}, {v:20}]}>
               <defs>
@@ -254,49 +254,49 @@ export default function AdminOrders(){
 
   return (
     <AdminLayout>
-      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-            <ShoppingCart className="text-[#0d9c06]" />
-            Orders Management
+      <div className="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-1 flex items-center gap-2 md:gap-3">
+            <ShoppingCart className="text-[#0d9c06] shrink-0" size={24} />
+            <span className="truncate">Orders Management</span>
           </h1>
-          <p className="text-gray-600">Track and analyze your student enrollments and revenue</p>
+          <p className="text-sm md:text-base text-gray-600 truncate">Track student enrollments and revenue</p>
         </div>
 
         {/* Filter Bar */}
-        <div className="flex bg-white rounded-lg border border-gray-200 p-1 shadow-sm">
+        <div className="flex flex-wrap bg-white rounded-lg border border-gray-200 p-1 shadow-sm w-fit">
           <button 
             onClick={() => setFilter('all')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-semibold transition-all cursor-pointer ${
               filter === 'all' 
-                ? 'bg-[#0d9c06] text-white shadow-md' 
+                ? 'bg-[#0d9c06] text-white shadow-sm' 
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            <Filter size={16} />
-            All Orders
+            <Filter size={14} className="md:w-4 md:h-4" />
+            All
           </button>
           <button 
             onClick={() => setFilter('coupon')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-semibold transition-all cursor-pointer ${
               filter === 'coupon' 
-                ? 'bg-[#5022C3] text-white shadow-md' 
+                ? 'bg-[#5022C3] text-white shadow-sm' 
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            <Ticket size={16} />
-            Coupon Orders
+            <Ticket size={14} className="md:w-4 md:h-4" />
+            Coupon
           </button>
           <button 
             onClick={() => setFilter('regular')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-md text-xs md:text-sm font-semibold transition-all cursor-pointer ${
               filter === 'regular' 
-                ? 'bg-[#1c1d1f] text-white shadow-md' 
+                ? 'bg-[#1c1d1f] text-white shadow-sm' 
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            <ShoppingBag size={16} />
-            Regular Orders
+            <ShoppingBag size={14} className="md:w-4 md:h-4" />
+            Regular
           </button>
         </div>
       </div>
@@ -339,8 +339,8 @@ export default function AdminOrders(){
       </div>
 
       {/* Course Breakdown */}
-      <div className="bg-white rounded-md shadow-sm border border-gray-200 p-6 mb-8">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Orders by Course</h2>
+      <div className="bg-white rounded-md shadow-sm border border-gray-200 p-4 md:p-6 mb-8">
+        <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4">Orders by Course</h2>
         <div className="space-y-4">
           {Object.entries(analytics.courseBreakdown).map(([course, count]) => {
             const percentage = (count / analytics.totalOrders * 100).toFixed(1);

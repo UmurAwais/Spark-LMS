@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield, Volume2, VolumeX, Image as ImageIcon, Ticket, CheckCircle, Trash2, ArrowRight } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield, Volume2, VolumeX, Image as ImageIcon, Ticket, CheckCircle, Trash2, ArrowRight, Menu, X } from 'lucide-react';
 import Logo from '../assets/Spark.png';
 import { apiFetch, config } from '../config';
 import { useNotifications } from '../context/NotificationContext';
@@ -46,6 +46,7 @@ export default function AdminLayout({ children }) {
   const navigate = useNavigate();
   const { notifications, unreadCount, markAllAsRead, clearAll, addNotification } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const saved = localStorage.getItem('admin_sound_enabled');
     return saved === null ? true : saved === 'true';
@@ -251,12 +252,33 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans text-gray-900">
+    <div className="flex h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
+      {/* Sidebar Overlay (Mobile) */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-[100] md:hidden backdrop-blur-sm transition-opacity duration-300"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-16 md:w-64 bg-[#1c1d1f] text-white flex flex-col shrink-0 transition-all duration-300 cursor-pointer">
-        <div className="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-gray-700 py-2">
-          <img src={Logo} alt="Spark Trainings" className="h-12 w-auto hidden md:block" />
-          <img src={Logo} alt="S" className="h-12 w-auto md:hidden" />
+      <aside className={`
+        fixed inset-y-0 left-0 z-[100] w-64 bg-[#1c1d1f] text-white flex flex-col shrink-0 
+        transform transition-all duration-300 ease-in-out
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        md:relative md:translate-x-0 md:w-16 lg:w-64
+      `}>
+        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-700 py-2">
+          <div className="flex items-center gap-2">
+            <img src={Logo} alt="Spark Trainings" className="h-10 w-auto lg:block hidden" />
+            <img src={Logo} alt="S" className="h-10 w-auto lg:hidden" />
+          </div>
+          <button 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="md:hidden p-2 text-gray-400 hover:text-white transition-colors cursor-pointer"
+          >
+            <X size={24} />
+          </button>
         </div>
 
         <nav className="flex-1 py-4 space-y-1 overflow-y-auto scrollbar-hide">
@@ -267,6 +289,7 @@ export default function AdminLayout({ children }) {
               icon={item.icon} 
               label={item.label} 
               active={isActive(item.to)} 
+              onClick={() => setIsMobileMenuOpen(false)}
             />
           ))}
         </nav>
@@ -277,38 +300,44 @@ export default function AdminLayout({ children }) {
             className="flex items-center gap-3 w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors cursor-pointer"
           >
             <LogOut size={20} />
-            <span className="hidden md:block">Logout</span>
+            <span className="lg:block md:hidden">Logout</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {/* Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-50">
-          <div className="flex items-center gap-4 flex-1">
-             <h2 className="text-xl font-semibold text-gray-800">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 shadow-sm z-50 shrink-0">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden p-2 text-gray-600 hover:text-[#0d9c06] hover:bg-green-50 rounded-md transition-colors cursor-pointer"
+            >
+              <Menu size={24} />
+            </button>
+            <h2 className="text-lg md:text-xl font-semibold text-gray-800 truncate">
                {getPageTitle(location.pathname)}
-             </h2>
+            </h2>
           </div>
           
-          <div className="flex items-center gap-4 md:gap-4">
-            <div className="hidden md:flex items-center">
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
+            <div className="hidden lg:flex items-center">
               <AdminSearchBar />
             </div>
 
-            <Link to="/" target="_blank" className="hidden md:flex items-center gap-2 text-sm font-medium text-[#0d9c06] hover:py-2 hover:px-2 px-2 hover:bg-[#daffd8] hover:text-[#0d9c06] rounded-md transition-all ease-in-out duration-300 cursor-pointer">
-              <span>Visit Website</span>
+            <Link to="/" target="_blank" className="hidden sm:flex items-center gap-2 text-sm font-medium text-[#0d9c06] hover:bg-[#daffd8] px-2 py-2 rounded-md transition-all ease-in-out duration-300 cursor-pointer">
+              <span className="hidden md:inline">Visit Website</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
             </Link>
 
-            <div className="h-6 w-px bg-gray-200 hidden md:block"></div>
+            <div className="h-6 w-px bg-gray-200 hidden sm:block"></div>
 
             {/* Notification Bell */}
             <div className="relative" ref={notifRef}>
               <button 
                 onClick={handleNotificationClick}
-                className="text-gray-600 hover:text-[#0d9c06] hover:bg-[#daffd8] py-2 px-2 rounded-md transition-all ease-in-out duration-300 hover:py-2 hover:px-2 cursor-pointer relative group"
+                className="text-gray-600 hover:text-[#0d9c06] hover:bg-[#daffd8] p-2 rounded-md transition-all ease-in-out duration-300 cursor-pointer relative group"
               >
                 <Bell size={20} className="group-hover:rotate-12 transition-transform duration-300" />
                 {unreadCount > 0 && (
@@ -318,7 +347,7 @@ export default function AdminLayout({ children }) {
 
               {/* Notification Dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-3 w-[400px] bg-white/90 backdrop-blur-2xl rounded-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] border border-white/50 ring-1 ring-black/5 overflow-hidden z-100 transform transition-all origin-top-right animate-in fade-in zoom-in-95 duration-200">
+                <div className="absolute right-0 mt-3 w-[calc(100vw-2rem)] sm:w-[400px] bg-white rounded-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] border border-gray-100 ring-1 ring-black/5 overflow-hidden z-[200] transform transition-all origin-top-right animate-in fade-in zoom-in-95 duration-200">
                   {/* Dropdown Header */}
                   <div className="p-4 border-b border-gray-100/50 flex items-center justify-between bg-linear-to-b from-gray-50/80 to-transparent">
                     <div className="flex items-center gap-3">
@@ -426,7 +455,7 @@ export default function AdminLayout({ children }) {
                 localStorage.setItem('admin_sound_enabled', newValue.toString());
                 localStorage.setItem('notification_sound_enabled', newValue.toString());
               }}
-              className="text-gray-600 hover:text-[#0d9c06] hover:bg-[#daffd8] py-2 px-2 rounded-md transition-all ease-in-out duration-300 cursor-pointer"
+              className="text-gray-600 hover:text-[#0d9c06] hover:bg-[#daffd8] p-2 rounded-md transition-all ease-in-out duration-300 cursor-pointer"
               title={soundEnabled ? "Mute notifications" : "Unmute notifications"}
             >
               {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
@@ -434,13 +463,13 @@ export default function AdminLayout({ children }) {
             
             <button 
               onClick={() => navigate('/admin/profile')}
-              className="flex items-center gap-3 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors cursor-pointer"
+              className="flex items-center gap-3 hover:bg-gray-50 px-2 py-2 rounded-md transition-colors cursor-pointer"
             >
-              <div className="text-right hidden md:block">
+              <div className="text-right hidden lg:block">
                 <p className="text-sm font-semibold text-gray-800">{userName}</p>
                 <p className="text-xs text-gray-500">{getRoleDisplayName(userRole)}</p>
               </div>
-              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center shadow-md ring-2 ring-white">
+              <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center shadow-md ring-2 ring-white shrink-0">
                 {profilePictureUrl ? (
                   <img 
                     src={profilePictureUrl} 
@@ -464,7 +493,7 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 w-full max-w-full">
           {children}
           
           <footer className="mt-12 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
@@ -479,10 +508,11 @@ export default function AdminLayout({ children }) {
   );
 }
 
-function SidebarItem({ to, icon, label, active }) {
+function SidebarItem({ to, icon, label, active, onClick }) {
   return (
     <Link 
       to={to} 
+      onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 mx-2 rounded transition-colors ${
         active 
           ? 'bg-gray-700 text-white border-l-4 border-[#0d9c06]' 
@@ -490,7 +520,8 @@ function SidebarItem({ to, icon, label, active }) {
       }`}
     >
       <div className={`${active ? '-ml-1' : ''}`}>{icon}</div>
-      <span className="hidden md:block font-medium">{label}</span>
+      <span className="hidden lg:block font-medium">{label}</span>
+      <span className="md:hidden font-medium">{label}</span>
     </Link>
   );
 }
