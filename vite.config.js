@@ -25,7 +25,7 @@ export default defineConfig({
         short_name: 'Spark LMS',
         description: 'Feel The Spark In You!',
         start_url: '/admin',
-        scope: '/',
+        scope: '/admin',
         display: 'standalone',
         theme_color: '#0d9c06',
         background_color: '#ffffff',
