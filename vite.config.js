@@ -24,27 +24,27 @@ export default defineConfig({
         name: 'Spark Trainings LMS',
         short_name: 'Spark LMS',
         description: 'Elite Professional Training Platform',
-        start_url: '/',
-        scope: '/',
+        start_url: '/admin',
+        scope: '/admin',
         display: 'standalone',
         theme_color: '#0d9c06',
         background_color: '#ffffff',
         orientation: 'portrait',
         icons: [
           {
-            src: '/pwa-icon.png',
+            src: '/favicon.ico',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/ico'
           },
           {
-            src: '/pwa-icon.png',
+            src: '/favicon.ico',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/ico'
           },
           {
-            src: '/pwa-icon.png',
+            src: '/favicon.ico',
             sizes: '512x512',
-            type: 'image/png',
+            type: 'image/ico',
             purpose: 'any maskable'
           }
         ]
