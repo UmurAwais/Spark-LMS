@@ -23,7 +23,7 @@ export default defineConfig({
         id: 'spark-lms-v1',
         name: 'Spark Trainings LMS',
         short_name: 'Spark LMS',
-        description: 'Elite Professional Training Platform',
+        description: 'Feel The Spark In You!',
         start_url: '/admin',
         scope: '/admin',
         display: 'standalone',
