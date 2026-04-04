@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield, Volume2, VolumeX, Image as ImageIcon, Ticket, CheckCircle, Trash2, ArrowRight, Menu, X } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, HardDrive, LogOut, Bell, ShoppingCart, Activity, MessageSquare, Award, ShieldCheck, Shield, Volume2, VolumeX, Image as ImageIcon, Ticket, CheckCircle, Trash2, ArrowRight, Menu, X, Rocket } from 'lucide-react';
 import Logo from '../assets/Spark.png';
 import { apiFetch, config } from '../config';
 import { useNotifications } from '../context/NotificationContext';
@@ -47,6 +47,8 @@ export default function AdminLayout({ children }) {
   const { notifications, unreadCount, markAllAsRead, clearAll, addNotification } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const saved = localStorage.getItem('admin_sound_enabled');
     return saved === null ? true : saved === 'true';
@@ -62,6 +64,34 @@ export default function AdminLayout({ children }) {
   
   // Use hook to get properly resolved profile picture URL
   const profilePictureUrl = useImageUrl(userProfilePicture);
+
+  // PWA Install Prompt
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBtn(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setShowInstallBtn(false);
+    }
+
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+      setShowInstallBtn(false);
+    }
+  };
 
   useEffect(() => {
     const loadUserData = () => {
@@ -294,7 +324,17 @@ export default function AdminLayout({ children }) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-700">
+        <div className="p-4 border-t border-gray-700 space-y-2">
+          {showInstallBtn && (
+            <button 
+              onClick={handleInstallClick}
+              className="flex items-center gap-3 w-full px-3 py-2 bg-[#0d9c06]/20 text-[#0d9c06] hover:bg-[#0d9c06] hover:text-white rounded transition-all duration-300 cursor-pointer font-bold animate-pulse hover:animate-none"
+            >
+              <Rocket size={20} />
+              <span className="lg:block md:hidden">Install App</span>
+              <span className="md:hidden">Install</span>
+            </button>
+          )}
           <button 
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors cursor-pointer"

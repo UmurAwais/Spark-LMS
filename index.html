@@ -9,13 +9,6 @@
     <meta name="apple-mobile-web-app-title" content="Spark Admin" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spark Trainings - Feel The Spark In You!</title>
-    <script>
-      if('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js', { scope: '/admin' });
-        });
-      }
-    </script>
   </head>
   <body>
     <div id="root"></div>
