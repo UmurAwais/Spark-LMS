@@ -13,19 +13,19 @@ export default defineConfig({
     react(), 
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'reloadPrompt',
       injectRegister: 'auto',
       devOptions: {
         enabled: true
       },
-      includeAssets: ['favicon.ico'],
+      includeAssets: ['favicon.ico', 'pwa-icon.png'],
       manifest: {
-        id: 'spark-lms-v0',
+        id: 'spark-trainings-lms-v1',
         name: 'Spark Trainings LMS',
         short_name: 'Spark LMS',
         description: 'Feel The Spark In You!',
         start_url: '/admin',
-        scope: '/admin',
+        scope: '/',
         display: 'standalone',
         theme_color: '#0d9c06',
         background_color: '#ffffff',
