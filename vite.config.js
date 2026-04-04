@@ -20,12 +20,12 @@ export default defineConfig({
       },
       includeAssets: ['favicon.ico'],
       manifest: {
-        id: 'spark-lms-v1',
+        id: 'spark-lms-v0',
         name: 'Spark Trainings LMS',
         short_name: 'Spark LMS',
         description: 'Feel The Spark In You!',
         start_url: '/admin',
-        scope: '/admin',
+        scope: '/',
         display: 'standalone',
         theme_color: '#0d9c06',
         background_color: '#ffffff',
@@ -34,17 +34,17 @@ export default defineConfig({
           {
             src: '/favicon.ico',
             sizes: '192x192',
-            type: 'image/ico'
+            type: 'image/x-icon'
           },
           {
             src: '/favicon.ico',
             sizes: '512x512',
-            type: 'image/ico'
+            type: 'image/x-icon'
           },
           {
             src: '/favicon.ico',
             sizes: '512x512',
-            type: 'image/ico',
+            type: 'image/x-icon',
             purpose: 'any maskable'
           }
         ]
