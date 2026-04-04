@@ -10,13 +10,14 @@ export default function SparkotChat() {
     return saved ? JSON.parse(saved) : [
       { 
         role: 'assistant', 
-        content: "Hello! I'm **Sparkot**, your Spark LMS AI assistant. How can I help you manage your dashboard today?",
+        content: "Hello! I'm **Sparkot**, your Spark LMS AI assistant. I have access to your live dashboard data. How can I help you manage your platform today?",
         time: new Date().toISOString()
       }
     ];
   });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [stats, setStats] = useState(null);
   const messagesEndRef = useRef(null);
   const chatRef = useRef(null);
 
@@ -35,6 +36,58 @@ export default function SparkotChat() {
   useEffect(() => {
     localStorage.setItem('sparkot_messages', JSON.stringify(messages));
   }, [messages]);
+
+  // Fetch live stats for AI context
+  useEffect(() => {
+    if (isOpen) {
+      fetchLMSStats();
+    }
+  }, [isOpen]);
+
+  const fetchLMSStats = async () => {
+    try {
+      const token = localStorage.getItem('admin_token');
+      if (!token) return;
+
+      const res = await apiFetch('/api/orders', {
+        headers: { "x-admin-token": token }
+      });
+      const data = await res.json();
+      
+      if (data.ok && data.orders) {
+        const pending = data.orders.filter(o => o.status === 'Pending').length;
+        const approved = data.orders.filter(o => o.status === 'Approved').length;
+        const canceled = data.orders.filter(o => o.status === 'Canceled' || o.status === 'Rejected').length;
+        const total = data.orders.length;
+        const revenue = data.orders
+          .filter(o => o.status === 'Approved')
+          .reduce((sum, o) => {
+            const amt = parseInt(String(o.amount || 0).replace(/[^0-9]/g, '') || 0);
+            return sum + amt;
+          }, 0);
+        
+        // Also fetch user count for more context
+        let studentCount = 0;
+        try {
+          const userRes = await apiFetch('/api/admin/users', { headers: { "x-admin-token": token } });
+          const userData = await userRes.json();
+          if (userData.ok) studentCount = userData.users.length;
+        } catch (e) {}
+
+        setStats({ 
+          pending, 
+          approved, 
+          canceled, 
+          total, 
+          revenue: revenue.toLocaleString(),
+          students: studentCount,
+          lastSync: new Date().toLocaleTimeString()
+        });
+      }
+    } catch (e) {
+      console.error("Sparkot failed to fetch context:", e);
+    }
+  };
 
   const handleSend = async (e) => {
     e?.preventDefault();
@@ -63,11 +116,37 @@ export default function SparkotChat() {
     }
 
     try {
-      // Keep only the last 10 messages for context
-      const contextMessages = messages.concat(userMessage).slice(-10).map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'assistant',
-        content: msg.content
-      }));
+      // Create a rich context for the AI
+      const systemContext = {
+        role: 'system',
+        content: `You are Sparkot, the intelligent administrator assistant for Spark Trainings LMS. 
+        CONTEXT DATA (Real-time):
+        - Total Orders: ${stats?.total || 'Unknown'}
+        - Pending Orders: ${stats?.pending || '0'} (High Priority)
+        - Approved/Paid Orders: ${stats?.approved || '0'}
+        - Canceled/Rejected Orders: ${stats?.canceled || '0'}
+        - Total Revenue Generated: Rs. ${stats?.revenue || '0'}
+        - Total Enrolled Students: ${stats?.students || '0'}
+        - Current Time: ${new Date().toLocaleString()}
+        - Dashboard Sync: ${stats?.lastSync || 'Just now'}
+
+        INSTRUCTIONS:
+        1. Always provide accurate numbers from the CONTEXT DATA above.
+        2. If asked about "pending" or "cancelled" or "revenue", use these specific numbers.
+        3. Be professional, concise, and helpful. 
+        4. Use bold text (**text**) for emphasis on important metrics.
+        5. If data is unavailable, mention you are synchronizing with the server.
+        6. If the user asks about the live site, tell them to use the live site for live data.7. If the user asks about the CEO of Spark Trainings, tell them Sajid Ali is the CEO of Spark Trainings.`
+      };
+
+      // Keep only the last 10 messages for context, and prepend the system context
+      const contextMessages = [
+        systemContext,
+        ...messages.concat(userMessage).slice(-10).map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        }))
+      ];
 
       const response = await apiFetch('/api/admin/ai/chat', {
         method: 'POST',
