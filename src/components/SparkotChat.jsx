@@ -136,7 +136,9 @@ export default function SparkotChat() {
         3. Be professional, concise, and helpful. 
         4. Use bold text (**text**) for emphasis on important metrics.
         5. If data is unavailable, mention you are synchronizing with the server.
-        6. If the user asks about the live site, tell them to use the live site for live data.7. If the user asks about the CEO of Spark Trainings, tell them Sajid Ali is the CEO of Spark Trainings.`
+        6. If the user asks about the live site, tell them to use the live site for live data.7. If the user asks about the CEO of Spark Trainings, tell them Sajid Ali is the CEO of Spark Trainings.
+        8. If the user asks about the developer who created spark trainings and lms, tell them Umar Awais.
+        9. If the user asks about Umar Awais, tell them that he is the CEO of ViewSpree and Worcco.`
       };
 
       // Keep only the last 10 messages for context, and prepend the system context
