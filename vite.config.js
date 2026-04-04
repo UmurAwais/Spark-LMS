@@ -18,12 +18,12 @@ export default defineConfig({
       devOptions: {
         enabled: true
       },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['favicon.ico'],
       manifest: {
-        id: '/',
-        name: 'Spark LMS Admin',
-        short_name: 'Spark Admin',
-        description: 'Premium Admin Dashboard for Spark Trainings LMS',
+        id: 'spark-lms-v1',
+        name: 'Spark Trainings LMS',
+        short_name: 'Spark LMS',
+        description: 'Elite Professional Training Platform',
         start_url: '/',
         scope: '/',
         display: 'standalone',
@@ -32,14 +32,19 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: '/favicon.ico',
-            sizes: '64x64 32x32 24x24 16x16',
-            type: 'image/x-icon'
+            src: '/pwa-icon.png',
+            sizes: '192x192',
+            type: 'image/png'
           },
           {
-            src: '/favicon.ico',
+            src: '/pwa-icon.png',
             sizes: '512x512',
-            type: 'image/x-icon',
+            type: 'image/png'
+          },
+          {
+            src: '/pwa-icon.png',
+            sizes: '512x512',
+            type: 'image/png',
             purpose: 'any maskable'
           }
         ]
