@@ -13,14 +13,14 @@ export default defineConfig({
     react(), 
     tailwindcss(),
     VitePWA({
-      registerType: 'reloadPrompt',
+      registerType: 'autoUpdate',
       injectRegister: 'auto',
       devOptions: {
         enabled: true
       },
-      includeAssets: ['favicon.ico', 'pwa-icon.png'],
+      includeAssets: ['favicon.ico', 'favicon.png'],
       manifest: {
-        id: 'spark-trainings-lms-v1',
+        id: 'spark-trainings-v3-final',
         name: 'Spark Trainings LMS',
         short_name: 'Spark LMS',
         description: 'Feel The Spark In You!',
@@ -32,19 +32,19 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: '/favicon.ico',
+            src: '/favicon.png',
             sizes: '192x192',
-            type: 'image/x-icon'
+            type: 'image/png'
           },
           {
-            src: '/favicon.ico',
+            src: '/favicon.png',
             sizes: '512x512',
-            type: 'image/x-icon'
+            type: 'image/png'
           },
           {
-            src: '/favicon.ico',
+            src: '/favicon.png',
             sizes: '512x512',
-            type: 'image/x-icon',
+            type: 'image/png',
             purpose: 'any maskable'
           }
         ]
