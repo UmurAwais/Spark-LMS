@@ -21,6 +21,7 @@ function OnlineCourseCard({ c }) {
       title: c.title,
       image: c.image,
       price: priceNumber,
+      originalPrice: c.originalPrice,
     });
 
     navigate("/cart", { state: { addedCourseId: c.id } });

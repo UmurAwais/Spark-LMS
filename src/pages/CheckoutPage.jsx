@@ -90,22 +90,34 @@ function CheckoutPage({ selectedCourse }) {
     : (selectedCourse ? [{ ...selectedCourse, quantity: 1 }] : []);
 
 
-  // compute subtotal from items (supports quantity)
-  const subtotal = items.reduce((acc, it) => acc + parsePrice(it.price) * (it.quantity || 1), 0);
+  // compute list and discounted subtotals from items (supports quantity)
+  const listSubtotal = items.reduce(
+    (acc, it) => acc + parsePrice(it.originalPrice || it.price) * (it.quantity || 1),
+    0
+  );
+  const discountedSubtotal = items.reduce(
+    (acc, it) => acc + parsePrice(it.price) * (it.quantity || 1),
+    0
+  );
+  const defaultDiscount = Math.max(0, listSubtotal - discountedSubtotal);
+
+  const subtotal = listSubtotal;
   const taxRate = 0; // change if needed
-  const taxAmount = Math.round(subtotal * taxRate);
+  const taxAmount = Math.round(discountedSubtotal * taxRate);
   
-  // Handle discount from coupon
-  let discount = 0;
+  // Handle coupon discount on already-discounted subtotal
+  let couponDiscount = 0;
   if (appliedCoupon) {
     if (appliedCoupon.type === 'percent') {
-      discount = Math.round(subtotal * (appliedCoupon.value / 100));
+      couponDiscount = Math.round(discountedSubtotal * (appliedCoupon.value / 100));
     } else {
-      discount = appliedCoupon.value;
+      couponDiscount = appliedCoupon.value;
     }
   }
 
-  const total = Math.max(0, subtotal + taxAmount - discount);
+  const discount = defaultDiscount + couponDiscount;
+
+  const total = Math.max(0, discountedSubtotal + taxAmount - couponDiscount);
   const [loadingMsg, setLoadingMsg] = useState("");
 
   const handleSubmit = async (e) => {
@@ -525,6 +537,20 @@ function CheckoutPage({ selectedCourse }) {
               <span className="text-sm text-[#6a6f73]">Discount</span>
               <span className="text-sm text-[#6a6f73]">{formatRs(discount)}</span>
             </div>
+
+            {defaultDiscount > 0 && (
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm text-[#6a6f73]">Course discount</span>
+                <span className="text-sm text-[#0d9c06]">-{formatRs(defaultDiscount)}</span>
+              </div>
+            )}
+
+            {couponDiscount > 0 && (
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm text-[#6a6f73]">Coupon discount</span>
+                <span className="text-sm text-[#0d9c06]">-{formatRs(couponDiscount)}</span>
+              </div>
+            )}
 
             <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#e6efe6]">
               <span className="text-base font-semibold">Total</span>
