@@ -150,6 +150,9 @@ const SearchBar = ({ autoFocus = false }) => {
                       </span>
                     )}
                     <span className="font-bold text-[#0d9c06]">{course.price}</span>
+                    {course.originalPrice && (
+                      <span className="text-slate-400 line-through">{course.originalPrice}</span>
+                    )}
                   </div>
                 </div>
               </button>

@@ -83,9 +83,16 @@ function OnlineCourseCard({ c }) {
         {/* Price + meta */}
         <div className="mb-3">
           {c.price && (
-            <p className="mt-1 text-[20px] text-slate-700 font-semibold">
-              {c.price}
-            </p>
+            <div className="mt-1 flex items-baseline gap-2">
+              <p className="text-[20px] text-slate-700 font-semibold">
+                {c.price}
+              </p>
+              {c.originalPrice && (
+                <span className="text-sm text-slate-400 line-through">
+                  {c.originalPrice}
+                </span>
+              )}
+            </div>
           )}
           <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
             <div className="flex items-center gap-1">
@@ -117,14 +124,40 @@ function OnlineCourseCard({ c }) {
 }
 
 export default function OnlineCoursesGrid() {
+  const ONLINE_COURSES_CACHE_KEY = "online_courses_cache_v2";
+
+  const mergeWithLocalCourseData = (list = []) => {
+    const localById = new Map(initialOnlineCourses.map((course) => [course.id, course]));
+
+    return list.map((course) => {
+      const localCourse = localById.get(course.id);
+      if (!localCourse) return course;
+
+      const hasLocalDiscount = Boolean(localCourse.originalPrice);
+      const hasApiDiscount = Boolean(course.originalPrice);
+
+      return {
+        ...localCourse,
+        ...course,
+        // If local course has discount data, prefer it until backend sends explicit discount fields.
+        price: hasApiDiscount
+          ? (course.price || localCourse.price)
+          : (hasLocalDiscount ? localCourse.price : (course.price || localCourse.price)),
+        originalPrice: hasApiDiscount
+          ? course.originalPrice
+          : (hasLocalDiscount ? localCourse.originalPrice : course.originalPrice),
+      };
+    });
+  };
+
   const [courses, setCourses] = useState(() => {
     // Try to load from cache first
-    const cached = localStorage.getItem('online_courses_cache');
+    const cached = localStorage.getItem(ONLINE_COURSES_CACHE_KEY);
     if (cached) {
       const { data, timestamp } = JSON.parse(cached);
       // Cache valid for 5 minutes
       if (Date.now() - timestamp < 5 * 60 * 1000) {
-        return data;
+        return mergeWithLocalCourseData(data);
       }
     }
     return initialOnlineCourses;
@@ -143,10 +176,11 @@ export default function OnlineCoursesGrid() {
       const data = await response.json();
       
       if (data.ok && data.courses) {
-        setCourses(data.courses);
+        const mergedCourses = mergeWithLocalCourseData(data.courses);
+        setCourses(mergedCourses);
         // Cache the results
-        localStorage.setItem('online_courses_cache', JSON.stringify({
-          data: data.courses,
+        localStorage.setItem(ONLINE_COURSES_CACHE_KEY, JSON.stringify({
+          data: mergedCourses,
           timestamp: Date.now()
         }));
       }
@@ -160,7 +194,7 @@ export default function OnlineCoursesGrid() {
 
   useEffect(() => {
     // Only fetch if cache is expired or empty
-    const cached = localStorage.getItem('online_courses_cache');
+    const cached = localStorage.getItem(ONLINE_COURSES_CACHE_KEY);
     if (!cached || courses.length === 0) {
       fetchDynamicCourses();
     } else {

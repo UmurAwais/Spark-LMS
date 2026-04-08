@@ -8,7 +8,8 @@ export const onlineCourses = [
     title: "Skin Care Formulation: Complete Guide to Creating Skincare Products",
     excerpt:
       "Master the science of Skincare Formulation! This comprehensive online course teaches you the complete process of creating your own safe, stable, and effective cosmetics, from beginner basics to advanced anti-aging serums.",
-    price: "Rs. 13,000",
+    price: "Rs. 6,500",
+    originalPrice: "Rs. 13,000",
     badge: { label: "Premium • Online", color: "bg-[#5022C3] text-white" },
     rating: 4.7,
     ratingCount: "1,420 ratings",

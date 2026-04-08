@@ -37,6 +37,7 @@ export default function AdminCourses() {
     title: "",
     excerpt: "",
     price: "",
+    originalPrice: "",
     rating: "4.5",
     ratingCount: "0 ratings",
     duration: "2 Months",
@@ -369,6 +370,29 @@ export default function AdminCourses() {
     fetchDynamicCourses();
   }, []);
 
+  function mergeOnlineCoursesWithLocal(list = []) {
+    const localById = new Map(initialOnlineCourses.map((course) => [course.id, course]));
+
+    return list.map((course) => {
+      const localCourse = localById.get(course.id);
+      if (!localCourse) return course;
+
+      const hasLocalDiscount = Boolean(localCourse.originalPrice);
+      const hasApiDiscount = Boolean(course.originalPrice);
+
+      return {
+        ...localCourse,
+        ...course,
+        price: hasApiDiscount
+          ? (course.price || localCourse.price)
+          : (hasLocalDiscount ? localCourse.price : (course.price || localCourse.price)),
+        originalPrice: hasApiDiscount
+          ? course.originalPrice
+          : (hasLocalDiscount ? localCourse.originalPrice : course.originalPrice),
+      };
+    });
+  }
+
   async function fetchDynamicCourses() {
     setLoading(true);
     try {
@@ -393,7 +417,7 @@ export default function AdminCourses() {
       
       if (onlineData.ok) {
         // Use MongoDB data (even if empty - means no courses in DB)
-        setOnlineCourses(onlineData.courses || []);
+        setOnlineCourses(mergeOnlineCoursesWithLocal(onlineData.courses || []));
       } else {
         // API error - show static courses as fallback
         setOnlineCourses(initialOnlineCourses);
@@ -509,6 +533,7 @@ export default function AdminCourses() {
       formDataToSend.append('title', formData.title);
       formDataToSend.append('excerpt', formData.excerpt);
       formDataToSend.append('price', formData.price);
+      formDataToSend.append('originalPrice', formData.originalPrice || '');
       formDataToSend.append('rating', formData.rating);
       formDataToSend.append('ratingCount', formData.ratingCount);
       formDataToSend.append('duration', formData.duration);
@@ -587,6 +612,7 @@ export default function AdminCourses() {
       title: "",
       excerpt: "",
       price: "",
+      originalPrice: "",
       rating: "4.5",
       ratingCount: "0 ratings",
       duration: "2 Months",
@@ -738,7 +764,12 @@ export default function AdminCourses() {
             {course.excerpt}
           </p>
 
-          <h4 className="mt-1 text-[20px] text-slate-700 font-semibold">{course.price}</h4>
+          <div className="mt-1 flex items-baseline gap-2">
+            <h4 className="text-[20px] text-slate-700 font-semibold">{course.price}</h4>
+            {course.originalPrice && (
+              <span className="text-sm text-slate-400 line-through">{course.originalPrice}</span>
+            )}
+          </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1 text-[13px] text-slate-700">
@@ -828,6 +859,7 @@ export default function AdminCourses() {
                             title: courseToEdit.title || '',
                             excerpt: courseToEdit.excerpt || '',
                             price: courseToEdit.price || '',
+                            originalPrice: courseToEdit.originalPrice || '',
                             rating: courseToEdit.rating || '4.5',
                             ratingCount: courseToEdit.ratingCount || '0 ratings',
                             duration: courseToEdit.duration || '2 Months',
@@ -1022,7 +1054,7 @@ export default function AdminCourses() {
                     </div>
 
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">Course ID *</label>
                         <input
@@ -1048,6 +1080,17 @@ export default function AdminCourses() {
                           className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
                           placeholder="e.g., Rs. 25,000"
                           required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Original Price</label>
+                        <input
+                          type="text"
+                          value={formData.originalPrice}
+                          onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
+                          className="w-full border-2 border-gray-300 rounded-md p-3 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                          placeholder="e.g., Rs. 13,000"
                         />
                       </div>
                     </div>

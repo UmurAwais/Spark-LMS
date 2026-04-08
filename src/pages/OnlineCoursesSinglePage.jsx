@@ -458,9 +458,16 @@ export default function OnlineCoursePage() {
               {/* Price */}
               <div className="mb-3">
                 {course.price && (
-                  <span className="text-2xl font-bold text-[#1c1d1f]">
-                    {course.price}
-                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-[#1c1d1f]">
+                      {course.price}
+                    </span>
+                    {course.originalPrice && (
+                      <span className="text-sm text-[#6a6f73] line-through">
+                        {course.originalPrice}
+                      </span>
+                    )}
+                  </div>
                 )}
                 <p className="text-xs text-[#6a6f73] mt-1">
                   Online course • HD Recordings
