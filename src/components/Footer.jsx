@@ -43,24 +43,16 @@ export default function Footer() {
           <div>
             <h2 className="text-[16px] font-semibold">Courses</h2>
             <div className="mt-3 space-y-2 text-sm text-slate-300 flex flex-col w-fit">
-                <Link to={`/course/${aiCourses[0].id}`} className="hover:underline underline-offset-2 decoration-current focus-visible:underline cursor-pointer">
-                  Web Development
+                <Link to="/online-courses" className="hover:underline underline-offset-2 decoration-current focus-visible:underline cursor-pointer">
+                  Online Learning
                 </Link>
 
-                <Link to={`/course/${aiCourses[1].id}`} className="hover:underline underline-offset-2 decoration-current focus-visible:underline cursor-pointer">
-                  Graphic Design
+                <Link to="/about" className="hover:underline underline-offset-2 decoration-current focus-visible:underline cursor-pointer">
+                  Our Story
                 </Link>
 
-                <Link to={`/course/${aiCourses[2].id}`} className="hover:underline underline-offset-2 decoration-current focus-visible:underline cursor-pointer">
-                  Video Editing
-                </Link>
-
-                <Link to={`/course/${aiCourses[5].id}`} className="hover:underline underline-offset-2 decoration-current focus-visible:underline cursor-pointer">
-                  Shopify + Meta Ads
-                </Link>
-
-                <Link to={`/course/${aiCourses[4].id}`} className="hover:underline underline-offset-2 decoration-current focus-visible:underline cursor-pointer">
-                  YouTube Automation
+                <Link to="/courses" className="hover:underline underline-offset-2 decoration-current focus-visible:underline cursor-pointer">
+                  All Courses
                 </Link>
             </div>
           </div>

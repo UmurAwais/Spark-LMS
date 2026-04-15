@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import ApiStatusIndicator from "./components/ApiStatusIndicator";
+import SparkotSupportChat from "./components/SparkotSupportChat";
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
       <Header />
       <Outlet />   {/* child pages render here */}
       <Footer />
+      <SparkotSupportChat />
       <ApiStatusIndicator />
     </div>
   );

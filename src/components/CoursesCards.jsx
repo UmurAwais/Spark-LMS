@@ -6,7 +6,7 @@ import courses1 from "../assets/course2.jpg";
 import courses4 from "../assets/Courses4.jpg";
 
 const SLIDES = [
-  { id: 1, title: "Onsite Courses", learners: "1.7M+", img: courses1, href: "/onsite-courses" },
+  { id: 1, title: "Build Your Career", learners: "1.7M+", img: courses1, href: "/online-courses" },
   { id: 2, title: "Online Courses", learners: "14M+", img: courses4, href: "/online-courses" },
 ];
 

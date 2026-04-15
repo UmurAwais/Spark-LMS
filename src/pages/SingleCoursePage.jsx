@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Star, Globe, CheckCircle, CalendarDays, ArrowRight, ChevronDown, ChevronUp, PlayCircle, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
-import { initialCourses as aiCourses } from "../data/initialCourses"; // Fallback data
 import { db } from "../firebaseConfig";
 import { doc, getDoc, collection, query, where, getDocs as firestoreGetDocs } from "firebase/firestore";
 import { apiFetch } from "../config"; // This import is not used but kept for completeness
@@ -17,7 +16,7 @@ const defaultWhatYouLearn = [
   "Certificate of completion"
 ];
 const defaultRequirements = ["Basic computer skills", "Internet connection", "Willingness to learn"];
-const defaultIncludes = ["On-site training", "Project files", "Certificate", "Lifetime access to resources"];
+const defaultIncludes = ["Online live classes", "Project files", "Certificate", "Lifetime access to resources"];
 
 const SingleCoursePage = () => {
   const { id } = useParams();
@@ -35,11 +34,9 @@ const SingleCoursePage = () => {
 
   useEffect(() => {
     async function load() {
-      // Avoid flash of loading if data is in initialCourses and we can find it instantly
-      const localCourse = aiCourses.find((c) => c.id === id || c.slug === id);
+      const localCourse = null;
       if (localCourse) {
         setCourse(localCourse);
-        // We still fetch from API to get the latest dynamic data (lectures, etc.)
       } else {
         setLoading(true);
       }
@@ -117,9 +114,9 @@ const SingleCoursePage = () => {
   return (
     <div className="bg-[#f7f9fa] pb-16">
       <SEO 
-        title={`${course.title} | Onsite Course`} 
-        description={course.excerpt || `Master ${course.title} with our intensive onsite training program. Join hands-on classes at Spark Trainings campus in Pakistan.`}
-        keywords={`${course.title}, onsite training, professional ${course.title} course, spark trainings ${course.title}`}
+        title={`${course.title} | Online Course`} 
+        description={course.excerpt || `Master ${course.title} with our expert-led online training program. Join live classes and access recordings from anywhere.`}
+        keywords={`${course.title}, online training, professional ${course.title} course, spark trainings ${course.title}`}
         canonical={`/course/${id}`}
         ogImage={course.image}
       />

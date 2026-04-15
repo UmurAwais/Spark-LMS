@@ -248,7 +248,7 @@ const PrivacyPolicyPage = () => {
             <p>
               <strong>Address:</strong> 51/G1 College Road, Spark Trainings, Chishtian
               <br />
-              <strong>Email:</strong> <span className="underline">support@sparktrainings.pk</span>
+              <strong>Email:</strong> <span className="underline">support@sparktrainings.com</span>
               <br />
               <strong>Phone / WhatsApp:</strong> +92 303 6811 487
             </p>

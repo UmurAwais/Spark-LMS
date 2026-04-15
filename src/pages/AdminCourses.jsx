@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import { Plus, X, Loader, Trash2, Check, Star, FileVideo, FileImage, FileText, Search, BookOpen, Edit, Save, ChevronDown, ChevronUp, PlayCircle, Layers, CheckCircle, AlertTriangle, HelpCircle, GripVertical } from "lucide-react";
-import { initialCourses } from "../data/initialCourses";
 import { onlineCourses as initialOnlineCourses } from "../data/onlineCourses";
 import { apiFetch, config } from "../config";
 import { auth, storage } from "../firebaseConfig";
@@ -411,16 +410,16 @@ export default function AdminCourses() {
         // Use MongoDB data (even if empty - means no courses in DB)
         setCourses(onsiteData.courses || []);
       } else {
-        // API error - show static courses as fallback
-        setCourses(initialCourses);
+        // API error - keep empty
+        setCourses([]);
       }
       
       if (onlineData.ok) {
         // Use MongoDB data (even if empty - means no courses in DB)
         setOnlineCourses(mergeOnlineCoursesWithLocal(onlineData.courses || []));
       } else {
-        // API error - show static courses as fallback
-        setOnlineCourses(initialOnlineCourses);
+        // API error - keep empty
+        setOnlineCourses([]);
       }
     } finally {
       setLoading(false);
@@ -916,30 +915,10 @@ export default function AdminCourses() {
         </div>
 
         <div className="space-y-8">
-            {loading && courses.length === 0 && onlineCourses.length === 0 ? (
+            {loading && onlineCourses.length === 0 ? (
               <AdminGridSkeleton />
             ) : (
               <>
-                {/* Onsite Courses */}
-                <div className="bg-white rounded-md shadow-sm p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-semibold">Onsite Courses ({courses.length})</h2>
-                    {courses.length > 0 && (
-                      <button
-                        onClick={() => selectAllCourses('onsite')}
-                        className="text-sm text-[#0d9c06] hover:py-2 hover:px-2 px-2 py-2 hover:bg-[#daffd8] hover:text-[#0d9c06] rounded-md transition-all ease-in-out duration-300 cursor-pointer"
-                      >
-                        {courses.every(c => selectedCourses.includes(`onsite-${c.id}`)) ? 'Deselect All' : 'Select All'}
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {courses.map((course) => (
-                      <CourseCard key={course.id} course={course} type="onsite" />
-                    ))}
-                  </div>
-                </div>
-
                 {/* Online Courses */}
                 <div className="bg-white rounded-md shadow-sm p-6">
                   <div className="flex items-center justify-between mb-6">
@@ -977,20 +956,13 @@ export default function AdminCourses() {
               <div className="p-6 max-h-[calc(100vh-200px)] overflow-y-auto">
                 {!courseType ? (
                   <div className="space-y-4">
-                    <p className="text-gray-700 font-medium mb-6">Select course type to continue:</p>
+                    <p className="text-gray-700 font-medium mb-6">Click continue to add a new online course:</p>
                     <button
                       onClick={() => setCourseType("online")}
                       className="w-full p-8 border-2 border-[#0d9c06] rounded-md hover:bg-green-50 transition group cursor-pointer"
                     >
-                      <h3 className="text-xl font-bold text-[#0d9c06] mb-2">Online Course</h3>
-                      <p className="text-sm text-gray-600">Manage curriculum and lectures online</p>
-                    </button>
-                    <button
-                      onClick={() => setCourseType("onsite")}
-                      className="w-full p-8 border-2 border-[#0d9c06] rounded-md hover:bg-green-50 transition group cursor-pointer"
-                    >
-                      <h3 className="text-xl font-bold text-[#0d9c06] mb-2">Onsite Course</h3>
-                      <p className="text-sm text-gray-600">Physical location course in Pakistan</p>
+                      <h3 className="text-xl font-bold text-[#0d9c06] mb-2">Configure Online Course</h3>
+                      <p className="text-sm text-gray-600">Prepare curriculum, video lectures, and resources</p>
                     </button>
                   </div>
                 ) : (

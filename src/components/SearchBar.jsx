@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Search, X, BookOpen, Clock } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
-import { initialCourses } from "../data/initialCourses";
-import { onlineCourses } from "../data/onlineCourses";
+import { apiFetch } from "../config";
 
 const SearchBar = ({ autoFocus = false }) => {
   const [term, setTerm] = useState("");
@@ -10,12 +9,28 @@ const SearchBar = ({ autoFocus = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const searchRef = useRef(null);
+  const [allCourses, setAllCourses] = useState([]);
 
-  // Combine all courses for searching
-  const allCourses = [
-    ...initialCourses.map(c => ({ ...c, type: 'onsite' })),
-    ...onlineCourses.map(c => ({ ...c, type: 'online' }))
-  ];
+  useEffect(() => {
+    async function fetchAll() {
+      try {
+        const [onsite, online] = await Promise.all([
+          apiFetch('/api/courses/onsite'),
+          apiFetch('/api/courses/online')
+        ]);
+        const onsiteData = await onsite.json();
+        const onlineData = await online.json();
+        
+        let combined = [];
+        if (onlineData.ok) combined = [...combined, ...onlineData.courses.map(c => ({ ...c, type: 'online' }))];
+        
+        setAllCourses(combined);
+      } catch (e) {
+        console.error("Search fetch error:", e);
+      }
+    }
+    fetchAll();
+  }, []);
 
   useEffect(() => {
     if (term.trim().length > 1) {
@@ -29,7 +44,7 @@ const SearchBar = ({ autoFocus = false }) => {
       setResults([]);
       setIsOpen(false);
     }
-  }, [term]);
+  }, [term, allCourses]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

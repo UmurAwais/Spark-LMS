@@ -14,8 +14,8 @@ export default function Home() {
   return (
     <>
       <SEO 
-        title="Best Online & Onsite Training Platform" 
-        description="Spark Trainings is a premium learning platform offering expert-led onsite and online courses in Digital Marketing, Graphic Design, Web Development, and more."
+        title="Best Online Training Platform" 
+        description="Spark Trainings is a premium learning platform offering expert-led online courses in Digital Marketing, Graphic Design, Web Development, and more."
         keywords="online courses, professional training, skill development, career growth, spark trainings, pakistan training"
         canonical="/"
       />
@@ -51,9 +51,6 @@ export default function Home() {
       <div>
         <OnlineCoursesTab />
       </div>
-
-      {/* Section 5 */}
-      <CoursesTab />
 
       {/* Section 6 */}
       <TrustedByLogos />

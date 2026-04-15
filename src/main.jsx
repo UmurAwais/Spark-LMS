@@ -110,7 +110,7 @@ const router = createBrowserRouter([
       { path: "login", element: <LoginPage /> },
       { path: "register", element: <RegisterationPage /> },
       { path: "online-courses", element: <OnlineCourses /> },
-      { path: "onsite-courses", element: <OnsiteCourses /> },
+      { path: "onsite-courses", element: <Navigate to="/online-courses" replace /> },
       { path: "online-course/:id", element: <OnlineCoursePage /> },
       { path: "cart", element: <CartPage /> },
       { path: "checkout", element: <CheckoutPage /> },

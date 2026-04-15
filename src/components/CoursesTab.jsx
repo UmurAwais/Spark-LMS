@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Star, BadgeCheck, Flame, Trophy, Sprout } from "lucide-react";
 import { Link } from "react-router-dom";
-import { initialCourses } from "../data/initialCourses";
 import { CourseCardSkeleton } from "./SkeletonLoaders";
 import { apiFetch } from "../config";
 
@@ -16,7 +15,7 @@ export default function UdemyCoursesCarousel({ hideHeading = false }) {
         return data;
       }
     }
-    return initialCourses;
+    return [];
   });
   const [loading, setLoading] = useState(false);
   

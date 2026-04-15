@@ -51,10 +51,6 @@ const Courses = ({ image }) => {
       <div className="mt-12">
         <OnlineCoursesTab />
       </div>
-
-      <div className="mt-4">
-        <CoursesTab />
-      </div>
     </div>
   );
 };

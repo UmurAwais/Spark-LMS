@@ -246,7 +246,7 @@ const TermsAndConditions = () => {
             <p className="font-medium">Spark Trainings</p>
             <p>
               <strong>Address:</strong> 51/G1 College Road, Chishtian, Pakistan <br />
-              <strong>Email:</strong> support@sparktrainings.pk<br />
+              <strong>Email:</strong> support@sparktrainings.com<br />
               <strong>WhatsApp:</strong> +92 303 6811 487
             </p>
           </section>

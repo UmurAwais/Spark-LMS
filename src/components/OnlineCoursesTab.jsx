@@ -125,7 +125,7 @@ function OnlineCourseCard({ c }) {
 }
 
 export default function OnlineCoursesGrid() {
-  const ONLINE_COURSES_CACHE_KEY = "online_courses_cache_v2";
+  const ONLINE_COURSES_CACHE_KEY = "online_courses_cache_v3";
 
   const mergeWithLocalCourseData = (list = []) => {
     const localById = new Map(initialOnlineCourses.map((course) => [course.id, course]));
