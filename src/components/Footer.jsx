@@ -81,7 +81,7 @@ export default function Footer() {
             <ul className="mt-3 space-y-2 text-sm text-slate-300">
               <li>
                 <span className="font-semibold text-white">Email:</span>{" "}
-                contact@sparktrainings.com
+                support@sparktrainings.com
               </li>
               <li>
                 <span className="font-semibold text-white">Phone:</span>{" "}
