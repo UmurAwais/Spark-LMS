@@ -189,6 +189,8 @@ function CheckoutPage({ selectedCourse }) {
                 uid: newUser.uid,
                 email: newUser.email,
                 displayName: `${form.firstName} ${form.lastName}`.trim(),
+                phone: form.phone,
+                city: form.city,
               }),
             });
             currentUser = newUser;

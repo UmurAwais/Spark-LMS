@@ -61,7 +61,8 @@ function RegisterForm() {
           body: JSON.stringify({
             uid: user.uid,
             email: user.email,
-            displayName: fullName
+            displayName: fullName,
+            phone: phone
           })
         });
         
