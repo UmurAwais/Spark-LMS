@@ -221,13 +221,22 @@ export default function SparkotChat() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-linear-to-br from-[#0d9c06] to-[#0b7e05] text-white rounded-full shadow-[0_8px_25px_rgba(13,156,6,0.3)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 z-50 group"
+        className="fixed bottom-6 right-6 z-50 rounded-full p-[2.5px] bg-linear-to-r from-[#0d9c06] to-[#4ade80] shadow-[0_10px_30px_rgba(13,156,6,0.28)] transition-all duration-300 hover:scale-105 active:scale-95 group"
         title="Chat with Sparkot"
       >
-        <Bot size={28} className="group-hover:rotate-12 transition-transform" />
+        <div className="flex h-full w-full items-center justify-center gap-2.5 rounded-full bg-white px-5 py-2.5">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" className="text-[#1a1a1a] group-hover:text-[#0d9c06] transition-colors duration-300">
+            <g transform="translate(12, 12)">
+              <polygon points="-7,-6 -1.5,0 -7,6 -4,0" />
+              <polygon points="-7,-6 -1.5,0 -7,6 -4,0" transform="rotate(120)" />
+              <polygon points="-7,-6 -1.5,0 -7,6 -4,0" transform="rotate(240)" />
+            </g>
+          </svg>
+          <span className="text-[17px] font-bold text-[#1a1a1a] tracking-tight pr-1">Ask AI</span>
+        </div>
         <span className="absolute -top-1 -right-1 flex h-4 w-4">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-white"></span>
+          <span className="relative inline-flex rounded-full h-4 w-4 bg-[#0d9c06] border-2 border-white"></span>
         </span>
       </button>
     );

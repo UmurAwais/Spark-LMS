@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Send, Bot, X, Maximize2, Minimize2, Sparkles, User, Loader2, Trash2, LifeBuoy } from 'lucide-react';
 import { apiFetch } from '../config';
+import ConfirmModal from './ConfirmModal';
 
 const STORAGE_KEY = 'sparkot_support_messages';
 
 export default function SparkotSupportChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [messages, setMessages] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -56,13 +58,15 @@ export default function SparkotSupportChat() {
     ));
   };
 
-  const handleSend = async (event) => {
-    event?.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (eOrText) => {
+    if (eOrText?.preventDefault) eOrText.preventDefault();
+
+    const textToSend = typeof eOrText === 'string' ? eOrText : input;
+    if (!textToSend.trim() || isLoading) return;
 
     const userMessage = {
       role: 'user',
-      content: input,
+      content: textToSend,
       time: new Date().toISOString(),
     };
 
@@ -119,7 +123,10 @@ export default function SparkotSupportChat() {
   };
 
   const clearChat = () => {
-    if (!window.confirm('Clear Sparkot chat history?')) return;
+    setIsClearModalOpen(true);
+  };
+
+  const executeClearChat = () => {
     setMessages([
       {
         role: 'assistant',
@@ -129,120 +136,197 @@ export default function SparkotSupportChat() {
     ]);
   };
 
-  if (!isOpen) {
-    return (
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-[#0d9c06] to-[#0b7e05] text-white shadow-[0_10px_30px_rgba(13,156,6,0.28)] transition-all duration-300 hover:scale-110 active:scale-95"
-        title="Chat with Sparkot Support"
-      >
-        <Bot size={26} />
-        <span className="absolute -top-1 -right-1 flex h-4 w-4">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-          <span className="relative inline-flex h-4 w-4 rounded-full border-2 border-white bg-green-500"></span>
-        </span>
-      </button>
-    );
-  }
-
   return (
-    <div
-      className={`fixed bottom-4 right-4 z-50 flex w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl transition-all duration-300 ${isMinimized ? 'h-16' : 'h-[560px] max-h-[85vh]'}`}
-    >
-      <div className="flex shrink-0 items-center justify-between bg-linear-to-r from-[#111827] to-[#1f2937] p-4 text-white shadow-md">
-        <div className="flex items-center gap-3">
-          <div className="rounded-xl bg-white/10 p-2">
-            <LifeBuoy size={20} className="text-green-400" />
+    <>
+      <div 
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] origin-bottom-right ${
+          isOpen ? 'opacity-0 scale-75 pointer-events-none translate-y-4' : 'opacity-100 scale-100 translate-y-0'
+        }`}
+      >
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className="rounded-full p-[2.5px] bg-linear-to-r from-[#0d9c06] to-[#4ade80] shadow-[0_10px_30px_rgba(13,156,6,0.28)] transition-transform duration-300 hover:scale-105 active:scale-95 group flex"
+          title="Chat with Sparkot Support"
+        >
+          <div className="flex h-12 items-center justify-center gap-2.5 rounded-full bg-white px-5 py-2.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" className="text-[#1a1a1a] group-hover:text-[#0d9c06] transition-colors duration-300 shrink-0">
+              <g transform="translate(12, 12)">
+                <polygon points="-7,-6 -1.5,0 -7,6 -4,0" />
+                <polygon points="-7,-6 -1.5,0 -7,6 -4,0" transform="rotate(120)" />
+                <polygon points="-7,-6 -1.5,0 -7,6 -4,0" transform="rotate(240)" />
+              </g>
+            </svg>
+            <span className="text-[17px] font-bold text-[#1a1a1a] tracking-tight pr-1 whitespace-nowrap">Ask AI</span>
           </div>
-          <div>
-            <h3 className="text-sm font-bold tracking-tight">Sparkot Support</h3>
-            <div className="mt-0.5 flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500"></span>
-              <span className="text-[10px] font-medium uppercase tracking-wider text-gray-400">Student Help Online</span>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-1">
-          <button type="button" onClick={clearChat} className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-white/10 hover:text-white" title="Clear History">
-            <Trash2 size={16} />
-          </button>
-          <button type="button" onClick={() => setIsMinimized((value) => !value)} className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-white/10 hover:text-white" title={isMinimized ? 'Expand' : 'Minimize'}>
-            {isMinimized ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
-          </button>
-          <button type="button" onClick={() => setIsOpen(false)} className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-500/20 hover:text-red-400" title="Close">
-            <X size={18} />
-          </button>
-        </div>
+          <span className="absolute -top-1 -right-1 flex h-4 w-4">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex h-4 w-4 rounded-full border-2 border-white bg-[#0d9c06]"></span>
+          </span>
+        </button>
       </div>
+
+      <div
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex w-[calc(100vw-2.5rem)] sm:w-[420px] flex-col overflow-hidden rounded-[28px] sm:rounded-3xl border border-gray-100 bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] origin-bottom-right transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+          isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-50 pointer-events-none translate-y-12'
+        } ${isMinimized ? 'h-[72px]' : 'h-[680px] max-h-[80vh] sm:max-h-[85vh]'}`}
+      >
+        <div className="flex shrink-0 items-center justify-between px-5 sm:px-6 pt-6 pb-2 bg-white">
+          <div className="flex bg-gray-100 rounded-full p-1 border border-gray-200/60 shadow-sm">
+            <button className="px-5 py-1.5 bg-white rounded-full text-[13px] font-bold text-gray-900 shadow-sm transition-all shadow-black/5">Chat</button>
+            <button onClick={clearChat} className="px-5 py-1.5 text-[13px] font-medium text-gray-500 hover:text-gray-900 transition-colors">History</button>
+          </div>
+          <div className="flex items-center gap-4 text-gray-800">
+            <button onClick={clearChat} className="hover:text-red-500 transition-colors" title="Clear Chat">
+              <Trash2 size={18} strokeWidth={2} />
+            </button>
+            <button onClick={() => setIsOpen(false)} className="hover:text-red-500 transition-colors" title="Close Workspace">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14"></path>
+                <path d="M12 5l7 7-7 7"></path>
+                <path d="M22 2v20"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
 
       {!isMinimized && (
         <>
-          <div className="flex-1 space-y-4 overflow-y-auto bg-gray-50/50 p-4">
-            <div className="mb-6 flex justify-center">
-              <div className="flex items-center gap-2 rounded-full border border-gray-100 bg-white px-3 py-1 shadow-sm">
-                <Sparkles size={12} className="text-yellow-500" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Powered by Spark Intelligence</span>
-              </div>
-            </div>
-
-            {messages.map((message, index) => (
-              <div key={index} className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-sm ${message.role === 'assistant' ? 'bg-linear-to-br from-[#0d9c06] to-[#0b7e05] text-white' : 'border border-gray-200 bg-white text-gray-600'}`}>
-                  {message.role === 'assistant' ? <Bot size={18} /> : <User size={18} />}
+          <div className="flex-1 overflow-y-auto bg-white scrollbar-hide px-4 sm:px-6 py-2 flex flex-col">
+            {messages.length <= 1 ? (
+              <div className="flex flex-col items-center flex-1 justify-center animate-in fade-in zoom-in-95 duration-500">
+                <div className="mb-5 mt-2">
+                  <svg width="56" height="56" viewBox="0 0 24 24" fill="currentColor" className="text-[#0d9c06]">
+                    <g transform="translate(12, 12)">
+                      <polygon points="-7,-6 -1.5,0 -7,6 -4,0" />
+                      <polygon points="-7,-6 -1.5,0 -7,6 -4,0" transform="rotate(120)" />
+                      <polygon points="-7,-6 -1.5,0 -7,6 -4,0" transform="rotate(240)" />
+                    </g>
+                  </svg>
+                </div>
+                <h2 className="text-[22px] font-bold text-gray-900 mb-1.5 flex items-center gap-2">
+                  Hello 👋
+                </h2>
+                <p className="text-[15px] font-medium text-gray-700 mb-8">How can I help you today?</p>
+                
+                <div className="w-full">
+                  {[
+                    "Browse available courses",
+                    "Check my enrollment status",
+                    "How do I get my certificate?",
+                    "Talk to career support"
+                  ].map(prompt => (
+                    <button key={prompt} onClick={() => handleSend(prompt)} disabled={isLoading} className="flex w-full items-center gap-4 py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors text-left group disabled:opacity-50">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900 shrink-0 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform group-hover:text-[#0d9c06]">
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                      </svg>
+                      <span className="text-[15px] font-medium text-gray-800">{prompt}</span>
+                    </button>
+                  ))}
                 </div>
 
-                <div className={`flex max-w-[82%] flex-col ${message.role === 'user' ? 'items-end' : ''}`}>
-                  <div className={`rounded-2xl p-3 text-sm shadow-sm ${message.role === 'assistant' ? 'border-tl-none border border-gray-100 bg-white text-gray-800' : 'border-tr-none bg-[#0d9c06] text-white'}`}>
-                    {renderContent(message.content)}
+                <div className="w-full flex overflow-x-auto gap-2.5 mt-4 pb-2 scrollbar-hide">
+                  {['Courses', 'Workshops', 'Mentorship', 'Account', 'Support'].map((tag, i) => (
+                    <button key={tag} onClick={() => handleSend(`Tell me about ${tag}`)} disabled={isLoading} className={`px-4 py-1.5 rounded-full border text-[14px] whitespace-nowrap transition-colors disabled:opacity-50 ${i === 0 ? 'border-[#0d9c06] text-[#0d9c06] bg-[#0d9c06]/10' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}>
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 space-y-5 pb-4">
+                {messages.map((message, index) => (
+                  <div key={index} className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-sm ${message.role === 'assistant' ? 'text-[#0d9c06]' : 'border border-gray-200 bg-white text-gray-600'}`}>
+                      {message.role === 'assistant' ? (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                          <g transform="translate(12, 12) scale(0.6)">
+                            <polygon points="-7,-6 -1.5,0 -7,6 -4,0" />
+                            <polygon points="-7,-6 -1.5,0 -7,6 -4,0" transform="rotate(120)" />
+                            <polygon points="-7,-6 -1.5,0 -7,6 -4,0" transform="rotate(240)" />
+                          </g>
+                        </svg>
+                      ) : <User size={18} />}
+                    </div>
+
+                    <div className={`flex max-w-[82%] flex-col ${message.role === 'user' ? 'items-end' : ''}`}>
+                      <div className={`rounded-2xl p-4 text-[15px] leading-relaxed shadow-sm ${message.role === 'assistant' ? 'border-tl-none border border-gray-100 bg-white text-gray-800' : 'border-tr-none bg-[#0d9c06] text-white'}`}>
+                        {renderContent(message.content)}
+                      </div>
+                      <span className="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-gray-400">
+                        {formatTime(message.time)}
+                        {message.isError && <span className="ml-1 text-red-400">Error</span>}
+                      </span>
+                    </div>
                   </div>
-                  <span className="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-gray-400">
-                    {formatTime(message.time)}
-                    {message.isError && <span className="ml-1 text-red-400">Error</span>}
-                  </span>
-                </div>
-              </div>
-            ))}
-
-            {isLoading && (
-              <div className="flex gap-3 animate-pulse">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-200">
-                  <Bot size={18} className="text-gray-400" />
-                </div>
-                <div className="flex items-center gap-2 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                  <Loader2 size={16} className="animate-spin text-green-500" />
-                  <span className="text-xs font-medium text-gray-400">Sparkot is thinking...</span>
-                </div>
+                ))}
+                
+                {isLoading && (
+                  <div className="flex gap-3 animate-in fade-in duration-300">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400">
+                       <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                          <g transform="translate(12, 12) scale(0.6)">
+                            <polygon points="-7,-6 -1.5,0 -7,6 -4,0" />
+                            <polygon points="-7,-6 -1.5,0 -7,6 -4,0" transform="rotate(120)" />
+                            <polygon points="-7,-6 -1.5,0 -7,6 -4,0" transform="rotate(240)" />
+                          </g>
+                        </svg>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-2xl rounded-tl-none border border-gray-100 bg-white p-4 shadow-sm">
+                      <Loader2 size={16} className="animate-spin text-gray-400" />
+                      <span className="text-sm font-medium text-gray-500">Thinking...</span>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
               </div>
             )}
-
-            <div ref={messagesEndRef} />
           </div>
 
-          <div className="shrink-0 border-t border-gray-100 bg-white p-4">
-            <form onSubmit={handleSend} className="relative">
-              <input
-                type="text"
+          <div className="shrink-0 bg-white px-4 sm:px-6 pb-4 sm:pb-6 pt-2">
+            <div className="relative rounded-[28px] border border-slate-300 bg-white flex flex-col pt-3 pb-2 px-4 shadow-[0_2px_10px_rgba(0,0,0,0.05)] focus-within:border-[#0d9c06] focus-within:ring-2 focus-within:ring-[#0d9c06]/10 transition-all duration-300">
+              <textarea
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
-                placeholder="Ask Sparkot about the site, courses, or support..."
+                placeholder="Ask Sparkot anything..."
                 disabled={isLoading}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-4 pr-12 text-sm transition-all focus:border-[#0d9c06] focus:outline-none focus:ring-2 focus:ring-[#0d9c06]/20 disabled:opacity-50"
+                rows={1}
+                className="w-full resize-none bg-transparent px-1 pb-1 pt-1 text-[15px] text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal outline-none focus:outline-none focus:ring-0 border-transparent focus:border-transparent disabled:opacity-50 max-h-[120px] min-h-[60px]"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (input.trim()) handleSend();
+                  }
+                }}
               />
-              <button
-                type="submit"
-                disabled={!input.trim() || isLoading}
-                className="absolute right-2 top-1.5 cursor-pointer rounded-lg bg-[#0d9c06] p-2 text-white shadow-md transition-all hover:bg-[#0b7e05] active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
-              >
-                <Send size={18} />
-              </button>
-            </form>
-            <p className="mt-3 text-center text-[10px] font-medium text-gray-400">
-              Sparkot guides public site usage and support, but cannot access private account data.
+              <div className="flex justify-end mt-1">
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); if (input.trim()) handleSend(e); }}
+                  disabled={isLoading || !input.trim()}
+                  className="flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 disabled:bg-gray-100 disabled:text-gray-400 bg-[#0d9c06] hover:bg-[#0b7e05] text-white disabled:cursor-default cursor-pointer disabled:shadow-none shadow-md shadow-[#0d9c06]/20"
+                >
+                   <Send size={18} strokeWidth={2.5} className="mr-0.5 mt-0.5" />
+                </button>
+              </div>
+            </div>
+            <p className="mt-2.5 text-center text-[12px] font-medium text-gray-500">
+              Sparkot can make mistakes. Double-check replies.
             </p>
           </div>
         </>
       )}
+
+      <ConfirmModal 
+        isOpen={isClearModalOpen}
+        onClose={() => setIsClearModalOpen(false)}
+        onConfirm={executeClearChat}
+        title="Clear Conversation"
+        message="Are you sure you want to delete this chat history? This action cannot be undone."
+        confirmText="Clear Chat"
+      />
     </div>
+  </>
   );
 }
