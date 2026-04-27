@@ -36,6 +36,7 @@ export default function StudentCoursePlayer() {
   const [completedLectures, setCompletedLectures] = useState({});
   const [showBadgeModal, setShowBadgeModal] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [studentName, setStudentName] = useState('');
 
   useEffect(() => {
     setIsPlaying(false);
@@ -105,6 +106,7 @@ export default function StudentCoursePlayer() {
         const data = await res.json();
         if (data.ok) {
           setCompletedLectures(data.progress || {});
+          if (data.studentName) setStudentName(data.studentName);
         }
       } catch (err) {
         console.error('Error fetching progress:', err);
@@ -141,6 +143,7 @@ export default function StudentCoursePlayer() {
 
       const data = await res.json();
       if (data.ok) {
+        if (data.studentName) setStudentName(data.studentName);
         if (data.certificate) {
            setCompletedLectures(prev => ({ ...prev, certificate: data.certificate }));
         }
@@ -1117,8 +1120,8 @@ export default function StudentCoursePlayer() {
               {course.certificateTemplate ? (
                 <div className="relative shadow-2xl max-w-full rounded-lg overflow-hidden ring-1 ring-gray-200">
                   <CertificateCanvas 
-                    templateUrl={course.certificateTemplate}
-                    studentName={auth.currentUser?.displayName || "Student Name"}
+                    templateUrl={course.certificateTemplate.startsWith('http') ? course.certificateTemplate : `${API_URL}${course.certificateTemplate}`}
+                    studentName={studentName || auth.currentUser?.displayName || "Student Name"}
                     courseTitle={course.title}
                     regNo={completedLectures.certificate?.regNo || "Generating..."}
                     issueDate={completedLectures.certificate?.issueDate}
@@ -1186,13 +1189,10 @@ function CertificateCanvas({ templateUrl, studentName, courseTitle, regNo, issue
       
       // Draw Student Name
       ctx.font = 'bold 70px "Outfit", sans-serif';
+      ctx.fillStyle = '#000000'; // Black as requested
       
-      // Color Logic: Skin Care gets Gold (previous style), others get Brand Green
-      const isSkinCare = courseTitle && courseTitle.toLowerCase().includes('skin');
-      ctx.fillStyle = isSkinCare ? '#C5A059' : '#0d9c06';
-      
-      // Position: Just above the line (adjusted to +15 from center based on feedback)
-      ctx.fillText(studentName, canvas.width / 2, canvas.height / 2 + 15);
+      // Position: Above the line (decreased Y coordinate further to move it up)
+      ctx.fillText(studentName, canvas.width / 2, canvas.height / 2 - 60);
 
       // Draw Course Title (Optional, if not on template)
       // ctx.font = '40px "Outfit", sans-serif';
