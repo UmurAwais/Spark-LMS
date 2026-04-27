@@ -739,7 +739,7 @@ export default function AdminCourses() {
                 course.image?.startsWith('http') 
                   ? course.image 
                   : course.image?.startsWith('/uploads')
-                    ? `${import.meta.env.VITE_API_URL || 'https://spark-lms-backend-production.up.railway.app'}${course.image}`
+                    ? `${import.meta.env.VITE_API_URL || 'https://spark-lms-backend.vercel.app'}${course.image}`
                     : course.image
               }
               alt={course.title}
@@ -1012,7 +1012,7 @@ export default function AdminCourses() {
                                 : imagePreview.startsWith('http') 
                                   ? imagePreview  // Full URL (imported from resources)
                                   : imagePreview.startsWith('/uploads')
-                                    ? `${import.meta.env.VITE_API_URL || 'https://spark-lms-backend-production.up.railway.app'}${imagePreview}`  // Backend upload
+                                    ? `${import.meta.env.VITE_API_URL || 'https://spark-lms-backend.vercel.app'}${imagePreview}`  // Backend upload
                                     : imagePreview  // Fallback
                           }
                           alt="Preview" 

@@ -40,7 +40,7 @@ function OnlineCourseCard({ c }) {
               c.image?.startsWith('http') 
                 ? c.image 
                 : c.image?.startsWith('/uploads')
-                  ? `${import.meta.env.VITE_API_URL || 'https://spark-lms-backend-production.up.railway.app'}${c.image}`
+                  ? `${import.meta.env.VITE_API_URL || 'https://spark-lms-backend.vercel.app'}${c.image}`
                   : c.image
             }
             alt={c.title}

@@ -5,7 +5,7 @@ export function getImageUrl(imagePath) {
   
   // Only prefix API URL for backend-uploaded images (starting with /uploads)
   if (imagePath.startsWith('/uploads')) {
-    const API_URL = import.meta.env.VITE_API_URL || 'https://spark-lms-backend-production.up.railway.app';
+    const API_URL = import.meta.env.VITE_API_URL || 'https://spark-lms-backend.vercel.app';
     return `${API_URL}${imagePath}`;
   }
   
