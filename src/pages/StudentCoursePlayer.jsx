@@ -1199,11 +1199,11 @@ function CertificateCanvas({ templateUrl, studentName, courseTitle, regNo, issue
       // Draw Registration Number (Removed as per request)
       // Draw Registration Number
       if (regNo) {
-        ctx.font = 'bold 24px "Outfit", sans-serif';
-        ctx.fillStyle = '#4b5563'; // Gray-600
-        ctx.textAlign = 'right';
-        // Position at Top Right
-        ctx.fillText(`Reference No: ${regNo}`, canvas.width - 60, 80);
+        ctx.font = '14px "Outfit", sans-serif';
+        ctx.fillStyle = '#6b7280'; // Elegant Gray-500
+        ctx.textAlign = 'center';
+        // Position at Bottom Center (perfectly aligned and non-overlapping)
+        ctx.fillText(`Certificate ID: ${regNo}`, canvas.width / 2, canvas.height - 50);
       }
 
       // Draw Date - HIDDEN
