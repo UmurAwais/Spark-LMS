@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { Award, Upload, Check, X, Eye, FileText, ShieldCheck, Plus, Trash2 } from 'lucide-react';
-import { apiFetch } from '../config';
+import { apiFetch, API_URL } from '../config';
 import { useNotifications } from '../context/NotificationContext';
 
 export default function AdminCertificates() {
@@ -39,7 +39,14 @@ export default function AdminCertificates() {
 
   function openCertificateModal(course) {
     setSelectedCourse(course);
-    setPreviewUrl(course.certificateTemplate || null); 
+    if (course.certificateTemplate) {
+      const fullUrl = course.certificateTemplate.startsWith('http')
+        ? course.certificateTemplate
+        : `${API_URL}${course.certificateTemplate}`;
+      setPreviewUrl(fullUrl);
+    } else {
+      setPreviewUrl(null);
+    }
     setCertificateImage(null);
     setShowModal(true);
   }
