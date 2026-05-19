@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import ReactPlayer from 'react-player';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useOutletContext } from 'react-router-dom';
 import { 
   PlayCircle, 
   CheckCircle, 
@@ -27,6 +27,7 @@ import VideoPlayer from '../components/VideoPlayer';
 export default function StudentCoursePlayer() {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const { user } = useOutletContext();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentLecture, setCurrentLecture] = useState(null);
@@ -53,7 +54,6 @@ export default function StudentCoursePlayer() {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const user = auth.currentUser;
         if (!user) return;
 
         const res = await apiFetch('/api/student/courses', {
@@ -90,12 +90,11 @@ export default function StudentCoursePlayer() {
     };
 
     fetchCourse();
-  }, [courseId, navigate]);
+  }, [courseId, navigate, user]);
 
   useEffect(() => {
     const fetchProgress = async () => {
       try {
-        const user = auth.currentUser;
         if (!user) return;
 
         const res = await apiFetch('/api/student/progress', {
@@ -113,11 +112,10 @@ export default function StudentCoursePlayer() {
       }
     };
     fetchProgress();
-  }, [courseId]);
+  }, [courseId, user]);
 
   const handleMarkComplete = async () => {
     if (!currentLecture) return;
-    const user = auth.currentUser;
     if (!user) return;
 
     try {
@@ -1121,7 +1119,7 @@ export default function StudentCoursePlayer() {
                 <div className="relative shadow-2xl max-w-full rounded-lg overflow-hidden ring-1 ring-gray-200">
                   <CertificateCanvas 
                     templateUrl={course.certificateTemplate.startsWith('http') ? course.certificateTemplate : `${API_URL}${course.certificateTemplate}`}
-                    studentName={studentName || auth.currentUser?.displayName || "Student Name"}
+                    studentName={studentName || user?.displayName || "Student Name"}
                     courseTitle={course.title}
                     regNo={completedLectures.certificate?.regNo || "Generating..."}
                     issueDate={completedLectures.certificate?.issueDate}

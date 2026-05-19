@@ -7,6 +7,9 @@ const PRODUCTION_API_URL = import.meta.env.VITE_API_URL || 'https://spark-lms-ba
 // Export synchronous API_URL for immediate use
 export let API_URL = isDevelopment ? 'http://localhost:4001' : PRODUCTION_API_URL;
 
+// Possible ports the backend could be running on
+const POSSIBLE_PORTS = [4001, 3000, 3001, 4000, 5000, 5001, 8000, 8080];
+
 /**
  * Automatically detect which port the backend server is running on (Local Dev Only)
  */
@@ -20,7 +23,7 @@ async function detectApiUrl() {
   const storedUrl = localStorage.getItem('api_url');
   if (storedUrl) {
     try {
-      const response = await fetch(`${storedUrl}/api/health`, { 
+      const response = await fetch(`${storedUrl}/api/version`, { 
         method: 'GET',
         signal: AbortSignal.timeout(2000)
       });
@@ -40,7 +43,7 @@ async function detectApiUrl() {
     const url = `http://localhost:${port}`;
     try {
       console.log(`🔍 Trying ${url}...`);
-      const response = await fetch(`${url}/api/health`, { 
+      const response = await fetch(`${url}/api/version`, { 
         method: 'GET',
         signal: AbortSignal.timeout(2000)
       });
